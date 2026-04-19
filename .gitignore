@@ -39,3 +39,8 @@ junit-playwright.xml
 
 # mprocs
 mprocs.log
+
+# Playwright MCP screenshots dropped into repo root during local testing
+/*.png
+/*.jpeg
+/*.jpg
