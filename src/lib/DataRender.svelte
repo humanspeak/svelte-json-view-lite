@@ -16,10 +16,10 @@
     const isArr = $derived(isArray(value))
     const isObj = $derived(isObject(value) && !isDate(value) && !isFunction(value))
 
-    // Memoize the children tuple array so ExpandableObject receives a
-    // stable reference on parent re-renders when `value` itself hasn't
-    // changed — otherwise a fresh array identity on every parent tick
-    // invalidates the {#each} and cascades re-renders down the tree.
+    // Derive the children tuple array from `value` so ExpandableObject
+    // receives a stable reference while `value` is unchanged — otherwise
+    // a fresh array identity on every parent tick invalidates the
+    // {#each} key and cascades re-renders down the tree.
     const children = $derived.by<Array<[string | undefined, unknown]>>(() => {
         if (isArr) return (value as unknown[]).map((el) => [undefined, el])
         if (isObj) {
