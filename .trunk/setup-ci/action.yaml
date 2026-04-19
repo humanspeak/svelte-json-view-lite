@@ -1,0 +1,19 @@
+name: Trunk Code Quality setup
+description: Install pnpm + Node, then run pnpm install so trunk-managed tools (prettier and its plugins, eslint) can resolve packages from the workspace when running in CI.
+
+runs:
+    using: composite
+    steps:
+        - uses: pnpm/action-setup@v4 # zizmor: ignore[unpinned-uses]
+          with:
+              version: 10
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v6 # zizmor: ignore[unpinned-uses]
+          with:
+              node-version: 24
+
+        - name: Install NodeJS dependencies
+          shell: bash
+          run: |
+              pnpm install --frozen-lockfile
