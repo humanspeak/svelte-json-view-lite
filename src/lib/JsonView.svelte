@@ -33,7 +33,10 @@
     // during 1.x so React migrators have a soft landing.
     const mergedStyle = $derived.by<StyleProps>(() => {
         const merged: StyleProps = { ...defaultStyles, ...style }
-        if (style && 'ariaLables' in style && !('ariaLabels' in style) && style.ariaLables) {
+        // Accept the misspelled ariaLables (from react-json-view-lite) only
+        // when the user has not provided an ariaLabels value — users who
+        // supply both should have the corrected key win.
+        if (style?.ariaLables && !style.ariaLabels) {
             if (typeof console !== 'undefined') {
                 console.warn(
                     '[svelte-json-view-lite] StyleProps.ariaLables is deprecated (typo preserved from react-json-view-lite); use ariaLabels.'
