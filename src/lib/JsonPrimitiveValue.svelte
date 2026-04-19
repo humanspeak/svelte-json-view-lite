@@ -18,80 +18,131 @@
     const hasField = $derived(field !== undefined)
     const labelText = $derived(quoteString(field ?? '', style.quotesForFieldNames))
 
-    type Rendered = { text: string; valueStyle: string }
-    const rendered = $derived.by<Rendered>(() => {
-        if (value === null) return { text: 'null', valueStyle: style.nullValue }
-        if (value === undefined) return { text: 'undefined', valueStyle: style.undefinedValue }
-        if (isString(value))
-            return {
-                text: quoteStringValue(
-                    value,
-                    !style.noQuotesForStringValues,
-                    style.stringifyStringValues
-                ),
-                valueStyle: style.stringValue
-            }
-        if (isBoolean(value))
-            return { text: value ? 'true' : 'false', valueStyle: style.booleanValue }
-        if (isNumber(value)) return { text: value.toString(), valueStyle: style.numberValue }
-        if (isBigInt(value)) return { text: `${value.toString()}n`, valueStyle: style.numberValue }
-        if (isDate(value)) return { text: value.toISOString(), valueStyle: style.otherValue }
-        if (isFunction(value)) return { text: 'function() { }', valueStyle: style.otherValue }
-        return { text: String(value), valueStyle: style.otherValue }
+    type ValueKind =
+        | 'null'
+        | 'undefined'
+        | 'string'
+        | 'boolean'
+        | 'number'
+        | 'bigint'
+        | 'date'
+        | 'function'
+        | 'other'
+
+    // A single predicate walk picks the discriminant; `rendered`, the
+    // snippet lookup, and the template all key off `kind` so the 8-way
+    // type ladder is evaluated once per render instead of three times.
+    const kind = $derived.by<ValueKind>(() => {
+        if (value === null) return 'null'
+        if (value === undefined) return 'undefined'
+        if (isString(value)) return 'string'
+        if (isBoolean(value)) return 'boolean'
+        if (isNumber(value)) return 'number'
+        if (isBigInt(value)) return 'bigint'
+        if (isDate(value)) return 'date'
+        if (isFunction(value)) return 'function'
+        return 'other'
     })
 
-    const snippetForValue = $derived.by(() => {
-        if (value === null) return snippets.null
-        if (value === undefined) return snippets.undefined
-        if (isString(value)) return snippets.string
-        if (isBoolean(value)) return snippets.boolean
-        if (isNumber(value)) return snippets.number
-        if (isBigInt(value)) return snippets.bigint
-        if (isDate(value)) return snippets.date
-        if (isFunction(value)) return snippets.function
-        return undefined
+    type Rendered = { text: string; valueStyle: string }
+    const rendered = $derived.by<Rendered>(() => {
+        switch (kind) {
+            case 'null':
+                return { text: 'null', valueStyle: style.nullValue }
+            case 'undefined':
+                return { text: 'undefined', valueStyle: style.undefinedValue }
+            case 'string':
+                return {
+                    text: quoteStringValue(
+                        value as string,
+                        !style.noQuotesForStringValues,
+                        style.stringifyStringValues
+                    ),
+                    valueStyle: style.stringValue
+                }
+            case 'boolean':
+                return {
+                    text: (value as boolean) ? 'true' : 'false',
+                    valueStyle: style.booleanValue
+                }
+            case 'number':
+                return { text: String(value), valueStyle: style.numberValue }
+            case 'bigint':
+                return {
+                    text: `${(value as bigint).toString()}n`,
+                    valueStyle: style.numberValue
+                }
+            case 'date':
+                return { text: (value as Date).toISOString(), valueStyle: style.otherValue }
+            case 'function':
+                return { text: 'function() { }', valueStyle: style.otherValue }
+            default:
+                return { text: String(value), valueStyle: style.otherValue }
+        }
+    })
+
+    const activeSnippet = $derived.by(() => {
+        switch (kind) {
+            case 'null':
+                return snippets.null
+            case 'undefined':
+                return snippets.undefined
+            case 'string':
+                return snippets.string
+            case 'boolean':
+                return snippets.boolean
+            case 'number':
+                return snippets.number
+            case 'bigint':
+                return snippets.bigint
+            case 'date':
+                return snippets.date
+            case 'function':
+                return snippets.function
+            default:
+                return undefined
+        }
     })
 </script>
 
 <!--
     The entire row body lives on a single prettier-ignored line because Svelte
-    preserves template whitespace between adjacent elements (e.g. between the
-    label span and the value span, or between the value and the trailing
-    comma). Those whitespace text nodes render as visible spaces under the
-    container's `white-space: pre-wrap`. React/JSX strips that whitespace
-    natively; we have to hand-collapse it. Every margin we need is provided
-    by the CSS module (e.g. `.label { margin-right: 5px; }`).
+    preserves template whitespace between adjacent elements as visible spaces
+    under the container's `white-space: pre-wrap`. React/JSX strips that
+    whitespace natively; we hand-collapse it. Per-type snippet branches key
+    off `kind` rather than re-running predicates.
 -->
 <div class={style.basicChildStyle} role="treeitem" aria-selected={false}>
     <!-- prettier-ignore -->
-    {#if hasField}{#if snippets.label}{@render snippets.label({ field: field ?? '', level })}{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}{#if snippetForValue && value === null}{@render snippets.null?.(
+    {#if hasField}{#if snippets.label}{@render snippets.label({ field: field ?? '', level })}{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}{#if activeSnippet && kind === 'null'}{@render snippets.null?.(
             { value: null, field, level }
-        )}{:else if snippetForValue && value === undefined}{@render snippets.undefined?.({
+        )}{:else if activeSnippet && kind === 'undefined'}{@render snippets.undefined?.({
             value: undefined,
             field,
             level
-        })}{:else if snippetForValue && isString(value)}{@render snippets.string?.({
-            value,
+        })}{:else if activeSnippet && kind === 'string'}{@render snippets.string?.({
+            value: value as string,
             field,
             level
-        })}{:else if snippetForValue && isBoolean(value)}{@render snippets.boolean?.({
-            value,
+        })}{:else if activeSnippet && kind === 'boolean'}{@render snippets.boolean?.({
+            value: value as boolean,
             field,
             level
-        })}{:else if snippetForValue && isNumber(value)}{@render snippets.number?.({
-            value,
+        })}{:else if activeSnippet && kind === 'number'}{@render snippets.number?.({
+            value: value as number,
             field,
             level
-        })}{:else if snippetForValue && isBigInt(value)}{@render snippets.bigint?.({
-            value,
+        })}{:else if activeSnippet && kind === 'bigint'}{@render snippets.bigint?.({
+            value: value as bigint,
             field,
             level
-        })}{:else if snippetForValue && isDate(value)}{@render snippets.date?.({
-            value,
+        })}{:else if activeSnippet && kind === 'date'}{@render snippets.date?.({
+            value: value as Date,
             field,
             level
-        })}{:else if snippetForValue && isFunction(value)}{@render snippets.function?.({
-            value,
+        })}{:else if activeSnippet && kind === 'function'}{@render snippets.function?.({
+            // trunk-ignore(eslint/@typescript-eslint/no-unsafe-function-type)
+            value: value as Function,
             field,
             level
         })}{:else}<span class={rendered.valueStyle}>{rendered.text}</span

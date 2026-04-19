@@ -5,6 +5,18 @@ Fast, tiny JSON tree viewer for Svelte 5 — a port of
 (MIT © 2024 AnyRoad) with runes, SSR, per-type snippet overrides, and zero
 runtime dependencies.
 
+[![NPM version](https://img.shields.io/npm/v/@humanspeak/svelte-json-view-lite.svg)](https://www.npmjs.com/package/@humanspeak/svelte-json-view-lite)
+[![Build Status](https://github.com/humanspeak/svelte-json-view-lite/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/humanspeak/svelte-json-view-lite/actions/workflows/npm-publish.yml)
+[![Coverage Status](https://coveralls.io/repos/github/humanspeak/svelte-json-view-lite/badge.svg?branch=main)](https://coveralls.io/github/humanspeak/svelte-json-view-lite?branch=main)
+[![License](https://img.shields.io/npm/l/@humanspeak/svelte-json-view-lite.svg)](https://github.com/humanspeak/svelte-json-view-lite/blob/main/LICENSE)
+[![Downloads](https://img.shields.io/npm/dm/@humanspeak/svelte-json-view-lite.svg)](https://www.npmjs.com/package/@humanspeak/svelte-json-view-lite)
+[![CodeQL](https://github.com/humanspeak/svelte-json-view-lite/actions/workflows/codeql.yml/badge.svg)](https://github.com/humanspeak/svelte-json-view-lite/actions/workflows/codeql.yml)
+[![Install size](https://packagephobia.com/badge?p=@humanspeak/svelte-json-view-lite)](https://packagephobia.com/result?p=@humanspeak/svelte-json-view-lite)
+[![Code Style: Trunk](https://img.shields.io/badge/code%20style-trunk-blue.svg)](https://trunk.io)
+[![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
+[![Types](https://img.shields.io/npm/types/@humanspeak/svelte-json-view-lite.svg)](https://www.npmjs.com/package/@humanspeak/svelte-json-view-lite)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/humanspeak/svelte-json-view-lite/graphs/commit-activity)
+
 ## Features
 
 - Svelte 5 runes throughout (`$props`, `$state`, `$derived`, `$effect`).
@@ -242,5 +254,9 @@ pnpm build        # vite build + svelte-package + publint
 
 ## License
 
-MIT. Copyright © 2024-2026 Humanspeak, Inc. Original
-`react-json-view-lite` © 2024 AnyRoad.
+MIT © [Humanspeak, Inc.](LICENSE) Original `react-json-view-lite`
+© 2024 AnyRoad.
+
+## Credits
+
+Made with ❤️ by [Humanspeak](https://humanspeak.com)

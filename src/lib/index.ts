@@ -22,17 +22,15 @@ export type {
 export { allExpanded, collapseAllNested } from './utils/expandStrategies.js'
 export { JsonView }
 
-const baseAriaLabels: AriaLabels = {
+/**
+ * Correctly-spelled default aria labels (new in the Svelte port; prefer
+ * this over the typoed `StyleProps.ariaLables` shipped by
+ * `react-json-view-lite`).
+ */
+export const defaultAriaLabels: AriaLabels = {
     collapseJson: 'collapse JSON',
     expandJson: 'expand JSON'
 }
-
-/**
- * Correctly-spelled default aria labels. Introduced in the Svelte port;
- * prefer this over the typoed `StyleProps.ariaLables` shipped by
- * `react-json-view-lite`.
- */
-export const defaultAriaLabels: AriaLabels = baseAriaLabels
 
 const buildStyles = (variant: 'light' | 'dark'): StyleProps => ({
     container: styles[`container-${variant}`],
@@ -52,7 +50,7 @@ const buildStyles = (variant: 'light' | 'dark'): StyleProps => ({
     collapsedContent: styles[`collapsed-content-${variant}`],
     noQuotesForStringValues: false,
     quotesForFieldNames: false,
-    ariaLabels: baseAriaLabels,
+    ariaLabels: defaultAriaLabels,
     stringifyStringValues: false
 })
 

@@ -20,16 +20,14 @@
         snippets
     }: ExpandableRenderProps = $props()
 
-    // Lazy init — runs once on mount (react useState(() => ...) equivalent).
+    // Initial expand state captured once on mount; the effect below
+    // re-runs only when the callback identity changes so level/value/
+    // field mutations from ancestor re-renders don't collapse the node.
     // svelte-ignore state_referenced_locally
     let expanded = $state(shouldExpandNode(level, value, field))
 
-    // React's useRef<boolean>: plain mutable local.
     let shouldExpandNodeCalled = false
 
-    // Match React useEffect(fn, [shouldExpandNode]) — fire only when the
-    // callback identity changes. We intentionally avoid reading level/value/
-    // field so an ancestor re-render doesn't trigger a respectful collapse.
     $effect(() => {
         const fn = shouldExpandNode
         if (!shouldExpandNodeCalled) {
@@ -39,10 +37,9 @@
         expanded = fn(level, value, field)
     })
 
-    // SSR-stable unique id for aria-controls linkage (React.useId equivalent).
+    // SSR-stable id for aria-controls linkage.
     const contentsId = $props.id()
 
-    // bind:this target for focus management.
     let expanderButton = $state<HTMLSpanElement | null>(null)
 
     const activeAriaLabels = $derived<AriaLabels>(
