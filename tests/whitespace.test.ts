@@ -33,24 +33,21 @@ test('no whitespace text node between value and trailing comma', async ({ page }
         for (const span of valueSpans) {
             const parent = span.parentElement
             if (!parent) continue
-            // Skip the last element of its parent — no trailing comma to worry about.
+            // Walk siblings until the next element; if we passed through a
+            // non-empty text node on the way, that text is leaking into the
+            // rendered row (which the flush-comma fix is supposed to prevent).
             let seenNonEmptyText = false
             let node: Node | null = span.nextSibling
             while (node) {
                 if (node.nodeType === Node.TEXT_NODE) {
                     const txt = node.textContent ?? ''
-                    if (txt.length > 0) {
-                        seenNonEmptyText = true
-                        break
-                    }
+                    if (txt.length > 0) seenNonEmptyText = true
+                    // Keep scanning — we only flag the leak at the next element.
                 } else if (node.nodeType === Node.ELEMENT_NODE) {
-                    const el = node as HTMLElement
-                    // Next adjacent element is either a punctuation span
-                    // (trailing `,` or `]`/`}`) or another meaningful element.
-                    // Either way, stop scanning.
                     if (seenNonEmptyText) {
+                        const el = node as HTMLElement
                         offenders.push(
-                            `before <${el.tagName.toLowerCase()}class="${el.className}">: "${span.textContent}"`
+                            `before <${el.tagName.toLowerCase()} class="${el.className}">: "${span.textContent}"`
                         )
                     }
                     break
@@ -88,9 +85,13 @@ test('no whitespace text node between close bracket span and trailing comma', as
                     here.nodeType === Node.ELEMENT_NODE &&
                     next.nodeType === Node.TEXT_NODE &&
                     (next.textContent ?? '').trim() === '' &&
-                    (next.textContent ?? '').length > 0
+                    (next.textContent ?? '').length > 0 &&
+                    // Require a following ELEMENT_NODE to confirm the text sits
+                    // *between* two elements — trailing formatting whitespace
+                    // at the end of a row shouldn't trigger the leak check.
+                    i + 2 < kids.length &&
+                    kids[i + 2].nodeType === Node.ELEMENT_NODE
                 ) {
-                    // Whitespace-only text between elements at a row boundary.
                     return `whitespace leak in ${(item as HTMLElement).outerHTML.slice(0, 80)}`
                 }
             }

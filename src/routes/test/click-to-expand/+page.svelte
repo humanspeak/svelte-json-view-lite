@@ -9,6 +9,24 @@
         lastEvent = event
         return !veto
     }
+
+    /**
+     * `event.value` can transitively contain `bigint` or function members
+     * (the demo fixture has both). Plain `JSON.stringify` throws on those,
+     * which would crash this playground page on expand/collapse. Route
+     * every serialization through this replacer.
+     */
+    function safeEventString(value: unknown): string {
+        return JSON.stringify(
+            value,
+            (_key, v) => {
+                if (typeof v === 'bigint') return `${v}n`
+                if (typeof v === 'function') return '[Function]'
+                return v
+            },
+            2
+        )
+    }
 </script>
 
 <h1>Click on field name to expand</h1>
@@ -20,17 +38,13 @@
 
 <p class="blurb">
     <button type="button" data-testid="toggle-veto" onclick={() => (veto = !veto)}>
-        {veto ? 'Veto is ON (next click will be blocked)' : 'Enable veto'}
+        {veto ? 'Veto is ON (clicks are blocked)' : 'Enable veto'}
     </button>
 </p>
 
 <JsonView data={jsonData} style={defaultStyles} clickToExpandNode {beforeExpandChange} />
 {#if lastEvent}
-    <pre class="event" data-testid="last-event">last event = {JSON.stringify(
-            lastEvent,
-            null,
-            2
-        )}</pre>
+    <pre class="event" data-testid="last-event">last event = {safeEventString(lastEvent)}</pre>
 {/if}
 
 <style>
