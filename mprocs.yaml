@@ -1,0 +1,19 @@
+procs:
+    urls:
+        shell: node --no-warnings scripts/dev-urls.mjs
+        autostart: true
+        autorestart: false
+    playground:
+        shell: pnpm dev
+    package:
+        shell: pnpm dev:pkg
+    test:
+        shell: pnpm test:watch
+    # Uncomment when the docs/ subpackage lands. Requires a pnpm-workspace.yaml
+    # at the repo root listing `docs` as a member.
+    # docs:
+    #     shell: pnpm --filter docs run dev
+    # sitemap:
+    #     shell: pnpm --filter docs run sitemap:watch
+    # social:
+    #     shell: pnpm --filter docs run social:watch
