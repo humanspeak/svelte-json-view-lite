@@ -1,4 +1,6 @@
-/* base styles */
+/*
+ * Base styles shared across themes.
+ */
 
 .container-base {
     line-height: 1.2;
@@ -47,11 +49,6 @@
     font-size: 0.8em;
 }
 
-.container-light {
-    composes: container-base;
-    background: #eee;
-}
-
 .basic-element-style {
     margin: 0;
     padding: 0 10px;
@@ -62,11 +59,35 @@
     padding: 0;
 }
 
-/* default light style */
+/*
+ * Light theme.
+ *
+ * Every color is declared as a CSS custom property (`--sjv-*`) on the
+ * container so consumers can override individual colors either globally
+ * (`:root { --sjv-string: lavender }`) or scoped to one instance
+ * (`.my-json-view { --sjv-number: #f0f }`). Descendant selectors read
+ * the vars via `var(--sjv-*)` — no fallback is needed because the
+ * container always defines the defaults.
+ */
+.container-light {
+    composes: container-base;
+    --sjv-background: #eee;
+    --sjv-label: #000000;
+    --sjv-punctuation: #000000;
+    --sjv-null: #df113a;
+    --sjv-undefined: #df113a;
+    --sjv-string: rgb(42, 63, 60);
+    --sjv-number: #0b75f5;
+    --sjv-boolean: rgb(70, 144, 56);
+    --sjv-other: #43413d;
+    --sjv-expander: #000000;
+    background: var(--sjv-background);
+}
+
 .label-light {
     font-weight: 600;
     margin-right: 5px;
-    color: #000000;
+    color: var(--sjv-label);
 }
 
 .clickable-label-light {
@@ -76,77 +97,74 @@
 
 .punctuation-light {
     composes: punctuation-base;
-    color: #000000;
+    color: var(--sjv-punctuation);
 }
 
 .value-null-light {
-    color: #df113a;
+    color: var(--sjv-null);
 }
 
 .value-undefined-light {
-    color: #df113a;
+    color: var(--sjv-undefined);
 }
 
 .value-string-light {
-    color: rgb(42, 63, 60);
+    color: var(--sjv-string);
 }
 
 .value-number-light {
-    color: #0b75f5;
+    color: var(--sjv-number);
 }
 
 .value-boolean-light {
-    color: rgb(70, 144, 56);
+    color: var(--sjv-boolean);
 }
 
 .value-other-light {
-    color: #43413d;
+    color: var(--sjv-other);
 }
 
 .collapse-icon-light {
     composes: expander-base;
     composes: collapse-icon;
-    color: #000000;
+    color: var(--sjv-expander);
 }
 
 .expand-icon-light {
     composes: expander-base;
     composes: expand-icon;
-    color: #000000;
+    color: var(--sjv-expander);
 }
 
 .collapsed-content-light {
     composes: collapsed-content-base;
-    color: #000000;
+    color: var(--sjv-expander);
 }
 
-/* default dark style */
+/*
+ * Dark theme. Same variable names, different defaults — so a consumer
+ * override like `:root { --sjv-string: lavender }` applies identically
+ * to light and dark instances.
+ */
 .container-dark {
-    background: rgb(0, 43, 54);
     composes: container-base;
-}
-
-.expand-icon-dark {
-    composes: expander-base;
-    composes: expand-icon;
-    color: rgb(253, 246, 227);
-}
-
-.collapse-icon-dark {
-    composes: expander-base;
-    composes: collapse-icon;
-    color: rgb(253, 246, 227);
-}
-
-.collapsed-content-dark {
-    composes: collapsed-content-base;
-    color: rgb(253, 246, 227);
+    --sjv-background: rgb(0, 43, 54);
+    --sjv-label: rgb(253, 246, 227);
+    --sjv-punctuation: rgb(253, 246, 227);
+    --sjv-null: rgb(129, 181, 172);
+    --sjv-undefined: rgb(129, 181, 172);
+    --sjv-string: rgb(203, 75, 22);
+    --sjv-number: rgb(211, 54, 130);
+    --sjv-boolean: rgb(174, 129, 255);
+    --sjv-other: rgb(38, 139, 210);
+    --sjv-expander: rgb(253, 246, 227);
+    background: var(--sjv-background);
 }
 
 .label-dark {
     font-weight: bolder;
     margin-right: 5px;
-    color: rgb(253, 246, 227);
+    color: var(--sjv-label);
 }
 
 .clickable-label-dark {
@@ -156,29 +174,46 @@
 
 .punctuation-dark {
     composes: punctuation-base;
-    color: rgb(253, 246, 227);
+    color: var(--sjv-punctuation);
 }
 
 .value-null-dark {
-    color: rgb(129, 181, 172);
+    color: var(--sjv-null);
 }
 
 .value-undefined-dark {
-    color: rgb(129, 181, 172);
+    color: var(--sjv-undefined);
 }
 
 .value-string-dark {
-    color: rgb(203, 75, 22);
+    color: var(--sjv-string);
 }
 
 .value-number-dark {
-    color: rgb(211, 54, 130);
+    color: var(--sjv-number);
 }
 
 .value-boolean-dark {
-    color: rgb(174, 129, 255);
+    color: var(--sjv-boolean);
 }
 
 .value-other-dark {
-    color: rgb(38, 139, 210);
+    color: var(--sjv-other);
+}
+
+.expand-icon-dark {
+    composes: expander-base;
+    composes: expand-icon;
+    color: var(--sjv-expander);
+}
+
+.collapse-icon-dark {
+    composes: expander-base;
+    composes: collapse-icon;
+    color: var(--sjv-expander);
+}
+
+.collapsed-content-dark {
+    composes: collapsed-content-base;
+    color: var(--sjv-expander);
 }

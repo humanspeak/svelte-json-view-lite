@@ -58,6 +58,11 @@
             blurb: 'Typed per-type Snippet overrides — custom date + url rendering. (Svelte-only)'
         },
         {
+            path: '/test/css-variables',
+            label: 'CSS variable theming',
+            blurb: 'Retheme via --sjv-* custom properties without swapping the style prop.'
+        },
+        {
             path: '/test/edge-cases',
             label: 'Edge cases',
             blurb: 'null, undefined, BigInt, Date, Function, Error, RegExp, empty containers, deep nesting.'

@@ -83,6 +83,65 @@ Override individual slots by spreading:
 />
 ```
 
+## Retheme via CSS variables
+
+Every color in the built-in themes is declared as a CSS custom property
+on the root container, so you can tweak one or more colors without
+swapping the entire `style` prop or bringing your own classname map.
+The variables all live under the `--sjv-*` namespace:
+
+| Variable            | Default (light)    | Default (dark)       | Applies to                                 |
+| ------------------- | ------------------ | -------------------- | ------------------------------------------ |
+| `--sjv-background`  | `#eee`             | `rgb(0, 43, 54)`     | Root container background                  |
+| `--sjv-label`       | `#000000`          | `rgb(253, 246, 227)` | Field label text                           |
+| `--sjv-punctuation` | `#000000`          | `rgb(253, 246, 227)` | Brackets, colons, commas                   |
+| `--sjv-string`      | `rgb(42, 63, 60)`  | `rgb(203, 75, 22)`   | String values                              |
+| `--sjv-number`      | `#0b75f5`          | `rgb(211, 54, 130)`  | Number & BigInt values                     |
+| `--sjv-boolean`     | `rgb(70, 144, 56)` | `rgb(174, 129, 255)` | Boolean values                             |
+| `--sjv-null`        | `#df113a`          | `rgb(129, 181, 172)` | `null` literal                             |
+| `--sjv-undefined`   | `#df113a`          | `rgb(129, 181, 172)` | `undefined` literal                        |
+| `--sjv-other`       | `#43413d`          | `rgb(38, 139, 210)`  | Dates, functions, symbols, etc.            |
+| `--sjv-expander`    | `#000000`          | `rgb(253, 246, 227)` | `▸` / `▾` icons and collapsed `...` marker |
+
+**Global override** — applies to every `JsonView` on the page:
+
+```css
+:root {
+    --sjv-string: lavender;
+    --sjv-number: #ff71ce;
+}
+```
+
+**Scoped override** — target one component (or a subtree):
+
+```svelte
+<div class="vaporwave">
+    <JsonView {data} style={defaultStyles} />
+</div>
+
+<style>
+    .vaporwave :global(div[role='tree']) {
+        --sjv-background: #2b1055;
+        --sjv-string: #01cdfe;
+        --sjv-number: #05ffa1;
+        --sjv-boolean: #b967ff;
+    }
+</style>
+```
+
+**Per-instance override** — forward inline styles via the root div (ARIA
+attrs and `style` on `<JsonView>` are spread onto the wrapper):
+
+```svelte
+<JsonView {data} style={defaultStyles} style:--sjv-number="tomato" />
+```
+
+All three patterns work with either `defaultStyles` or `darkStyles` —
+the variables are defined on both container classes with theme-specific
+fallback defaults, so one override applies to whichever theme is active.
+
+See the `/test/css-variables` playground route for a live example.
+
 ## Snippet overrides
 
 Unlike the React lib, `svelte-json-view-lite` exposes typed `Snippet`
