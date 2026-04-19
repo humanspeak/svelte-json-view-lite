@@ -16,13 +16,7 @@ export default defineConfig({
         setupFiles: ['vitest.setup.ts'],
         coverage: {
             reporter: 'lcov',
-            exclude: [
-                '.trunk/**',
-                '.svelte-kit/**',
-                'tests/**',
-                'src/routes/**',
-                'src/lib/test/**'
-            ]
+            exclude: ['.trunk/**', '.svelte-kit/**', 'tests/**', 'src/routes/**', 'src/lib/test/**']
         },
         exclude: [
             ...configDefaults.exclude,
