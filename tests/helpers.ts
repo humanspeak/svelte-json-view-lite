@@ -20,38 +20,29 @@ export function expanders(page: Page): Locator {
 }
 
 /**
+ * The label span for a field — resolves via an exact-match on the
+ * displayed `field:` text (the label span always ends with `:`).
+ */
+export function labelFor(page: Page, fieldLabel: string): Locator {
+    return rootTree(page).getByText(`${fieldLabel}:`, { exact: true }).first()
+}
+
+/**
+ * The `role=treeitem` containing a given field label. Navigates up from
+ * the label span to its nearest ancestor treeitem — avoids matching
+ * outer ancestors that happen to contain the field's subtree.
+ */
+export function treeItemFor(page: Page, fieldLabel: string): Locator {
+    return labelFor(page, fieldLabel).locator(`xpath=ancestor::*[@role="treeitem"][1]`)
+}
+
+/**
  * The expander button whose `aria-label` is "collapse JSON" (when open)
  * or "expand JSON" (when closed). Scoped to the treeitem that has the
  * supplied field label.
  */
 export function expanderFor(page: Page, fieldLabel: string): Locator {
     return treeItemFor(page, fieldLabel).getByRole('button').first()
-}
-
-/**
- * The label span for a field — matches either `.label*` or
- * `.clickable-label*` hashed CSS-module class names. Scoped to the tree
- * root so we don't pick up descendants of a closed ancestor.
- */
-export function labelFor(page: Page, fieldLabel: string): Locator {
-    return rootTree(page)
-        .locator(`span[class*="label"]`, { hasText: new RegExp(`^${escapeRegex(fieldLabel)}:$`) })
-        .first()
-}
-
-/**
- * The `role=treeitem` containing a given field label (exact-match on the
- * displayed `field:` text). Matches scrolled-in-view rows too.
- */
-export function treeItemFor(page: Page, fieldLabel: string): Locator {
-    return rootTree(page)
-        .getByRole('treeitem')
-        .filter({
-            has: page.locator(`span[class*="label"]`, {
-                hasText: new RegExp(`^${escapeRegex(fieldLabel)}:$`)
-            })
-        })
-        .first()
 }
 
 export async function expectCollapsed(locator: Locator): Promise<void> {
@@ -86,8 +77,4 @@ export async function getComputedColor(
     property: string = 'color'
 ): Promise<string> {
     return locator.evaluate((el, p) => getComputedStyle(el).getPropertyValue(p), property)
-}
-
-function escapeRegex(input: string): string {
-    return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
