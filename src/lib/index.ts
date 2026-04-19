@@ -1,6 +1,8 @@
+import JsonView from './JsonView.svelte'
 import styles from './styles.module.css'
 import type { AriaLabels, StyleProps } from './types.js'
 
+export default JsonView
 export type {
     AriaLabels,
     BigIntSnippetProps,
@@ -18,6 +20,7 @@ export type {
     UndefinedSnippetProps
 } from './types.js'
 export { allExpanded, collapseAllNested } from './utils/expandStrategies.js'
+export { JsonView }
 
 const baseAriaLabels: AriaLabels = {
     collapseJson: 'collapse JSON',
