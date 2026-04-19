@@ -19,11 +19,11 @@ test('clicking an expanded node collapses it and hides descendants', async ({ pa
     await expander.click()
     await expectCollapsed(expander)
     // Child row from the collapsed subtree must no longer be visible.
-    await expect(rootTree(page).getByText('sub nested').first()).toBeHidden()
+    await expect(rootTree(page).getByText('sub nested:', { exact: true })).toHaveCount(0)
 
     await expander.click()
     await expectExpanded(expander)
-    await expect(rootTree(page).getByText('sub nested').first()).toBeVisible()
+    await expect(rootTree(page).getByText('sub nested:', { exact: true }).first()).toBeVisible()
 })
 
 test('shouldExpandNode=collapseAllNested starts nested rows closed', async ({ page }) => {
@@ -35,19 +35,21 @@ test('shouldExpandNode=collapseAllNested starts nested rows closed', async ({ pa
     // Clicking opens it — and the child row is then visible.
     await expander.click()
     await expectExpanded(expander)
-    await expect(rootTree(page).getByText('sub nested').first()).toBeVisible()
+    await expect(rootTree(page).getByText('sub nested:', { exact: true }).first()).toBeVisible()
 })
 
 test('shouldExpandNode=()=>false keeps the root closed, click opens it', async ({ page }) => {
     await page.goto('/test/collapsed-root')
     const rootButton = expanders(page).first()
     await expectCollapsed(rootButton)
-    // No children visible while closed.
-    await expect(rootTree(page).getByText('string property')).toBeHidden()
+    // No children in the DOM while the root is closed (lazy render).
+    await expect(rootTree(page).getByText('string property:', { exact: true })).toHaveCount(0)
 
     await rootButton.click()
     await expectExpanded(rootButton)
-    await expect(rootTree(page).getByText('string property').first()).toBeVisible()
+    await expect(
+        rootTree(page).getByText('string property:', { exact: true }).first()
+    ).toBeVisible()
 })
 
 test('beforeExpandChange returning true records the event and allows the transition', async ({
