@@ -1,51 +1,29 @@
 <script lang="ts">
-    import {
-        collapseAllNested,
-        defaultStyles,
-        JsonView,
-        type NodeExpandingEvent
-    } from '$lib/index.js'
-
-    const data = {
-        user: { id: 1, name: 'Ada', tags: ['admin', 'beta'] },
-        secrets: { apiKey: 'redacted' }
-    }
+    import { defaultStyles, JsonView, type NodeExpandingEvent } from '$lib/index.js'
+    import { jsonData } from '../sample.js'
 
     let lastEvent = $state<NodeExpandingEvent | null>(null)
 
     function beforeExpandChange(event: NodeExpandingEvent): boolean {
         lastEvent = event
-        // Block expansion of any node whose field name is "secrets".
-        return event.field !== 'secrets'
+        return true
     }
 </script>
 
-<main>
-    <h1>JsonView — click-to-expand + beforeExpandChange</h1>
-    <p>
-        Click the <em>label text</em> (not just the ▸) to toggle a node. The
-        <code>secrets</code> branch is vetoed by <code>beforeExpandChange</code>.
-    </p>
-    <JsonView
-        {data}
-        style={defaultStyles}
-        shouldExpandNode={collapseAllNested}
-        clickToExpandNode
-        {beforeExpandChange}
-    />
-    {#if lastEvent}
-        <pre>last event = {JSON.stringify(lastEvent, null, 2)}</pre>
-    {/if}
-</main>
+<h1>Click on field name to expand</h1>
+<p class="blurb">
+    Matches the <em>Click on field name to expand</em> story — <code>clickToExpandNode</code>
+    makes the label text a second click-target alongside the ▸ icon. The
+    <code>beforeExpandChange</code> observer records the last event so you can inspect it below.
+</p>
+<JsonView data={jsonData} style={defaultStyles} clickToExpandNode {beforeExpandChange} />
+{#if lastEvent}
+    <pre class="event">last event = {JSON.stringify(lastEvent, null, 2)}</pre>
+{/if}
 
 <style>
-    main {
-        padding: 2rem;
-        font-family: system-ui, sans-serif;
-        max-width: 720px;
-        margin: 0 auto;
-    }
-    pre {
+    pre.event {
+        font-size: 12px;
         background: #f4f4f4;
         padding: 0.5rem;
         border-radius: 4px;
