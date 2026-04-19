@@ -114,37 +114,27 @@
         aria-expanded={expanded}
         aria-selected={false}
     >
-        <span
-            bind:this={expanderButton}
-            class={expanderIconStyle}
-            role="button"
-            aria-label={ariaLabel}
-            aria-expanded={expanded}
-            aria-controls={expanded ? contentsId : undefined}
-            tabindex={level === 0 ? 0 : -1}
-            onclick={onClick}
-            onkeydown={onKeyDown}
-        ></span>
-
-        {#if hasField}
-            {#if snippets.label}
-                {@render snippets.label({ field: field ?? '', level })}
-            {:else if clickToExpandNode}
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <span class={style.clickableLabel} onclick={onClick} onkeydown={onKeyDown}
-                    >{labelText}:</span
-                >
-            {:else}
-                <span class={style.label}>{labelText}:</span>
-            {/if}
-        {/if}
-
-        <span class={style.punctuation}>{openBracket}</span>
-
-        {#if expanded}
-            <ul id={contentsId} role="group" class={style.childFieldsContainer}>
-                {#each data as [childField, childValue], index (childField ?? index)}
-                    <DataRender
+        <!--
+            The entire inline sequence inside a row lives on a single
+            prettier-ignored line because Svelte preserves template whitespace
+            between adjacent elements (expander→label→openBracket→children→
+            closeBracket) as visible spaces under the container's
+            `white-space: pre-wrap`. React/JSX strips that whitespace natively;
+            we have to hand-collapse it. The `<ul>` of children is block-level
+            so the whitespace around it is not layout-significant, but we keep
+            it tight anyway for a consistent rule.
+        -->
+        <!-- prettier-ignore -->
+        <span bind:this={expanderButton} class={expanderIconStyle} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown}></span>{#if hasField}{#if snippets.label}{@render snippets.label(
+                    { field: field ?? '', level }
+                )}{:else if clickToExpandNode}<!-- svelte-ignore a11y_no_static_element_interactions --><span
+                    class={style.clickableLabel}
+                    onclick={onClick}
+                    onkeydown={onKeyDown}>{labelText}:</span
+                >{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}<span
+            class={style.punctuation}>{openBracket}</span
+        >{#if expanded}<ul id={contentsId} role="group" class={style.childFieldsContainer}>
+                {#each data as [childField, childValue], index (childField ?? index)}<DataRender
                         field={childField}
                         value={childValue}
                         {style}
@@ -155,15 +145,13 @@
                         {beforeExpandChange}
                         {outerRef}
                         {snippets}
-                    />
-                {/each}
-            </ul>
-        {:else}
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <span class={style.collapsedContent} onclick={onClick} onkeydown={onKeyDown}></span>
-        {/if}
-
-        <span class={style.punctuation}>{closeBracket}</span>
-        {#if !lastElement}<span class={style.punctuation}>,</span>{/if}
+                    />{/each}
+            </ul>{:else}<!-- svelte-ignore a11y_no_static_element_interactions --><span
+                class={style.collapsedContent}
+                onclick={onClick}
+                onkeydown={onKeyDown}
+            ></span>{/if}<span class={style.punctuation}
+            >{closeBracket}{lastElement ? '' : ','}</span
+        >
     </div>
 {/if}

@@ -53,32 +53,47 @@
     })
 </script>
 
+<!--
+    The entire row body lives on a single prettier-ignored line because Svelte
+    preserves template whitespace between adjacent elements (e.g. between the
+    label span and the value span, or between the value and the trailing
+    comma). Those whitespace text nodes render as visible spaces under the
+    container's `white-space: pre-wrap`. React/JSX strips that whitespace
+    natively; we have to hand-collapse it. Every margin we need is provided
+    by the CSS module (e.g. `.label { margin-right: 5px; }`).
+-->
 <div class={style.basicChildStyle} role="treeitem" aria-selected={false}>
-    {#if hasField}
-        {#if snippets.label}
-            {@render snippets.label({ field: field ?? '', level })}
-        {:else}
-            <span class={style.label}>{labelText}:</span>
-        {/if}
-    {/if}
-    {#if snippetForValue && value === null}
-        {@render snippets.null?.({ value: null, field, level })}
-    {:else if snippetForValue && value === undefined}
-        {@render snippets.undefined?.({ value: undefined, field, level })}
-    {:else if snippetForValue && isString(value)}
-        {@render snippets.string?.({ value, field, level })}
-    {:else if snippetForValue && isBoolean(value)}
-        {@render snippets.boolean?.({ value, field, level })}
-    {:else if snippetForValue && isNumber(value)}
-        {@render snippets.number?.({ value, field, level })}
-    {:else if snippetForValue && isBigInt(value)}
-        {@render snippets.bigint?.({ value, field, level })}
-    {:else if snippetForValue && isDate(value)}
-        {@render snippets.date?.({ value, field, level })}
-    {:else if snippetForValue && isFunction(value)}
-        {@render snippets.function?.({ value, field, level })}
-    {:else}
-        <span class={rendered.valueStyle}>{rendered.text}</span>
-    {/if}
-    {#if !lastElement}<span class={style.punctuation}>,</span>{/if}
+    <!-- prettier-ignore -->
+    {#if hasField}{#if snippets.label}{@render snippets.label({ field: field ?? '', level })}{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}{#if snippetForValue && value === null}{@render snippets.null?.(
+            { value: null, field, level }
+        )}{:else if snippetForValue && value === undefined}{@render snippets.undefined?.({
+            value: undefined,
+            field,
+            level
+        })}{:else if snippetForValue && isString(value)}{@render snippets.string?.({
+            value,
+            field,
+            level
+        })}{:else if snippetForValue && isBoolean(value)}{@render snippets.boolean?.({
+            value,
+            field,
+            level
+        })}{:else if snippetForValue && isNumber(value)}{@render snippets.number?.({
+            value,
+            field,
+            level
+        })}{:else if snippetForValue && isBigInt(value)}{@render snippets.bigint?.({
+            value,
+            field,
+            level
+        })}{:else if snippetForValue && isDate(value)}{@render snippets.date?.({
+            value,
+            field,
+            level
+        })}{:else if snippetForValue && isFunction(value)}{@render snippets.function?.({
+            value,
+            field,
+            level
+        })}{:else}<span class={rendered.valueStyle}>{rendered.text}</span
+        >{/if}{#if !lastElement}<span class={style.punctuation}>,</span>{/if}
 </div>
