@@ -1,0 +1,12 @@
+@humanspeak/svelte-json-view-lite
+
+This package is a Svelte 5 port of react-json-view-lite by AnyRoad,
+licensed under the MIT License.
+
+Upstream project: https://github.com/AnyRoad/react-json-view-lite
+Original copyright: Copyright (c) 2024 AnyRoad
+
+The Svelte port preserves AnyRoad's component architecture, styling
+system, keyboard-navigation behavior, and accessibility model. All
+original source files referenced during porting are enumerated in
+the commit history.

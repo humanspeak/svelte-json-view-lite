@@ -1,0 +1,46 @@
+import { sveltekit } from '@sveltejs/kit/vite'
+import { svelteTesting } from '@testing-library/svelte/vite'
+import { configDefaults, defineConfig } from 'vitest/config'
+
+export default defineConfig({
+    plugins: [sveltekit(), svelteTesting()],
+    resolve: process.env.VITEST
+        ? {
+              conditions: ['browser']
+          }
+        : undefined,
+    test: {
+        include: ['src/lib/**/*.test.ts'],
+        globals: true,
+        environment: 'jsdom',
+        setupFiles: ['vitest.setup.ts'],
+        coverage: {
+            reporter: 'lcov',
+            exclude: [
+                '.trunk/**',
+                '.svelte-kit/**',
+                'tests/**',
+                'src/routes/**',
+                'src/lib/test/**'
+            ]
+        },
+        exclude: [
+            ...configDefaults.exclude,
+            'node_modules/**',
+            'dist/**',
+            'src/routes/**',
+            'coverage/**',
+            'tests/**',
+            'src/lib/test/**',
+            'playwright.config.ts',
+            'tests-results/**'
+        ],
+        reporters: ['verbose', ['junit', { outputFile: './junit-vitest.xml' }]]
+    },
+    server: {
+        port: 8233
+    },
+    build: {
+        sourcemap: false
+    }
+})

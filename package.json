@@ -1,0 +1,127 @@
+{
+    "name": "@humanspeak/svelte-json-view-lite",
+    "version": "0.1.0",
+    "description": "Fast, tiny JSON tree viewer for Svelte 5 — port of react-json-view-lite with runes, SSR, snippet overrides, and zero runtime dependencies",
+    "keywords": [
+        "svelte",
+        "svelte5",
+        "sveltekit",
+        "json",
+        "json-view",
+        "json-tree",
+        "viewer",
+        "tree",
+        "typescript",
+        "runes",
+        "lite",
+        "renderer",
+        "component"
+    ],
+    "homepage": "https://github.com/humanspeak/svelte-json-view-lite",
+    "bugs": {
+        "url": "https://github.com/humanspeak/svelte-json-view-lite/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/humanspeak/svelte-json-view-lite.git"
+    },
+    "funding": {
+        "type": "github",
+        "url": "https://github.com/sponsors/humanspeak"
+    },
+    "license": "MIT",
+    "author": "Humanspeak, Inc.",
+    "sideEffects": [
+        "**/*.css"
+    ],
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "svelte": "./dist/index.js"
+        }
+    },
+    "svelte": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist",
+        "!dist/**/*.test.*",
+        "!dist/**/*.spec.*",
+        "!dist/test/**/*"
+    ],
+    "scripts": {
+        "build": "vite build && npm run package",
+        "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+        "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+        "dev": "vite dev",
+        "dev:pkg": "svelte-kit sync && svelte-package --watch",
+        "format": "prettier --write .",
+        "lint": "prettier --check . && eslint .",
+        "lint:fix": "npm run format && eslint . --fix",
+        "package": "svelte-kit sync && svelte-package && publint",
+        "prepare": "husky",
+        "prepublishOnly": "npm run package",
+        "preview": "vite preview",
+        "test": "vitest run --coverage",
+        "test:all": "npm run test && npm run test:e2e",
+        "test:e2e": "playwright test",
+        "test:e2e:debug": "playwright test --debug",
+        "test:e2e:report": "playwright show-report",
+        "test:e2e:ui": "playwright test --ui",
+        "test:only": "vitest run",
+        "test:watch": "vitest"
+    },
+    "overrides": {
+        "@sveltejs/kit": {
+            "cookie": "^0.7.0"
+        }
+    },
+    "devDependencies": {
+        "@eslint/compat": "^2.0.5",
+        "@eslint/js": "^10.0.1",
+        "@playwright/test": "^1.59.1",
+        "@sveltejs/adapter-auto": "^7.0.1",
+        "@sveltejs/kit": "^2.57.1",
+        "@sveltejs/package": "^2.5.7",
+        "@sveltejs/vite-plugin-svelte": "^7.0.0",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/svelte": "^5.3.1",
+        "@testing-library/user-event": "^14.6.1",
+        "@types/node": "^25.6.0",
+        "@typescript-eslint/eslint-plugin": "^8.58.2",
+        "@typescript-eslint/parser": "^8.58.2",
+        "@vitest/coverage-v8": "^4.1.4",
+        "eslint": "^10.2.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-import": "^2.32.0",
+        "eslint-plugin-svelte": "^3.17.0",
+        "eslint-plugin-unused-imports": "^4.4.1",
+        "globals": "^17.5.0",
+        "husky": "^9.1.7",
+        "jsdom": "^29.0.2",
+        "prettier": "^3.8.2",
+        "prettier-plugin-organize-imports": "^4.3.0",
+        "prettier-plugin-svelte": "^3.5.1",
+        "publint": "^0.3.18",
+        "svelte": "^5.55.4",
+        "svelte-check": "^4.4.6",
+        "typescript": "^6.0.2",
+        "typescript-eslint": "^8.58.2",
+        "vite": "^8.0.8",
+        "vitest": "^4.1.4"
+    },
+    "peerDependencies": {
+        "svelte": "^5.0.0"
+    },
+    "volta": {
+        "node": "24.15.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "tags": [
+        "svelte",
+        "json",
+        "viewer"
+    ]
+}
