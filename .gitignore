@@ -44,3 +44,13 @@ mprocs.log
 /*.png
 /*.jpeg
 /*.jpg
+
+# docs subpackage
+docs/node_modules
+docs/.svelte-kit
+docs/build
+docs/dist
+docs/.wrangler
+docs/src/lib/github-stats.json
+docs/src/lib/sitemap-manifest.json
+docs/src/routes/social-cards/*.png
