@@ -31,12 +31,17 @@ export default defineConfig({
             use: { ...devices['Desktop Safari'] }
         },
         {
+            // Tests tagged @desktop-only skip mobile — real arrow-key nav
+            // and pixel-level computed-style assertions are noise on a
+            // touch-device emulator.
             name: 'mobile-chrome',
-            use: { ...devices['Pixel 5'] }
+            use: { ...devices['Pixel 5'] },
+            grepInvert: /@desktop-only/
         },
         {
             name: 'mobile-safari',
-            use: { ...devices['iPhone 12'] }
+            use: { ...devices['iPhone 12'] },
+            grepInvert: /@desktop-only/
         }
     ]
 })

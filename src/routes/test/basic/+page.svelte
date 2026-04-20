@@ -13,7 +13,11 @@
     <code>darkStyles</code>.
 </p>
 <p class="blurb">
-    <button type="button" onclick={() => (theme = theme === 'light' ? 'dark' : 'light')}>
+    <button
+        type="button"
+        data-testid="theme-toggle"
+        onclick={() => (theme = theme === 'light' ? 'dark' : 'light')}
+    >
         Switch to {theme === 'light' ? 'dark' : 'light'} theme
     </button>
 </p>
