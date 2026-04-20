@@ -46,7 +46,7 @@ lint:
     enabled:
         - sort-package-json@3.6.1
         - actionlint@1.7.12
-        - checkov@3.2.522
+        - checkov@3.2.524
         - eslint@10.2.1
         - git-diff-check
         - markdownlint@0.48.0
@@ -60,8 +60,9 @@ lint:
         - trufflehog@3.94.3
         - yamllint@1.38.0
 actions:
-    enabled:
+    disabled:
         - trunk-announce
         - trunk-check-pre-push
         - trunk-fmt-pre-commit
+    enabled:
         - trunk-upgrade-available
