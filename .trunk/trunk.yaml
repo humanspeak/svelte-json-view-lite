@@ -45,19 +45,19 @@ lint:
               - javascript
     enabled:
         - sort-package-json@3.6.1
-        - actionlint@1.7.11
-        - checkov@3.2.517
-        - eslint@10.2.0
+        - actionlint@1.7.12
+        - checkov@3.2.522
+        - eslint@10.2.1
         - git-diff-check
         - markdownlint@0.48.0
-        - osv-scanner@2.3.3
+        - osv-scanner@2.3.5
         - oxipng@10.1.0
-        - prettier@3.8.1
+        - prettier@3.8.3
         - shellcheck@0.11.0
         - shfmt@3.6.0
         - svgo@4.0.1
         - taplo@0.10.0
-        - trufflehog@3.94.0
+        - trufflehog@3.94.3
         - yamllint@1.38.0
 actions:
     enabled:
