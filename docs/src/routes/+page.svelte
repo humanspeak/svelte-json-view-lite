@@ -198,9 +198,9 @@
                                 </div>
                             {/if}
                         </div>
-                        <div class="bg-background h-[360px] overflow-auto p-4">
+                        <div class="playground-tree bg-background h-[360px] overflow-auto p-4">
                             {#if parsed && typeof parsed === 'object'}
-                                <JsonView data={parsed} style={defaultStyles} />
+                                <JsonView data={parsed} style={defaultStyles} clickToExpandNode />
                             {:else if parsed !== null}
                                 <pre class="text-muted-foreground text-sm">{JSON.stringify(
                                         parsed,
@@ -283,6 +283,25 @@
 </div>
 
 <style>
+    /*
+     * Theme the live JsonView with docs-kit tokens so the playground tracks
+     * light/dark mode. The library's container declares --sjv-* defaults on
+     * itself (specificity 0,1,0); the descendant combinator below is (0,2,0),
+     * so these win without !important.
+     */
+    .playground-tree :global([role='tree']) {
+        --sjv-background: transparent;
+        --sjv-label: var(--color-foreground);
+        --sjv-punctuation: var(--color-muted-foreground);
+        --sjv-null: #ef4444;
+        --sjv-undefined: #ef4444;
+        --sjv-string: #f59e0b;
+        --sjv-number: var(--color-brand-500);
+        --sjv-boolean: #22c55e;
+        --sjv-other: var(--color-muted-foreground);
+        --sjv-expander: var(--color-muted-foreground);
+    }
+
     /* Hero decorative layers (mirror svelte-markdown's pattern). */
     .bg-grid {
         background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
