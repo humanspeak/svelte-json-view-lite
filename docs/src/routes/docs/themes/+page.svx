@@ -1,0 +1,147 @@
+---
+title: Themes & CSS Variables
+description: Swap built-in light and dark themes or drive every color through CSS custom properties with @humanspeak/svelte-json-view-lite.
+---
+
+<script>
+    import { getSeoContext } from '@humanspeak/docs-kit'
+
+    const seo = getSeoContext()
+    if (seo) {
+        seo.title = 'Themes & CSS Variables | Svelte JSON View Lite'
+        seo.description = 'Swap built-in light and dark themes or drive every color through CSS custom properties with @humanspeak/svelte-json-view-lite.'
+        seo.ogTitle = 'Themes & CSS Variables'
+        seo.ogTagline = 'Two themes out of the box, every color tokenized.'
+        seo.ogFeatures = ['Light Theme', 'Dark Theme', '--sjv-* Tokens', 'Per-Instance Overrides']
+        seo.ogSlug = 'docs-themes'
+    }
+</script>
+
+# Themes & CSS Variables
+
+The library ships two classname maps — `defaultStyles` (light) and `darkStyles` — and exposes every color as a `--sjv-*` CSS custom property so you can retheme without swapping the `style` prop.
+
+## Built-in Themes
+
+```svelte
+<script lang="ts">
+    import { JsonView, defaultStyles, darkStyles } from '@humanspeak/svelte-json-view-lite'
+</script>
+
+<!-- Light (default) -->
+<JsonView data={payload} />
+
+<!-- Dark -->
+<JsonView data={payload} style={darkStyles} />
+```
+
+Both exports conform to `StyleProps`. Spread them to patch individual keys:
+
+```svelte
+<JsonView
+    data={payload}
+    style={{ ...defaultStyles, quotesForFieldNames: true, stringifyStringValues: true }}
+/>
+```
+
+## CSS Variable Tokens
+
+Every color used by the viewer is declared on the container element as a `--sjv-*` custom property. Overriding any token cascades to every descendant that reads it.
+
+| Token | Applies to | Light default | Dark default |
+|-------|------------|---------------|--------------|
+| `--sjv-background` | Container background | `#eee` | `rgb(0, 43, 54)` |
+| `--sjv-label` | Field labels (keys) | `#000000` | `rgb(253, 246, 227)` |
+| `--sjv-punctuation` | Braces, brackets, colons, commas | `#000000` | `rgb(253, 246, 227)` |
+| `--sjv-string` | String values | `rgb(42, 63, 60)` | `rgb(203, 75, 22)` |
+| `--sjv-number` | Number values | `#0b75f5` | `rgb(211, 54, 130)` |
+| `--sjv-boolean` | Boolean values | `rgb(70, 144, 56)` | `rgb(174, 129, 255)` |
+| `--sjv-null` | `null` values | `#df113a` | `rgb(129, 181, 172)` |
+| `--sjv-undefined` | `undefined` values | `#df113a` | `rgb(129, 181, 172)` |
+| `--sjv-other` | `bigint`, `Date`, functions | `#43413d` | `rgb(38, 139, 210)` |
+| `--sjv-expander` | Arrow glyphs + collapsed summary | `#000000` | `rgb(253, 246, 227)` |
+
+## Global Overrides
+
+Set tokens on `:root` to retheme every instance on the page:
+
+```css
+:root {
+    --sjv-string: lavender;
+    --sjv-number: var(--brand-500);
+    --sjv-background: transparent;
+}
+```
+
+Because the defaults are declared on the container (not fallbacks on `var()`), inheritance from `:root` alone does **not** win against the per-container declarations. Use a selector with higher specificity, or target the tree element directly:
+
+```css
+[role='tree'] {
+    --sjv-background: transparent;
+}
+```
+
+## Per-Instance Overrides
+
+Scope custom tokens to one viewer with a wrapping class. The library's container selector has specificity `(0,1,0)`; anything with `(0,2,0)` or higher wins without `!important`:
+
+```svelte
+<div class="payload-view">
+    <JsonView data={payload} />
+</div>
+
+<style>
+    .payload-view :global([role='tree']) {
+        --sjv-background: transparent;
+        --sjv-label: var(--color-foreground);
+        --sjv-string: #f59e0b;
+        --sjv-number: var(--color-brand-500);
+    }
+</style>
+```
+
+This is exactly how the landing page's live playground tracks light and dark modes — it maps `--sjv-*` tokens to the site's design-system variables.
+
+## Dark Mode with `mode-watcher`
+
+If you use [`mode-watcher`](https://www.npmjs.com/package/mode-watcher), derive the style prop from the current mode:
+
+```svelte
+<script lang="ts">
+    import { JsonView, defaultStyles, darkStyles } from '@humanspeak/svelte-json-view-lite'
+    import { mode } from 'mode-watcher'
+
+    const theme = $derived(mode.current === 'dark' ? darkStyles : defaultStyles)
+</script>
+
+<JsonView data={payload} style={theme} />
+```
+
+Or skip the prop swap entirely and let CSS variables switch based on a root class:
+
+```css
+:root { --sjv-background: #eee; }
+.dark { --sjv-background: #0f172a; }
+```
+
+## Boolean Style Options
+
+`StyleProps` has three booleans that affect rendering regardless of which palette you pick:
+
+| Option | Effect |
+|--------|--------|
+| `noQuotesForStringValues` | Omits the `"` around string leaves |
+| `quotesForFieldNames` | Wraps field labels in `"` |
+| `stringifyStringValues` | Passes string values through `JSON.stringify` so control characters render as escapes |
+
+```svelte
+<JsonView
+    data={payload}
+    style={{ ...defaultStyles, quotesForFieldNames: true, noQuotesForStringValues: true }}
+/>
+```
+
+## Related
+
+- [Types & snippets](/docs/api/types) — the full `StyleProps` shape
+- [Snippet overrides](/docs/snippet-overrides) — when theming isn't enough and you need a custom renderer

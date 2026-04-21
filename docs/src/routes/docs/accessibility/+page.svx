@@ -1,0 +1,124 @@
+---
+title: Accessibility
+description: WAI-ARIA treeview semantics, keyboard navigation, and SSR-safe IDs in @humanspeak/svelte-json-view-lite.
+---
+
+<script>
+    import { getSeoContext } from '@humanspeak/docs-kit'
+
+    const seo = getSeoContext()
+    if (seo) {
+        seo.title = 'Accessibility | Svelte JSON View Lite'
+        seo.description = 'WAI-ARIA treeview semantics, keyboard navigation, and SSR-safe IDs in @humanspeak/svelte-json-view-lite.'
+        seo.ogTitle = 'Accessibility'
+        seo.ogTagline = 'WAI-ARIA treeview with roving tabindex and arrow-key nav.'
+        seo.ogFeatures = ['WAI-ARIA Tree', 'Keyboard Nav', 'Roving tabindex', 'SSR-safe IDs']
+        seo.ogSlug = 'docs-accessibility'
+    }
+</script>
+
+# Accessibility
+
+`<JsonView>` implements the [WAI-ARIA Treeview pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/) out of the box. The root renders as `role="tree"`, branches as `role="treeitem"`, and expand toggles as `role="button"` with matching `aria-expanded` and `aria-controls` wiring.
+
+## DOM Shape
+
+Simplified output for `{ user: { id: 1 } }`:
+
+```html
+<div role="tree">
+  <ul role="group">
+    <li role="treeitem" aria-expanded="true">
+      <span role="button"
+            aria-expanded="true"
+            aria-controls="sv-abc-group"
+            aria-label="collapse JSON">▾</span>
+      <span>user</span>
+      <ul id="sv-abc-group" role="group">
+        <li role="treeitem">
+          <span>id</span>: <span>1</span>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+```
+
+Every `aria-controls` is produced by Svelte 5's `$props.id()` — the same ID is emitted server-side and client-side, so hydration never breaks the assistive-tech contract.
+
+## Keyboard Contract
+
+When focus is on any expander button inside the tree:
+
+| Key | Action |
+|-----|--------|
+| `Enter` / `Space` | Toggle the focused branch |
+| `ArrowRight` | Expand the branch, or move focus to the first child if already expanded |
+| `ArrowLeft` | Collapse the branch, or move focus to the parent if already collapsed |
+| `ArrowDown` | Move focus to the next visible branch |
+| `ArrowUp` | Move focus to the previous visible branch |
+| `Home` | Move focus to the first branch in the tree |
+| `End` | Move focus to the last visible branch |
+| `Tab` / `Shift+Tab` | Move focus out of the tree (roving tabindex) |
+
+The tree uses a **roving tabindex** — exactly one expander has `tabindex="0"` at a time, while the rest are `tabindex="-1"`. Clicking or focusing any expander updates the roving target, so tabbing into the tree always lands on the last-interacted branch.
+
+## Screen Reader Labels
+
+Each expander announces its state via `aria-label`. The default strings are:
+
+```ts
+{ collapseJson: 'collapse JSON', expandJson: 'expand JSON' }
+```
+
+Override for localization or terser wording by setting `ariaLabels` on your style map:
+
+```svelte
+<script lang="ts">
+    import { JsonView, defaultStyles } from '@humanspeak/svelte-json-view-lite'
+
+    const style = {
+        ...defaultStyles,
+        ariaLabels: { collapseJson: 'collapse', expandJson: 'expand' }
+    }
+</script>
+
+<JsonView data={payload} {style} />
+```
+
+> **Note on `ariaLables` (sic).** `react-json-view-lite`'s original `StyleProps` shipped the typoed key. The Svelte port accepts either at runtime for parity but logs a `console.warn` when only the typoed key is present. Prefer `ariaLabels`; the alias is removed in 2.0.
+
+## Click-to-Expand Considerations
+
+When `clickToExpandNode` is enabled, labels become click targets but **do not** receive focus or a button role — the expander glyph remains the single keyboard-accessible activator. Keyboard users never see duplicated tab stops; mouse users get a larger hit target.
+
+## SSR and Hydration
+
+The tree is safe to render during SSR. Every `aria-controls` / `id` pair is produced by `$props.id()`, which is deterministic across server and client. No `Math.random()` or `Date.now()` — the IDs committed in the initial HTML match the ones rehydrated on the client.
+
+## Testing with `@testing-library/svelte`
+
+The tree's ARIA contract means queries work without implementation-specific selectors:
+
+```ts
+import { render, screen, fireEvent } from '@testing-library/svelte'
+import { JsonView } from '@humanspeak/svelte-json-view-lite'
+
+test('expands a branch on Enter', async () => {
+    render(JsonView, { data: { nested: { inner: 1 } } })
+    const expander = screen.getByRole('button', { name: /expand/i })
+    await fireEvent.keyDown(expander, { key: 'Enter' })
+    expect(expander).toHaveAttribute('aria-expanded', 'true')
+})
+```
+
+## Known Limitations
+
+- **Custom snippets.** Renderers you supply via snippet overrides are rendered inside the `<li role="treeitem">` cell; if you embed interactive elements (links, buttons) they add their own tab stops outside the roving tabindex. Keep snippet content non-interactive when possible or scope focus management yourself.
+- **Text direction.** The arrow-key contract assumes LTR ("right opens, left closes"). RTL-aware swapping is not implemented.
+- **Virtualization.** The tree is fully materialized — focus order matches DOM order. If you wrap the viewer in a virtualized list, the keyboard contract may not survive.
+
+## Related
+
+- [JsonView props](/docs/api/json-view) — `clickToExpandNode` and the interactive prop set
+- [Types & snippets](/docs/api/types) — `AriaLabels` and the style shape

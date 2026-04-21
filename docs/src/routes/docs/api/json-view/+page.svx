@@ -1,0 +1,163 @@
+---
+title: JsonView Props
+description: Complete prop reference for the <JsonView> component in @humanspeak/svelte-json-view-lite.
+---
+
+<script>
+    import { getSeoContext } from '@humanspeak/docs-kit'
+
+    const seo = getSeoContext()
+    if (seo) {
+        seo.title = 'JsonView Props | Svelte JSON View Lite'
+        seo.description = 'Complete prop reference for the <JsonView> component in @humanspeak/svelte-json-view-lite.'
+        seo.ogTitle = 'JsonView Props'
+        seo.ogTagline = 'Every prop, default, and type — mapped to the source.'
+        seo.ogFeatures = ['Prop Reference', 'TypeScript Types', 'Defaults', 'Callbacks']
+        seo.ogSlug = 'docs-api-json-view'
+    }
+</script>
+
+# JsonView Props
+
+`<JsonView>` accepts the full `Props` interface plus anything you'd normally pass to a `<div>`. Spread attributes (`class`, `id`, `data-*`, `aria-*`) land on the root container.
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+</script>
+
+<JsonView data={value} />
+```
+
+## Prop Reference
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `data` | `object \| unknown[]` | — | **Required.** Any JSON-serializable value. Arrays, plain objects, `Date`, `bigint`, `null`, and `undefined` all render. |
+| `style` | `Partial<StyleProps>` | `defaultStyles` | Classname map. Import `defaultStyles` or `darkStyles`, or pass a partial to override individual keys. |
+| `shouldExpandNode` | `(level: number, value: unknown, field?: string) => boolean` | Expand root only | Predicate called for every expandable node. Return `true` to expand. Use the exported `allExpanded` / `collapseAllNested` helpers for the common cases. |
+| `clickToExpandNode` | `boolean` | `false` | When `true`, clicking the field label (key) also toggles expand/collapse, not just the arrow. |
+| `beforeExpandChange` | `(event: NodeExpandingEvent) => boolean` | — | Veto handler. Receives `{ level, value, field, newExpandValue }`. Return `false` to cancel the transition. |
+| `compactTopLevel` | `boolean` | `false` | Render top-level primitives inline without the enclosing `{…}` wrapper. Useful when `data` is an array of mixed primitives. |
+| `string` | `Snippet<[StringSnippetProps]>` | Default renderer | Override the renderer for string values. See [Snippet overrides](/docs/snippet-overrides). |
+| `number` | `Snippet<[NumberSnippetProps]>` | Default renderer | Override the renderer for numbers. |
+| `boolean` | `Snippet<[BooleanSnippetProps]>` | Default renderer | Override the renderer for booleans. |
+| `null` | `Snippet<[NullSnippetProps]>` | Default renderer | Override the renderer for `null` values. |
+| `undefined` | `Snippet<[UndefinedSnippetProps]>` | Default renderer | Override the renderer for `undefined` values. |
+| `bigint` | `Snippet<[BigIntSnippetProps]>` | Default renderer | Override the renderer for `bigint` values. |
+| `date` | `Snippet<[DateSnippetProps]>` | Default renderer | Override the renderer for `Date` instances. |
+| `function` | `Snippet<[FunctionSnippetProps]>` | Default renderer | Override the renderer for function values. |
+| `label` | `Snippet<[LabelSnippetProps]>` | Default renderer | Override the renderer for field labels (keys). |
+
+## `data`
+
+Any value that round-trips through `JSON.parse` renders — plus a few richer types:
+
+- **Plain objects and arrays** render as collapsible branches.
+- **`Date`** renders with `toISOString()` by default; override with the `date` snippet.
+- **`bigint`** renders as its decimal representation with the `n` suffix preserved in source.
+- **`null` and `undefined`** render as red sentinels (color driven by `--sjv-null` / `--sjv-undefined`).
+- **Functions** render as `[Function]` by default; override with the `function` snippet.
+
+```svelte
+<JsonView
+    data={{
+        name: 'Ada',
+        joined: new Date('2024-01-15'),
+        counter: 42n,
+        notes: null
+    }}
+/>
+```
+
+## `shouldExpandNode`
+
+The predicate runs once per expandable node on initial render. Subsequent toggling is user-driven.
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+
+    // Expand everything up to depth 3, collapse arrays.
+    const expand = (level: number, value: unknown) =>
+        level < 3 && !Array.isArray(value)
+</script>
+
+<JsonView data={value} shouldExpandNode={expand} />
+```
+
+Two exports cover the common cases:
+
+```ts
+import { allExpanded, collapseAllNested } from '@humanspeak/svelte-json-view-lite'
+```
+
+- `allExpanded` — `() => true`
+- `collapseAllNested` — `(level) => level === 0` (root only)
+
+## `clickToExpandNode`
+
+When `true`, the field label (key text) becomes a click target alongside the arrow. The style map's `clickableLabel` class is applied to affected labels.
+
+```svelte
+<JsonView data={payload} clickToExpandNode />
+```
+
+## `beforeExpandChange`
+
+Called synchronously before an expansion state change. Return `false` to cancel.
+
+```svelte
+<script lang="ts">
+    import type { NodeExpandingEvent } from '@humanspeak/svelte-json-view-lite'
+
+    const veto = (event: NodeExpandingEvent) => {
+        // Don't let users collapse the root.
+        if (event.level === 0 && event.newExpandValue === false) return false
+        return true
+    }
+</script>
+
+<JsonView data={payload} beforeExpandChange={veto} />
+```
+
+## `compactTopLevel`
+
+Useful for arrays of primitives where the wrapping `[…]` adds noise:
+
+```svelte
+<JsonView data={['one', 'two', 'three']} compactTopLevel />
+```
+
+Renders each element inline instead of nested under an array bracket.
+
+## Snippet Props
+
+All nine snippet props receive the same shape with a typed `value`. See [Snippet overrides](/docs/snippet-overrides) for the full recipe book.
+
+```svelte
+<JsonView data={payload}>
+    {#snippet string({ value })}
+        <a href={value} class="text-brand-500">{value}</a>
+    {/snippet}
+</JsonView>
+```
+
+## Spread Attributes
+
+Everything in `HTMLAttributes<HTMLDivElement>` except `data` and `style` forwards to the root container:
+
+```svelte
+<JsonView
+    data={payload}
+    class="rounded-lg border p-4"
+    id="api-response"
+    aria-label="Server response"
+/>
+```
+
+## Related
+
+- [Types & snippets](/docs/api/types) — `StyleProps`, `SnippetOverrides`, event payloads in full
+- [Themes & CSS variables](/docs/themes) — `--sjv-*` tokens
+- [Accessibility](/docs/accessibility) — keyboard + ARIA contract

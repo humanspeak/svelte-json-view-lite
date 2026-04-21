@@ -32,9 +32,9 @@
             icon: Sparkles
         },
         {
-            title: 'React API Parity',
+            title: 'Familiar API',
             description:
-                'Drop-in for react-json-view-lite migrations — same prop names, themes, and strategy helpers.',
+                'Same prop names, themes, and strategy helpers as react-json-view-lite — proven ergonomics, idiomatic Svelte 5.',
             icon: ArrowRight
         },
         {

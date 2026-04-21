@@ -1,16 +1,7 @@
 import type { Breadcrumb, NavSection } from '@humanspeak/docs-kit'
-import {
-    Accessibility,
-    ArrowRightLeft,
-    BookOpen,
-    Braces,
-    Paintbrush,
-    Puzzle,
-    Rocket
-} from '@lucide/svelte'
+import { Accessibility, BookOpen, Braces, Paintbrush, Puzzle, Rocket } from '@lucide/svelte'
 
 const itemBreadcrumbOverrides: Record<string, string> = {
-    '/docs/migration': 'Migration',
     '/docs/api/json-view': 'JsonView',
     '/docs/api/types': 'Types'
 }
@@ -48,10 +39,7 @@ export function buildBreadcrumbs(pathname: string): Breadcrumb[] {
 export const docsSections: NavSection[] = [
     {
         title: 'Getting Started',
-        items: [
-            { title: 'Quick start', href: '/docs/getting-started', icon: Rocket },
-            { title: 'Migration from React', href: '/docs/migration', icon: ArrowRightLeft }
-        ]
+        items: [{ title: 'Quick start', href: '/docs/getting-started', icon: Rocket }]
     },
     {
         title: 'API Reference',
