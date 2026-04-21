@@ -1,0 +1,56 @@
+# Svelte JSON View Lite
+
+> Fast, tiny JSON tree viewer for Svelte 5 — port of react-json-view-lite (MIT © 2024 AnyRoad) with runes, SSR, per-type Snippet overrides, CSS-variable theming, and zero runtime dependencies.
+
+## Overview
+
+- Package: `@humanspeak/svelte-json-view-lite`
+- Version: 0.1.x
+- License: MIT
+- Requires: Svelte 5
+- Maintained by: [Humanspeak, Inc.](https://humanspeak.com)
+
+## Installation
+
+```bash
+npm install @humanspeak/svelte-json-view-lite
+```
+
+## Basic Usage
+
+```svelte
+<script>
+    import { JsonView, defaultStyles } from '@humanspeak/svelte-json-view-lite'
+    const data = { name: 'Ada Lovelace', tags: ['admin', 'beta'], active: true }
+</script>
+
+<JsonView {data} style={defaultStyles} />
+```
+
+## Key Features
+
+- Svelte 5 runes throughout ($props, $state, $derived, $effect)
+- Drop-in API parity with react-json-view-lite: same prop names, themes, strategy helpers
+- Per-type Snippet overrides (string, number, boolean, null, undefined, bigint, date, function, label)
+- SSR-safe via $props.id() for stable aria-controls across hydration
+- WAI-ARIA treeview semantics with roving-tabindex keyboard navigation
+- Built-in light + dark themes plus CSS custom-property overrides (`--sjv-*`)
+- Zero runtime dependencies
+
+## Documentation
+
+- [Getting Started](https://jsonview.svelte.page/docs/getting-started)
+- [JsonView props](https://jsonview.svelte.page/docs/api/json-view)
+- [Types & snippet props](https://jsonview.svelte.page/docs/api/types)
+- [Themes & CSS variables](https://jsonview.svelte.page/docs/themes)
+- [Snippet overrides](https://jsonview.svelte.page/docs/snippet-overrides)
+- [Accessibility](https://jsonview.svelte.page/docs/accessibility)
+- [Migration from react-json-view-lite](https://jsonview.svelte.page/docs/migration)
+- [Full LLM Reference](https://jsonview.svelte.page/llms-full.txt)
+
+## Links
+
+- Homepage: <https://jsonview.svelte.page>
+- Repository: <https://github.com/humanspeak/svelte-json-view-lite>
+- NPM: <https://www.npmjs.com/package/@humanspeak/svelte-json-view-lite>
+- Issues: <https://github.com/humanspeak/svelte-json-view-lite/issues>

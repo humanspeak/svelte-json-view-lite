@@ -54,3 +54,6 @@ docs/.wrangler
 docs/src/lib/github-stats.json
 docs/src/lib/sitemap-manifest.json
 docs/src/routes/social-cards/*.png
+docs/static/og-default.png
+docs/static/twitter-default.png
+docs/static/social-cards
