@@ -1,0 +1,194 @@
+---
+title: Snippet Overrides
+description: Replace the default renderer for any primitive, Date, bigint, function, or field label using Svelte 5 snippets.
+---
+
+<script>
+    import { getSeoContext } from '@humanspeak/docs-kit'
+
+    const seo = getSeoContext()
+    if (seo) {
+        seo.title = 'Snippet Overrides | Svelte JSON View Lite'
+        seo.description = 'Replace the default renderer for any primitive, Date, bigint, function, or field label using Svelte 5 snippets.'
+        seo.ogTitle = 'Snippet Overrides'
+        seo.ogTagline = 'Typed per-type renderers — the one Svelte-only extension.'
+        seo.ogFeatures = ['Per-Type Snippets', 'Fully Typed', 'Label Renderer', 'Composable']
+        seo.ogSlug = 'docs-snippet-overrides'
+    }
+</script>
+
+# Snippet Overrides
+
+Snippet overrides are the one deliberate extension the Svelte port adds on top of `react-json-view-lite`'s API. Pass a `Snippet` as any of the nine type-keyed props and the viewer calls it instead of the built-in renderer for every matching value.
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+</script>
+
+<JsonView data={payload}>
+    {#snippet string({ value })}
+        <span class="text-brand-500">{value}</span>
+    {/snippet}
+</JsonView>
+```
+
+## Snippet Props
+
+Every value snippet receives the same shape — just with a differently typed `value`:
+
+```ts
+interface ValueSnippetProps<T> {
+    value: T
+    field?: string  // parent key, or undefined at the root / inside arrays
+    level: number   // depth (root = 0)
+}
+```
+
+| Snippet | Fires for | `value` type |
+|---------|-----------|--------------|
+| `string` | String leaves | `string` |
+| `number` | Number leaves | `number` |
+| `boolean` | Boolean leaves | `boolean` |
+| `null` | `null` leaves | `null` |
+| `undefined` | `undefined` leaves | `undefined` |
+| `bigint` | `bigint` leaves | `bigint` |
+| `date` | `Date` instances | `Date` |
+| `function` | Function values | `Function` |
+| `label` | Every field label (key) | — (`{ field, level }`) |
+
+See [Types & snippets](/docs/api/types) for the exported type aliases.
+
+## Render URLs as links
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+
+    const payload = {
+        repo: 'https://github.com/humanspeak/svelte-json-view-lite',
+        email: 'hello@humanspeak.com'
+    }
+
+    const isUrl = (s: string) => /^https?:\/\//.test(s)
+</script>
+
+<JsonView data={payload}>
+    {#snippet string({ value })}
+        {#if isUrl(value)}
+            <a href={value} target="_blank" rel="noopener" class="text-brand-500 underline">
+                {value}
+            </a>
+        {:else}
+            "{value}"
+        {/if}
+    {/snippet}
+</JsonView>
+```
+
+## Relative time for `Date` values
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+
+    const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' })
+    const relative = (d: Date) => {
+        const diff = d.getTime() - Date.now()
+        const days = Math.round(diff / 86400000)
+        return rtf.format(days, 'day')
+    }
+</script>
+
+<JsonView data={{ lastSeen: new Date(Date.now() - 3 * 86400000) }}>
+    {#snippet date({ value })}
+        <time datetime={value.toISOString()} title={value.toISOString()}>
+            {relative(value)}
+        </time>
+    {/snippet}
+</JsonView>
+```
+
+## Format large numbers
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+
+    const fmt = new Intl.NumberFormat('en-US')
+</script>
+
+<JsonView data={{ views: 12_345_678, errors: 0 }}>
+    {#snippet number({ value })}
+        <span class="tabular-nums">{fmt.format(value)}</span>
+    {/snippet}
+</JsonView>
+```
+
+## Badge booleans
+
+```svelte
+<JsonView data={{ active: true, verified: false }}>
+    {#snippet boolean({ value })}
+        <span
+            class="rounded px-1.5 py-0.5 text-xs font-medium"
+            class:bg-green-100={value}
+            class:text-green-900={value}
+            class:bg-red-100={!value}
+            class:text-red-900={!value}
+        >
+            {value ? 'yes' : 'no'}
+        </span>
+    {/snippet}
+</JsonView>
+```
+
+## Field-scoped rendering
+
+The `field` prop lets you key behavior off the parent label:
+
+```svelte
+<JsonView data={{ email: 'ada@example.com', bio: 'Mathematician.' }}>
+    {#snippet string({ value, field })}
+        {#if field === 'email'}
+            <a href={`mailto:${value}`}>{value}</a>
+        {:else}
+            "{value}"
+        {/if}
+    {/snippet}
+</JsonView>
+```
+
+`field` is `undefined` at the root and inside array elements. `level` is the depth — useful for nested-specific styling.
+
+## Custom label renderer
+
+The `label` snippet replaces the default key rendering. It receives `{ field, level }` and no `value`:
+
+```svelte
+<JsonView data={payload}>
+    {#snippet label({ field, level })}
+        <span class="font-mono text-muted-foreground" class:text-brand-500={level === 0}>
+            {field}
+        </span>
+    {/snippet}
+</JsonView>
+```
+
+## Mixing themes and snippets
+
+Snippets only replace the value cell. The surrounding container, punctuation, and field label continue to use `StyleProps` classes and `--sjv-*` tokens. Combine both for full theming:
+
+```svelte
+<JsonView data={payload} style={darkStyles}>
+    {#snippet string({ value })}
+        <em>{value}</em>
+    {/snippet}
+</JsonView>
+```
+
+## Related
+
+- [JsonView props](/docs/api/json-view) — every snippet listed alongside the other props
+- [Types & snippets](/docs/api/types) — exported prop types for each snippet
+- [Themes & CSS variables](/docs/themes) — theming the parts snippets don't touch

@@ -1,0 +1,112 @@
+---
+title: Getting Started
+description: Install and render your first JSON tree with @humanspeak/svelte-json-view-lite in under a minute.
+---
+
+<script>
+    import { getSeoContext } from '@humanspeak/docs-kit'
+
+    const seo = getSeoContext()
+    if (seo) {
+        seo.title = 'Getting Started | Svelte JSON View Lite'
+        seo.description = 'Install and render your first JSON tree with @humanspeak/svelte-json-view-lite in under a minute.'
+        seo.ogTitle = 'Getting Started'
+        seo.ogTagline = 'Install, import, render — three lines of Svelte 5.'
+        seo.ogFeatures = ['Quick Install', 'Svelte 5', 'TypeScript', 'SSR Safe']
+        seo.ogSlug = 'docs-getting-started'
+    }
+</script>
+
+# Getting Started
+
+**@humanspeak/svelte-json-view-lite** is a Svelte 5 port of [react-json-view-lite](https://github.com/AnyRoad/react-json-view-lite). It renders any JSON-serializable value as a collapsible tree with keyboard navigation, SSR-stable IDs, CSS-variable theming, and typed per-type `Snippet` overrides — all with zero runtime dependencies.
+
+## Installation
+
+```bash
+npm install @humanspeak/svelte-json-view-lite
+```
+
+```bash
+pnpm add @humanspeak/svelte-json-view-lite
+```
+
+```bash
+yarn add @humanspeak/svelte-json-view-lite
+```
+
+The package ships types, so TypeScript consumers need no additional `@types/*`.
+
+## Quick Start
+
+Import the component and pass any value as `data`:
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+
+    const payload = {
+        user: { id: 42, name: 'Ada Lovelace' },
+        active: true,
+        nextReview: null
+    }
+</script>
+
+<JsonView data={payload} />
+```
+
+That's the whole API for the default case. The tree renders light-theme by default and respects `prefers-color-scheme` only through explicit theme swapping (see below).
+
+## Dark Theme
+
+Every public style token ships in two flavors. Swap them with a single prop:
+
+```svelte
+<script lang="ts">
+    import { JsonView, darkStyles } from '@humanspeak/svelte-json-view-lite'
+</script>
+
+<JsonView data={payload} style={darkStyles} />
+```
+
+For a mode-aware site, bind the prop to your mode store:
+
+```svelte
+<script lang="ts">
+    import { JsonView, defaultStyles, darkStyles } from '@humanspeak/svelte-json-view-lite'
+    import { mode } from 'mode-watcher'
+
+    const theme = $derived(mode.current === 'dark' ? darkStyles : defaultStyles)
+</script>
+
+<JsonView data={payload} style={theme} />
+```
+
+Prefer theming with CSS variables? Every color is exposed as a `--sjv-*` custom property — see [Themes & CSS variables](/docs/themes).
+
+## Expansion Strategies
+
+By default every node is collapsed except the root. Pass a `shouldExpandNode` predicate to change that:
+
+```svelte
+<script lang="ts">
+    import { JsonView, allExpanded, collapseAllNested } from '@humanspeak/svelte-json-view-lite'
+</script>
+
+<!-- Fully expanded -->
+<JsonView data={payload} shouldExpandNode={allExpanded} />
+
+<!-- Only the root -->
+<JsonView data={payload} shouldExpandNode={collapseAllNested} />
+
+<!-- Custom: expand first two levels -->
+<JsonView data={payload} shouldExpandNode={(level) => level < 2} />
+```
+
+## Next Steps
+
+- [JsonView props](/docs/api/json-view) — every prop with defaults and types
+- [Types & snippets](/docs/api/types) — `StyleProps`, `SnippetOverrides`, event payloads
+- [Themes & CSS variables](/docs/themes) — the full `--sjv-*` token table
+- [Snippet overrides](/docs/snippet-overrides) — replace any primitive's renderer
+- [Accessibility](/docs/accessibility) — WAI-ARIA treeview + keyboard contract

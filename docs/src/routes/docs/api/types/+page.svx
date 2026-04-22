@@ -1,0 +1,207 @@
+---
+title: Types & Snippet Props
+description: Exported TypeScript types, style shape, and snippet prop interfaces for @humanspeak/svelte-json-view-lite.
+---
+
+<script>
+    import { getSeoContext } from '@humanspeak/docs-kit'
+
+    const seo = getSeoContext()
+    if (seo) {
+        seo.title = 'Types & Snippet Props | Svelte JSON View Lite'
+        seo.description = 'Exported TypeScript types, style shape, and snippet prop interfaces for @humanspeak/svelte-json-view-lite.'
+        seo.ogTitle = 'Types & Snippets'
+        seo.ogTagline = 'Every exported type, typed per the source.'
+        seo.ogFeatures = ['StyleProps', 'Snippet Types', 'AriaLabels', 'Event Payloads']
+        seo.ogSlug = 'docs-api-types'
+    }
+</script>
+
+# Types & Snippet Props
+
+Every public type is exported from the package root. Import types with `import type`:
+
+```ts
+import type {
+    Props,
+    StyleProps,
+    AriaLabels,
+    SnippetOverrides,
+    NodeExpandingEvent,
+    StringSnippetProps,
+    NumberSnippetProps,
+    BooleanSnippetProps,
+    NullSnippetProps,
+    UndefinedSnippetProps,
+    BigIntSnippetProps,
+    DateSnippetProps,
+    FunctionSnippetProps,
+    LabelSnippetProps
+} from '@humanspeak/svelte-json-view-lite'
+```
+
+## `Props`
+
+Accepted by `<JsonView>`. See [JsonView props](/docs/api/json-view) for narrative documentation.
+
+```ts
+export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'style'> {
+    data: object | unknown[]
+    style?: Partial<StyleProps>
+    shouldExpandNode?: (level: number, value: unknown, field?: string) => boolean
+    clickToExpandNode?: boolean
+    beforeExpandChange?: (event: NodeExpandingEvent) => boolean
+    compactTopLevel?: boolean
+    string?: Snippet<[StringSnippetProps]>
+    number?: Snippet<[NumberSnippetProps]>
+    boolean?: Snippet<[BooleanSnippetProps]>
+    null?: Snippet<[NullSnippetProps]>
+    undefined?: Snippet<[UndefinedSnippetProps]>
+    bigint?: Snippet<[BigIntSnippetProps]>
+    date?: Snippet<[DateSnippetProps]>
+    function?: Snippet<[FunctionSnippetProps]>
+    label?: Snippet<[LabelSnippetProps]>
+}
+```
+
+## `StyleProps`
+
+Classname map consumed by the viewer. `defaultStyles` and `darkStyles` are ready-made instances.
+
+```ts
+export interface StyleProps {
+    container: string
+    basicChildStyle: string
+    label: string
+    clickableLabel: string
+    nullValue: string
+    undefinedValue: string
+    numberValue: string
+    stringValue: string
+    booleanValue: string
+    otherValue: string
+    punctuation: string
+    expandIcon: string
+    collapseIcon: string
+    collapsedContent: string
+    childFieldsContainer: string
+    noQuotesForStringValues?: boolean
+    quotesForFieldNames?: boolean
+    ariaLabels: AriaLabels
+    /** @deprecated Use `ariaLabels`. Removed in 2.0. */
+    ariaLables?: AriaLabels
+    stringifyStringValues: boolean
+}
+```
+
+### Key roles
+
+| Key | Applies to |
+|-----|------------|
+| `container` | Outermost `<div>` around the tree |
+| `basicChildStyle` | Wrapper around each leaf or expandable child |
+| `label` | Field label (key) text |
+| `clickableLabel` | Label variant when `clickToExpandNode` is on |
+| `nullValue` / `undefinedValue` | `null` / `undefined` leaves |
+| `numberValue` / `stringValue` / `booleanValue` | Matching primitive leaves |
+| `otherValue` | `bigint`, `Date`, functions, and anything else |
+| `punctuation` | Braces, brackets, colons, commas |
+| `expandIcon` / `collapseIcon` | Arrow glyphs |
+| `collapsedContent` | Summary shown for collapsed branches (`{…}` / `[…]`) |
+| `childFieldsContainer` | `<ul role="group">` wrapping child fields |
+
+### Boolean options
+
+- `noQuotesForStringValues` — omit `"` around string leaves.
+- `quotesForFieldNames` — wrap labels in `"`.
+- `stringifyStringValues` — call `JSON.stringify` on strings so newlines and control characters appear as escape sequences.
+
+## `AriaLabels`
+
+Screen-reader labels applied to expander buttons.
+
+```ts
+export interface AriaLabels {
+    collapseJson: string
+    expandJson: string
+}
+```
+
+Default (exported as `defaultAriaLabels`):
+
+```ts
+{ collapseJson: 'collapse JSON', expandJson: 'expand JSON' }
+```
+
+> **Note on `ariaLables` (sic).** The React source shipped this typo on the style shape. The Svelte port accepts either key at runtime and emits a `console.warn` if only the typoed key is set. Use `ariaLabels`; the typoed alias is scheduled for removal in 2.0.
+
+## `SnippetOverrides`
+
+Bag of optional per-type snippets. Every key matches a same-named prop on `<JsonView>`.
+
+```ts
+export interface SnippetOverrides {
+    string?: Snippet<[StringSnippetProps]>
+    number?: Snippet<[NumberSnippetProps]>
+    boolean?: Snippet<[BooleanSnippetProps]>
+    null?: Snippet<[NullSnippetProps]>
+    undefined?: Snippet<[UndefinedSnippetProps]>
+    bigint?: Snippet<[BigIntSnippetProps]>
+    date?: Snippet<[DateSnippetProps]>
+    function?: Snippet<[FunctionSnippetProps]>
+    label?: Snippet<[LabelSnippetProps]>
+}
+```
+
+## Snippet Prop Types
+
+All value snippets share a single generic shape parameterized by the value's type:
+
+```ts
+export interface ValueSnippetProps<T> {
+    value: T
+    field?: string
+    level: number
+}
+```
+
+| Type alias | `value` type |
+|------------|--------------|
+| `StringSnippetProps` | `string` |
+| `NumberSnippetProps` | `number` |
+| `BooleanSnippetProps` | `boolean` |
+| `NullSnippetProps` | `null` |
+| `UndefinedSnippetProps` | `undefined` |
+| `BigIntSnippetProps` | `bigint` |
+| `DateSnippetProps` | `Date` |
+| `FunctionSnippetProps` | `Function` |
+
+`field` is the parent key (undefined at root and inside arrays). `level` is the depth (root = 0).
+
+The `label` snippet gets a slightly different shape (no `value`):
+
+```ts
+export interface LabelSnippetProps {
+    field: string
+    level: number
+}
+```
+
+## `NodeExpandingEvent`
+
+Payload passed to `beforeExpandChange`. Return `false` to veto.
+
+```ts
+export interface NodeExpandingEvent {
+    level: number
+    value: unknown
+    field?: string
+    newExpandValue: boolean
+}
+```
+
+## Related
+
+- [JsonView props](/docs/api/json-view) — narrative prop docs
+- [Snippet overrides](/docs/snippet-overrides) — worked examples for each snippet
+- [Themes & CSS variables](/docs/themes) — how `StyleProps` maps to real CSS

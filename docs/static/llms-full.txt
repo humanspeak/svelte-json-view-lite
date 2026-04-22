@@ -1,0 +1,191 @@
+# Svelte JSON View Lite — Complete Reference
+
+> Fast, tiny JSON tree viewer for Svelte 5 — port of react-json-view-lite (MIT © 2024 AnyRoad) with runes, SSR, per-type Snippet overrides, CSS-variable theming, and zero runtime dependencies.
+
+## Package Information
+
+- Package: `@humanspeak/svelte-json-view-lite`
+- Version: 0.1.x
+- License: MIT (Copyright © 2024-2026 Humanspeak, Inc.; upstream © 2024 AnyRoad)
+- Requires: Svelte 5
+- Runtime dependencies: none
+- Maintained by: Humanspeak, Inc.
+- Homepage: https://jsonview.svelte.page
+- Repository: https://github.com/humanspeak/svelte-json-view-lite
+- Upstream: https://github.com/AnyRoad/react-json-view-lite
+
+## Installation
+
+```bash
+npm install @humanspeak/svelte-json-view-lite
+# or
+pnpm add @humanspeak/svelte-json-view-lite
+# or
+yarn add @humanspeak/svelte-json-view-lite
+```
+
+## JsonView Component Props
+
+| Prop                   | Type                                                      | Default         | Description                                                                        |
+| ---------------------- | --------------------------------------------------------- | --------------- | ---------------------------------------------------------------------------------- |
+| `data`                 | `object \| unknown[]`                                     | —               | The JSON-shaped value to render                                                    |
+| `style`                | `Partial<StyleProps>`                                     | `defaultStyles` | Classname-map that themes every slot                                               |
+| `shouldExpandNode`     | `(level, value, field?) => boolean`                       | `allExpanded`   | Initial-expand strategy per node                                                   |
+| `clickToExpandNode`    | `boolean`                                                 | `false`         | Clicking the field label also toggles the node                                     |
+| `beforeExpandChange`   | `(event: NodeExpandingEvent) => boolean`                  | —               | Return `false` to veto an expand/collapse transition                               |
+| `compactTopLevel`      | `boolean`                                                 | `false`         | Spread root-object entries rather than nesting under a single root expander        |
+| `string`, `number`, …  | `Snippet<[{ value, field?, level }]>`                     | —               | Optional per-type renderer overrides                                               |
+
+Any additional HTML attributes (`aria-*`, `data-*`, `id`, `class`, etc.) are forwarded onto the root `<div role="tree">`.
+
+## Basic Usage
+
+```svelte
+<script lang="ts">
+    import { JsonView, defaultStyles } from '@humanspeak/svelte-json-view-lite'
+
+    const data = {
+        name: 'Ada Lovelace',
+        tags: ['admin', 'beta'],
+        active: true,
+        joined: new Date('2024-01-15')
+    }
+</script>
+
+<JsonView {data} style={defaultStyles} />
+```
+
+## Theme Presets
+
+Two themes ship out of the box:
+
+```svelte
+<script lang="ts">
+    import { JsonView, defaultStyles, darkStyles } from '@humanspeak/svelte-json-view-lite'
+</script>
+
+<JsonView data={json} style={darkStyles} />
+```
+
+Override individual slots by spreading:
+
+```svelte
+<JsonView
+    {data}
+    style={{
+        ...defaultStyles,
+        stringValue: 'my-custom-string-class'
+    }}
+/>
+```
+
+## CSS Variable Theming
+
+Every color is exposed as a CSS custom property on the root container. Override at any ancestor selector without swapping the `style` prop:
+
+| Variable            | Default (light)    | Default (dark)       | Applies to                                 |
+| ------------------- | ------------------ | -------------------- | ------------------------------------------ |
+| `--sjv-background`  | `#eee`             | `rgb(0, 43, 54)`     | Root container background                  |
+| `--sjv-label`       | `#000000`          | `rgb(253, 246, 227)` | Field label text                           |
+| `--sjv-punctuation` | `#000000`          | `rgb(253, 246, 227)` | Brackets, colons, commas                   |
+| `--sjv-string`      | `rgb(42, 63, 60)`  | `rgb(203, 75, 22)`   | String values                              |
+| `--sjv-number`      | `#0b75f5`          | `rgb(211, 54, 130)`  | Number & BigInt values                     |
+| `--sjv-boolean`     | `rgb(70, 144, 56)` | `rgb(174, 129, 255)` | Boolean values                             |
+| `--sjv-null`        | `#df113a`          | `rgb(129, 181, 172)` | `null` literal                             |
+| `--sjv-undefined`   | `#df113a`          | `rgb(129, 181, 172)` | `undefined` literal                        |
+| `--sjv-other`       | `#43413d`          | `rgb(38, 139, 210)`  | Dates, functions, symbols, etc.            |
+| `--sjv-expander`    | `#000000`          | `rgb(253, 246, 227)` | `▸` / `▾` icons and collapsed `...` marker |
+
+## Snippet Overrides
+
+Every primitive type plus the field label can be replaced with a typed Svelte snippet:
+
+```svelte
+<script lang="ts">
+    import {
+        JsonView,
+        type DateSnippetProps,
+        type StringSnippetProps
+    } from '@humanspeak/svelte-json-view-lite'
+</script>
+
+<JsonView {data}>
+    {#snippet date({ value }: DateSnippetProps)}
+        <span title={value.toISOString()}>{relative(value)}</span>
+    {/snippet}
+    {#snippet string({ value }: StringSnippetProps)}
+        {#if /^https?:/.test(value)}
+            <a href={value}>{value}</a>
+        {:else}
+            "{value}"
+        {/if}
+    {/snippet}
+</JsonView>
+```
+
+Available snippet names: `string`, `number`, `boolean`, `null`, `undefined`, `bigint`, `date`, `function`, `label`. Their typed prop interfaces (`StringSnippetProps`, `LabelSnippetProps`, etc.) are all exported from the package root.
+
+## Expand Strategies
+
+```svelte
+<script lang="ts">
+    import {
+        JsonView,
+        collapseAllNested,
+        allExpanded
+    } from '@humanspeak/svelte-json-view-lite'
+</script>
+
+<JsonView {data} shouldExpandNode={collapseAllNested} />
+<JsonView {data} shouldExpandNode={allExpanded} />
+<JsonView {data} shouldExpandNode={(level) => level < 2} />
+```
+
+## Migration from react-json-view-lite
+
+| React                       | Svelte                                                       |
+| --------------------------- | ------------------------------------------------------------ |
+| `style={defaultStyles}`     | `style={defaultStyles}`                                      |
+| `clickToExpandNode`         | `clickToExpandNode`                                          |
+| `compactTopLevel`           | `compactTopLevel`                                            |
+| `shouldExpandNode`          | `shouldExpandNode`                                           |
+| `beforeExpandChange`        | `beforeExpandChange`                                         |
+| `style.ariaLables` (typoed) | `style.ariaLabels` (typo accepted at runtime with a warning) |
+| — (not supported)           | Per-type `Snippet` overrides                                 |
+
+Everything else preserves the React API exactly.
+
+## Accessibility
+
+- Root element has `role="tree"` with `aria-label="JSON view"` (overridable)
+- Every expandable node is `role="treeitem"` with live `aria-expanded` and, when open, `aria-controls` pointing at its child `<ul role="group">`
+- Keyboard support follows the WAI-ARIA 1.2 Treeview pattern (`ArrowRight`/`ArrowLeft` expand/collapse, `ArrowDown`/`ArrowUp` move focus with wrap-around, roving `tabindex` keeps only one expander in the tab order)
+
+## Public Exports
+
+Component:
+
+- `JsonView` (default and named export)
+
+Theme presets:
+
+- `defaultStyles` (light)
+- `darkStyles`
+- `defaultAriaLabels`
+
+Expand strategies:
+
+- `allExpanded`
+- `collapseAllNested`
+
+Types:
+
+- `Props`, `StyleProps`, `AriaLabels`, `NodeExpandingEvent`, `SnippetOverrides`
+- Per-type snippet props: `StringSnippetProps`, `NumberSnippetProps`, `BooleanSnippetProps`, `NullSnippetProps`, `UndefinedSnippetProps`, `BigIntSnippetProps`, `DateSnippetProps`, `FunctionSnippetProps`, `LabelSnippetProps`
+
+## Links
+
+- Documentation: https://jsonview.svelte.page
+- Repository: https://github.com/humanspeak/svelte-json-view-lite
+- NPM: https://www.npmjs.com/package/@humanspeak/svelte-json-view-lite
+- Sister library: https://markdown.svelte.page (@humanspeak/svelte-markdown)

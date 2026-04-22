@@ -1,0 +1,25 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+    "name": "svelte-page-jsonview",
+    "compatibility_date": "2026-04-20",
+    "compatibility_flags": ["nodejs_als", "nodejs_compat"],
+    "main": ".svelte-kit/cloudflare/_worker.js",
+    "assets": {
+        "directory": ".svelte-kit/cloudflare",
+        "binding": "ASSETS"
+    },
+    "observability": {
+        "enabled": true
+    },
+    "upload_source_maps": true,
+    "routes": [{ "pattern": "jsonview.svelte.page/*", "zone_name": "svelte.page" }],
+    "vars": {
+        "PUBLIC_ENVIRONMENT": "production",
+        "ENVIRONMENT": "production",
+        "NODE_ENV": "production"
+    }
+}
