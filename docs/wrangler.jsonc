@@ -16,7 +16,13 @@
         "enabled": true
     },
     "upload_source_maps": true,
-    "routes": [{ "pattern": "jsonview.svelte.page/*", "zone_name": "svelte.page" }],
+    /**
+     * Route binding intentionally omitted — the `jsonview.svelte.page`
+     * custom domain is provisioned via terraform (same pattern as the
+     * sibling svelte-page-markdown worker). Declaring it here would
+     * make wrangler call the zone-scoped Workers Routes API on every
+     * deploy, which requires permissions the CI token does not carry.
+     */
     "vars": {
         "PUBLIC_ENVIRONMENT": "production",
         "ENVIRONMENT": "production",
