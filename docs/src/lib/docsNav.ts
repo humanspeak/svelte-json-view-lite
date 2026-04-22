@@ -1,5 +1,16 @@
 import type { Breadcrumb, NavSection } from '@humanspeak/docs-kit'
-import { Accessibility, BookOpen, Braces, Paintbrush, Puzzle, Rocket } from '@lucide/svelte'
+import {
+    Accessibility,
+    BookOpen,
+    Braces,
+    FlaskConical,
+    MousePointerClick,
+    Paintbrush,
+    Play,
+    Puzzle,
+    Rocket,
+    SquarePen
+} from '@lucide/svelte'
 
 const itemBreadcrumbOverrides: Record<string, string> = {
     '/docs/api/json-view': 'JsonView',
@@ -58,5 +69,20 @@ export const docsSections: NavSection[] = [
     {
         title: 'Accessibility',
         items: [{ title: 'Treeview pattern', href: '/docs/accessibility', icon: Accessibility }]
+    },
+    {
+        title: 'Interactive Demos',
+        items: [
+            { title: 'All examples', href: '/examples', icon: Play },
+            { title: 'Live playground', href: '/examples/playground', icon: SquarePen },
+            { title: 'Snippet overrides', href: '/examples/snippet-overrides', icon: Puzzle },
+            { title: 'CSS variable themer', href: '/examples/css-variables', icon: Paintbrush },
+            {
+                title: 'Click to expand',
+                href: '/examples/click-to-expand',
+                icon: MousePointerClick
+            },
+            { title: 'Edge cases', href: '/examples/edge-cases', icon: FlaskConical }
+        ]
     }
 ]
