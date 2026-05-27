@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "build": "tsx ./scripts/fetch-github-stats.ts && node ./scripts/generate-sitemap-manifest.mjs && tsx ./scripts/generate-social-cards.ts && vite build",
-        "cf-typegen": "wrangler types && mv worker-configuration.d.ts src/",
+        "cf-typegen": "wrangler types src/worker-configuration.d.ts",
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "deploy": "npm run build && wrangler deploy",
@@ -18,31 +18,31 @@
         "social:watch": "chokidar 'src/lib/components/shared-link/OG.svelte' 'scripts/generate-social-cards.ts' -c 'tsx ./scripts/generate-social-cards.ts' --initial --silent"
     },
     "dependencies": {
-        "@humanspeak/docs-kit": "github:humanspeak/docs-kit#2026.3.31",
+        "@humanspeak/docs-kit": "github:humanspeak/docs-kit#2026.5.38",
         "@humanspeak/svelte-json-view-lite": "workspace:*",
         "runed": "^0.37.1"
     },
     "devDependencies": {
-        "@cloudflare/workers-types": "^4.20260414.1",
+        "@cloudflare/workers-types": "^4.20260527.1",
         "@icons-pack/svelte-simple-icons": "^7.2.0",
-        "@lucide/svelte": "^1.8.0",
+        "@lucide/svelte": "^1.16.0",
         "@sveltejs/adapter-cloudflare": "^7.2.8",
-        "@sveltejs/kit": "^2.57.1",
-        "@sveltejs/vite-plugin-svelte": "^7.0.0",
+        "@sveltejs/kit": "^2.61.1",
+        "@sveltejs/vite-plugin-svelte": "^7.1.2",
         "@tailwindcss/typography": "^0.5.19",
-        "@tailwindcss/vite": "^4.2.2",
+        "@tailwindcss/vite": "^4.3.0",
         "chokidar-cli": "^3.0.0",
         "mdsvex": "^0.12.7",
         "mode-watcher": "^1.1.0",
-        "shiki": "^4.0.2",
-        "svelte": "^5.55.4",
-        "svelte-check": "^4.4.6",
-        "tailwind-merge": "^3.5.0",
-        "tailwindcss": "^4.2.2",
-        "tsx": "^4.21.0",
-        "typescript": "^6.0.2",
-        "vite": "^8.0.8",
-        "wrangler": "^4.82.2"
+        "shiki": "^4.1.0",
+        "svelte": "^5.55.9",
+        "svelte-check": "^4.4.8",
+        "tailwind-merge": "^3.6.0",
+        "tailwindcss": "^4.3.0",
+        "tsx": "^4.22.3",
+        "typescript": "^6.0.3",
+        "vite": "^8.0.14",
+        "wrangler": "^4.95.0"
     },
     "volta": {
         "node": "24.15.0"
