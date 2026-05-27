@@ -20,6 +20,7 @@
     "dependencies": {
         "@humanspeak/docs-kit": "github:humanspeak/docs-kit#2026.5.38",
         "@humanspeak/svelte-json-view-lite": "workspace:*",
+        "@humanspeak/svelte-markdown": "^1.5.2",
         "runed": "^0.37.1"
     },
     "devDependencies": {
