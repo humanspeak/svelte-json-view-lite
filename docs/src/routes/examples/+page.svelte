@@ -1,101 +1,127 @@
 <script lang="ts">
-    import { getSeoContext } from '@humanspeak/docs-kit'
-    import {
-        ArrowRight,
-        FlaskConical,
-        MousePointerClick,
-        Paintbrush,
-        Puzzle,
-        SquarePen
-    } from '@lucide/svelte'
+    import { BrutIndexV2 } from '@humanspeak/docs-kit'
+    import { getBreadcrumbContext } from '$lib/components/contexts/Breadcrumb/Breadcrumb.context'
+    import { getSeoContext } from '$lib/components/contexts/Seo/Seo.context'
+    import rootPkg from '../../../../package.json'
 
-    const seo = getSeoContext()
-    if (seo) {
-        seo.title = 'Interactive Examples | Svelte JSON View Lite'
-        seo.description =
-            'Live playgrounds for @humanspeak/svelte-json-view-lite — editor, snippet overrides, CSS-variable theming, click-to-expand, and edge cases.'
-        seo.ogTitle = 'Interactive Examples'
-        seo.ogTagline = 'Five live playgrounds for the tree viewer.'
-        seo.ogFeatures = ['Live Editor', 'Snippet Overrides', 'CSS Variables', 'Edge Cases']
-        seo.ogSlug = 'examples'
-    }
+    const PKG_NAME = rootPkg.name
 
-    type ExampleIcon = typeof SquarePen
-    const examples: {
+    type ExampleTag = 'DEMO' | 'SNIPPETS' | 'THEMING' | 'INTERACTION' | 'VALUES' | 'A11Y'
+
+    type Example = {
         slug: string
         title: string
+        tag: ExampleTag
         description: string
-        icon: ExampleIcon
-    }[] = [
+    }
+
+    const examples: Example[] = [
         {
             slug: 'playground',
             title: 'Live Playground',
+            tag: 'DEMO',
             description:
-                'Edit JSON (or JS expressions) and see the tree render instantly. Switch expand strategies and toggle click-to-expand.',
-            icon: SquarePen
+                'Edit JSON in real time and see the tree render instantly with inline parse errors.'
         },
         {
             slug: 'snippet-overrides',
             title: 'Snippet Overrides',
+            tag: 'SNIPPETS',
             description:
-                'Flip switches to linkify URLs, relative-format dates, badge booleans, and localize numbers — all via typed Snippet props.',
-            icon: Puzzle
+                'Decorate strings, numbers, dates, booleans, labels, and primitive values with typed Svelte snippets.'
         },
         {
             slug: 'css-variables',
             title: 'CSS Variable Themer',
+            tag: 'THEMING',
             description:
-                'Color-pick every --sjv-* token or jump to a named preset. Theming without swapping the style prop.',
-            icon: Paintbrush
+                'Tune the --sjv-* theme tokens live without replacing the viewer style map.'
         },
         {
             slug: 'click-to-expand',
             title: 'Click to Expand',
+            tag: 'INTERACTION',
             description:
-                'Toggle label clicks and watch beforeExpandChange veto decisions stream into a live event log.',
-            icon: MousePointerClick
+                'Toggle label-click expansion and watch beforeExpandChange decisions stream into a live event log.'
         },
         {
             slug: 'edge-cases',
             title: 'Edge Cases',
+            tag: 'VALUES',
             description:
-                'Every supported value type in one payload — dates, bigints, functions, nulls, empty containers, long strings.',
-            icon: FlaskConical
+                'Render dates, bigints, functions, nulls, empty containers, nested arrays, and long strings.'
+        },
+        {
+            slug: 'accessibility',
+            title: 'ARIA Treeview',
+            tag: 'A11Y',
+            description:
+                'Inspect tree roles, expanded state, labelled controls, and keyboard-ready focus behavior.'
         }
     ]
+
+    const breadcrumbs = getBreadcrumbContext()
+    const seo = getSeoContext()
+    if (breadcrumbs) {
+        breadcrumbs.breadcrumbs = [{ title: 'Examples' }]
+    }
+    if (seo) {
+        seo.title = 'Interactive Examples | Svelte JSON View Lite'
+        seo.description =
+            'Live demos for @humanspeak/svelte-json-view-lite: JSON editing, snippet overrides, CSS-variable theming, click-to-expand behavior, edge cases, and ARIA tree semantics.'
+        seo.ogTitle = 'Interactive Examples'
+        seo.ogTagline = 'Live JSON tree viewer demos for Svelte 5.'
+        seo.ogFeatures = ['Live JSON', 'Snippet Overrides', 'CSS Variables', 'ARIA Treeview']
+        seo.ogSlug = 'examples'
+    }
+
+    const pad2 = (n: number) => String(n).padStart(2, '0')
+
+    const items = examples.map((e, i) => ({
+        href: `/examples/${e.slug}`,
+        id: `№ ${pad2(i + 1)} / ${pad2(examples.length)}`,
+        title: `${e.title.toLowerCase()}.`,
+        tag: e.tag,
+        line: e.description
+    }))
 </script>
 
-<div class="mx-auto w-full max-w-6xl px-6 py-12">
-    <div class="mb-10 text-center">
-        <h1 class="text-foreground text-4xl font-bold md:text-5xl">Interactive Examples</h1>
-        <p class="text-muted-foreground mx-auto mt-4 max-w-2xl text-sm md:text-base">
-            Live playgrounds for every feature the viewer ships. All demos run client-side — no
-            network round trips, no build step.
-        </p>
-    </div>
-
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {#each examples as example (example.slug)}
-            <a
-                href={`/examples/${example.slug}`}
-                class="group border-border bg-card hover:border-brand-500/50 hover:shadow-brand-500/10 relative flex flex-col overflow-hidden rounded-lg border p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-            >
-                <div
-                    class="from-brand-500 to-brand-600 mb-3 inline-flex h-10 w-10 items-center justify-center rounded-md bg-gradient-to-br text-white"
-                >
-                    <example.icon class="size-5" />
-                </div>
-                <h2 class="text-foreground mb-1 font-semibold">{example.title}</h2>
-                <p class="text-muted-foreground flex-1 text-sm leading-relaxed">
-                    {example.description}
-                </p>
-                <span class="text-brand-500 mt-3 inline-flex items-center text-xs font-medium">
-                    Open demo
-                    <ArrowRight
-                        class="ml-1 size-3 transition-transform group-hover:translate-x-0.5"
-                    />
-                </span>
-            </a>
-        {/each}
-    </div>
-</div>
+<BrutIndexV2
+    hero={{
+        figLabel: 'FIG-001 · EXAMPLES INDEX',
+        figId: 'FIG-001',
+        sheetLabel: 'SHEET 01 / 02',
+        meta: [
+            { k: 'demos', v: String(examples.length) },
+            { k: 'format', v: 'live editors' },
+            { k: 'tone', v: 'interactive' },
+            { rule: 'dashed' },
+            { k: 'library', v: PKG_NAME },
+            { k: 'framework', v: 'svelte 5', accent: true }
+        ],
+        metaFooter: '// scroll for demos',
+        kicker: '// examples / live demos',
+        title: { accent: 'examples', end: '.' },
+        subHtml:
+            'Hands-on demos of <b>@humanspeak/svelte-json-view-lite</b> — live JSON editing, typed snippet overrides, CSS-variable theming, interaction hooks, value edge cases, and ARIA tree behavior. Edit, copy, ship.',
+        ctas: [
+            { label: 'open playground ↗', href: '/examples/playground', primary: true },
+            { label: 'get started', href: '/docs/getting-started' },
+            { label: 'compare', href: '/compare' }
+        ]
+    }}
+    lede={{
+        kicker: 'FIG-002 / DEMOS',
+        title: { prefix: 'pick a ', accent: 'demo', suffix: '.' },
+        body: 'Each page is a self-contained live example with the source you need to copy into your own project.'
+    }}
+    {items}
+    footer={{
+        big: {
+            prefix: 'try ',
+            accent: 'the playground',
+            href: '/examples/playground',
+            hint: 'edit JSON live'
+        }
+    }}
+/>

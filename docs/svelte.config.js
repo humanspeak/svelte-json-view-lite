@@ -45,10 +45,10 @@ const config = {
             mode: 'hash',
             directives: {
                 'default-src': ['self'],
-                'script-src': ['self', 'unsafe-inline', 'wasm-unsafe-eval'],
-                'style-src': ['self', 'unsafe-inline'],
+                'script-src': ['self', 'https://*.ahrefs.com', 'unsafe-inline', 'wasm-unsafe-eval'],
+                'style-src': ['self', 'unsafe-inline', 'https://cdn.jsdelivr.net'],
                 'img-src': ['self', 'data:', 'https:'],
-                'font-src': ['self', 'data:'],
+                'font-src': ['self', 'data:', 'https://cdn.jsdelivr.net'],
                 'worker-src': ['self', 'blob:'],
                 'connect-src': ['self', 'https:'],
                 'frame-ancestors': ['none'],

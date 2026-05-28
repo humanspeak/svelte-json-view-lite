@@ -59,27 +59,20 @@
         }
     }
 
-    const style = $derived(mode.current === 'dark' ? darkStyles : defaultStyles)
+    const style = $derived(mode.current === 'light' ? defaultStyles : darkStyles)
 </script>
 
-<div
-    class="border-border bg-card mx-auto grid h-[calc(100vh-10rem)] min-h-[640px] w-full max-w-6xl grid-cols-1 overflow-hidden rounded-xl border shadow-sm lg:grid-cols-[1fr_320px]"
->
-    <div class="flex flex-col overflow-hidden">
-        <div
-            class="border-border bg-muted/40 flex flex-wrap items-center gap-4 border-b px-4 py-2 text-xs"
-        >
-            <label class="text-foreground flex items-center gap-1.5 font-medium">
-                <input type="checkbox" bind:checked={clickToExpand} class="accent-brand-500" />
+<div class="json-demo split">
+    <div class="json-demo column">
+        <div class="json-demo-controls">
+            <label class="json-demo-control">
+                <input type="checkbox" bind:checked={clickToExpand} />
                 clickToExpandNode
             </label>
-            <div class="bg-border h-4 w-px"></div>
-            <div class="flex items-center gap-1">
-                <span class="text-muted-foreground font-medium">Veto:</span>
-                <select
-                    bind:value={veto}
-                    class="border-border bg-background text-foreground rounded-md border px-2 py-1"
-                >
+            <div class="json-demo-divider"></div>
+            <div class="json-demo-control-group">
+                <span>veto</span>
+                <select bind:value={veto}>
                     <option value="none">Allow everything</option>
                     <option value="keep-root">Can't collapse root</option>
                     <option value="shallow-only">Block expand past level 2</option>
@@ -87,7 +80,7 @@
                 </select>
             </div>
         </div>
-        <div class="bg-background flex-1 overflow-auto p-6">
+        <div class="json-demo-body">
             <JsonView
                 data={payload}
                 {style}
@@ -98,33 +91,18 @@
         </div>
     </div>
 
-    <aside
-        class="border-border bg-muted/30 flex flex-col overflow-hidden border-t lg:border-t-0 lg:border-l"
-    >
-        <div class="border-border flex items-center justify-between border-b px-4 py-2 text-xs">
-            <span class="text-muted-foreground font-semibold tracking-wide uppercase">
-                Event log
-            </span>
-            <button
-                class="text-brand-500 text-xs font-medium hover:underline"
-                onclick={() => (log = [])}
-            >
-                Clear
-            </button>
+    <aside class="json-demo-rail">
+        <div class="json-demo-controls">
+            <span>event log</span>
+            <button class="json-demo-clear" onclick={() => (log = [])}>clear</button>
         </div>
-        <ul class="flex-1 space-y-1 overflow-auto p-3 font-mono text-xs">
+        <ul class="json-demo-log">
             {#each log as entry, index (index)}
-                <li
-                    class="rounded px-2 py-1"
-                    class:bg-green-50={entry.startsWith('allow')}
-                    class:text-green-900={entry.startsWith('allow')}
-                    class:bg-red-50={entry.startsWith('veto')}
-                    class:text-red-900={entry.startsWith('veto')}
-                >
+                <li class:allow={entry.startsWith('allow')} class:veto={entry.startsWith('veto')}>
                     {entry}
                 </li>
             {:else}
-                <li class="text-muted-foreground">Click the tree to populate this log.</li>
+                <li>Click the tree to populate this log.</li>
             {/each}
         </ul>
     </aside>

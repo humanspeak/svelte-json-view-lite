@@ -2,6 +2,7 @@
     import { getSeoContext } from '@humanspeak/docs-kit'
     import Example from '$lib/components/general/Example.svelte'
     import EdgeCases from '$lib/examples/EdgeCases.svelte'
+    import sourceCode from '$lib/examples/EdgeCases.svelte?raw'
 
     const seo = getSeoContext()
     if (seo) {
@@ -17,6 +18,14 @@
 
 <Example
     title="Edge Cases"
+    description="Render dates, bigints, functions, nulls, empty containers, nested arrays, and long strings in one payload."
+    tag="VALUES"
+    filename="EdgeCases.svelte"
+    {sourceCode}
+    barCells={[
+        { k: 'fixture', v: 'mixed values' },
+        { k: 'coverage', v: 'all values' }
+    ]}
     sourceUrl="https://github.com/humanspeak/svelte-json-view-lite/blob/main/docs/src/lib/examples/EdgeCases.svelte"
 >
     <EdgeCases />

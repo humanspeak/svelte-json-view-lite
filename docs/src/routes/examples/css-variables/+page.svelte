@@ -2,6 +2,7 @@
     import { getSeoContext } from '@humanspeak/docs-kit'
     import Example from '$lib/components/general/Example.svelte'
     import CssVariableThemer from '$lib/examples/CssVariableThemer.svelte'
+    import sourceCode from '$lib/examples/CssVariableThemer.svelte?raw'
 
     const seo = getSeoContext()
     if (seo) {
@@ -17,6 +18,14 @@
 
 <Example
     title="CSS Variable Themer"
+    description="Tune the --sjv-* theme tokens live without replacing the viewer style map."
+    tag="THEMING"
+    filename="CssVariableThemer.svelte"
+    {sourceCode}
+    barCells={[
+        { k: 'theme', v: 'css variables' },
+        { k: 'preview', v: 'live' }
+    ]}
     sourceUrl="https://github.com/humanspeak/svelte-json-view-lite/blob/main/docs/src/lib/examples/CssVariableThemer.svelte"
 >
     <CssVariableThemer />

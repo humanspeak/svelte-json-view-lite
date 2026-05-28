@@ -1,6 +1,6 @@
 ---
 title: JsonView Props
-description: Complete prop reference for the <JsonView> component in @humanspeak/svelte-json-view-lite.
+description: Complete prop reference for the JsonView component in @humanspeak/svelte-json-view-lite.
 ---
 
 <script>
@@ -9,7 +9,7 @@ description: Complete prop reference for the <JsonView> component in @humanspeak
     const seo = getSeoContext()
     if (seo) {
         seo.title = 'JsonView Props | Svelte JSON View Lite'
-        seo.description = 'Complete prop reference for the <JsonView> component in @humanspeak/svelte-json-view-lite.'
+        seo.description = 'Complete prop reference for the JsonView component in @humanspeak/svelte-json-view-lite.'
         seo.ogTitle = 'JsonView Props'
         seo.ogTagline = 'Every prop, default, and type — mapped to the source.'
         seo.ogFeatures = ['Prop Reference', 'TypeScript Types', 'Defaults', 'Callbacks']

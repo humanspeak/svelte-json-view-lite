@@ -38,34 +38,30 @@
         return relativeFormatter.format(hours, 'hour')
     }
 
-    const style = $derived(mode.current === 'dark' ? darkStyles : defaultStyles)
+    const style = $derived(mode.current === 'light' ? defaultStyles : darkStyles)
 </script>
 
-<div
-    class="border-border bg-card mx-auto flex h-[calc(100vh-10rem)] min-h-[600px] w-full max-w-5xl flex-col overflow-hidden rounded-xl border shadow-sm"
->
-    <div
-        class="border-border bg-muted/40 flex flex-wrap items-center gap-4 border-b px-4 py-2 text-xs"
-    >
-        <label class="text-foreground flex items-center gap-1.5 font-medium">
-            <input type="checkbox" bind:checked={linkify} class="accent-brand-500" />
-            Linkify URLs
+<div class="json-demo column">
+    <div class="json-demo-controls">
+        <label class="json-demo-control">
+            <input type="checkbox" bind:checked={linkify} />
+            linkify URLs
         </label>
-        <label class="text-foreground flex items-center gap-1.5 font-medium">
-            <input type="checkbox" bind:checked={relativeDates} class="accent-brand-500" />
-            Relative dates
+        <label class="json-demo-control">
+            <input type="checkbox" bind:checked={relativeDates} />
+            relative dates
         </label>
-        <label class="text-foreground flex items-center gap-1.5 font-medium">
-            <input type="checkbox" bind:checked={formatNumbers} class="accent-brand-500" />
-            Format numbers
+        <label class="json-demo-control">
+            <input type="checkbox" bind:checked={formatNumbers} />
+            format numbers
         </label>
-        <label class="text-foreground flex items-center gap-1.5 font-medium">
-            <input type="checkbox" bind:checked={badgeBooleans} class="accent-brand-500" />
-            Badge booleans
+        <label class="json-demo-control">
+            <input type="checkbox" bind:checked={badgeBooleans} />
+            badge booleans
         </label>
     </div>
 
-    <div class="bg-background flex-1 overflow-auto p-6">
+    <div class="json-demo-body">
         <JsonView data={payload} {style}>
             {#snippet string({ value, field })}
                 {#if linkify && isUrl(value)}
@@ -73,15 +69,12 @@
                         href={value}
                         target="_blank"
                         rel="noopener noreferrer"
-                        class="text-brand-500 underline decoration-dotted underline-offset-2"
+                        class="json-demo-link"
                     >
                         {value}
                     </a>
                 {:else if linkify && field === 'email'}
-                    <a
-                        href={`mailto:${value}`}
-                        class="text-brand-500 underline decoration-dotted underline-offset-2"
-                    >
+                    <a href={`mailto:${value}`} class="json-demo-link">
                         {value}
                     </a>
                 {:else}
@@ -99,13 +92,7 @@
 
             {#snippet boolean({ value })}
                 {#if badgeBooleans}
-                    <span
-                        class="rounded px-1.5 py-0.5 text-xs font-medium"
-                        class:bg-green-100={value}
-                        class:text-green-900={value}
-                        class:bg-red-100={!value}
-                        class:text-red-900={!value}
-                    >
+                    <span class="json-demo-badge {value ? 'true' : 'false'}">
                         {value ? 'yes' : 'no'}
                     </span>
                 {:else}
@@ -118,7 +105,7 @@
                     <time
                         datetime={value.toISOString()}
                         title={value.toISOString()}
-                        class="text-muted-foreground italic"
+                        class="json-demo-muted"
                     >
                         {relative(value)}
                     </time>
@@ -129,3 +116,17 @@
         </JsonView>
     </div>
 </div>
+
+<style>
+    .json-demo-link {
+        color: var(--brut-accent);
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        text-underline-offset: 3px;
+    }
+
+    .json-demo-muted {
+        color: var(--brut-ink-2);
+        font-style: italic;
+    }
+</style>

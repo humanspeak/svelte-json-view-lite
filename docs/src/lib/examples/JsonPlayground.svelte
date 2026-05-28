@@ -57,7 +57,7 @@
         return (level: number) => level < expandLevel
     })
 
-    const style = $derived(mode.current === 'dark' ? darkStyles : defaultStyles)
+    const style = $derived(mode.current === 'light' ? defaultStyles : darkStyles)
 
     const swapMode = (next: ParseMode) => {
         if (next === parseMode) return
@@ -66,78 +66,49 @@
     }
 </script>
 
-<div
-    class="border-border bg-card mx-auto flex h-[calc(100vh-10rem)] min-h-[640px] w-full max-w-7xl flex-col overflow-hidden rounded-xl border shadow-sm"
->
-    <div
-        class="border-border bg-muted/40 flex flex-wrap items-center gap-3 border-b px-4 py-2 text-xs"
-    >
-        <div class="flex items-center gap-1">
-            <span class="text-muted-foreground font-medium">Parse:</span>
-            <button
-                class="rounded-md px-2 py-1 font-medium transition-colors"
-                class:bg-brand-500={parseMode === 'json'}
-                class:text-white={parseMode === 'json'}
-                class:text-muted-foreground={parseMode !== 'json'}
-                onclick={() => swapMode('json')}>JSON</button
+<div class="json-demo column">
+    <div class="json-demo-controls">
+        <div class="json-demo-control-group">
+            <span>parse</span>
+            <button class:active={parseMode === 'json'} onclick={() => swapMode('json')}
+                >JSON</button
             >
-            <button
-                class="rounded-md px-2 py-1 font-medium transition-colors"
-                class:bg-brand-500={parseMode === 'js'}
-                class:text-white={parseMode === 'js'}
-                class:text-muted-foreground={parseMode !== 'js'}
-                onclick={() => swapMode('js')}>JS</button
-            >
+            <button class:active={parseMode === 'js'} onclick={() => swapMode('js')}>JS</button>
         </div>
 
-        <div class="bg-border h-4 w-px"></div>
+        <div class="json-demo-divider"></div>
 
-        <div class="flex items-center gap-1">
-            <span class="text-muted-foreground font-medium">Expand:</span>
-            <select
-                bind:value={expandMode}
-                class="border-border bg-background text-foreground rounded-md border px-2 py-1"
-            >
+        <div class="json-demo-control-group">
+            <span>expand</span>
+            <select bind:value={expandMode}>
                 <option value="root">Root only</option>
                 <option value="all">All</option>
                 <option value="level">By level</option>
             </select>
             {#if expandMode === 'level'}
-                <input
-                    type="number"
-                    min="0"
-                    max="10"
-                    bind:value={expandLevel}
-                    class="border-border bg-background text-foreground w-14 rounded-md border px-2 py-1"
-                />
+                <input type="number" min="0" max="10" bind:value={expandLevel} />
             {/if}
         </div>
 
-        <div class="bg-border h-4 w-px"></div>
+        <div class="json-demo-divider"></div>
 
-        <label class="text-foreground flex items-center gap-1.5 font-medium">
-            <input type="checkbox" bind:checked={clickToExpand} class="accent-brand-500" />
-            Click label to expand
+        <label class="json-demo-control">
+            <input type="checkbox" bind:checked={clickToExpand} />
+            click label to expand
         </label>
     </div>
 
-    <div class="grid flex-1 grid-cols-1 overflow-hidden lg:grid-cols-2">
-        <div class="border-border flex flex-col lg:border-r">
-            <textarea
-                bind:value={source}
-                spellcheck="false"
-                class="bg-card text-foreground flex-1 resize-none p-4 font-mono text-sm leading-relaxed focus:outline-none"
-            ></textarea>
+    <div class="json-demo grid">
+        <div class="json-demo-source">
+            <textarea bind:value={source} spellcheck="false"></textarea>
             {#if parsed.error}
-                <div
-                    class="border-border bg-destructive/5 text-destructive border-t px-4 py-2 text-xs"
-                >
+                <div class="json-demo-error">
                     {parsed.error}
                 </div>
             {/if}
         </div>
 
-        <div class="bg-background overflow-auto p-4">
+        <div class="json-demo-body">
             {#if parsed.value !== null && typeof parsed.value === 'object'}
                 <JsonView
                     data={parsed.value as object}
@@ -146,13 +117,9 @@
                     clickToExpandNode={clickToExpand}
                 />
             {:else if parsed.error === null}
-                <pre class="text-muted-foreground text-sm">{JSON.stringify(
-                        parsed.value,
-                        null,
-                        2
-                    )}</pre>
+                <pre>{JSON.stringify(parsed.value, null, 2)}</pre>
             {:else}
-                <p class="text-muted-foreground text-sm">Fix the parse error to preview.</p>
+                <p>Fix the parse error to preview.</p>
             {/if}
         </div>
     </div>
