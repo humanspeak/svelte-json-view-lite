@@ -49,6 +49,10 @@
     grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
 }
 
+.json-demo.split.click-demo {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
+}
+
 .json-demo.split > .json-demo-rail {
     border-right: 0;
     border-left: 1px solid var(--brut-rule);
@@ -196,6 +200,26 @@
     padding: 18px;
 }
 
+.event-log-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+}
+
+.event-log-panel .event-log-head {
+    height: 47.5px;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--brut-rule);
+}
+
+.event-log-body {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
+    padding: 14px 18px;
+}
+
 .json-demo-k {
     margin: 0 0 10px;
     color: var(--brut-ink-3);
@@ -247,6 +271,10 @@
 
 .json-demo-log li.veto {
     color: #ff5c7a;
+}
+
+.json-demo-log li.empty {
+    color: var(--brut-ink-3);
 }
 
 .json-demo-actions {

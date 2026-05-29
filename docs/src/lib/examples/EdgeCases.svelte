@@ -9,6 +9,11 @@
     let noQuotesForStringValues = $state(false)
     let compactTopLevel = $state(false)
 
+    const demoData = {
+        'escaped string': 'line one\nline two\t"quoted"',
+        ...jsonData
+    }
+
     const style = $derived({
         ...(mode.current === 'light' ? docsDefaultJsonViewStyles : docsDarkJsonViewStyles),
         stringifyStringValues,
@@ -38,6 +43,6 @@
     </div>
 
     <div class="json-demo-body">
-        <JsonView data={jsonData} {style} shouldExpandNode={allExpanded} {compactTopLevel} />
+        <JsonView data={demoData} {style} shouldExpandNode={allExpanded} {compactTopLevel} />
     </div>
 </div>

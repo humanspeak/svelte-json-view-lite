@@ -63,7 +63,7 @@
     )
 </script>
 
-<div class="json-demo split">
+<div class="json-demo split click-demo">
     <div class="json-demo column">
         <div class="json-demo-controls">
             <label class="json-demo-control">
@@ -92,19 +92,24 @@
         </div>
     </div>
 
-    <aside class="json-demo-rail">
-        <div class="json-demo-controls">
+    <aside class="json-demo-rail event-log-panel">
+        <div class="json-demo-controls event-log-head">
             <span>event log</span>
             <button class="json-demo-clear" onclick={() => (log = [])}>clear</button>
         </div>
-        <ul class="json-demo-log">
-            {#each log as entry, index (index)}
-                <li class:allow={entry.startsWith('allow')} class:veto={entry.startsWith('veto')}>
-                    {entry}
-                </li>
-            {:else}
-                <li>Click the tree to populate this log.</li>
-            {/each}
-        </ul>
+        <div class="event-log-body">
+            <ul class="json-demo-log">
+                {#each log as entry, index (index)}
+                    <li
+                        class:allow={entry.startsWith('allow')}
+                        class:veto={entry.startsWith('veto')}
+                    >
+                        {entry}
+                    </li>
+                {:else}
+                    <li class="empty">Click the tree to populate this log.</li>
+                {/each}
+            </ul>
+        </div>
     </aside>
 </div>
