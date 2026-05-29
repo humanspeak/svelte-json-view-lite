@@ -15,7 +15,13 @@ import { docsConfig } from './src/lib/docs-config'
 
 export default defineConfig({
     plugins: [
-        sitemapManifestPlugin({ blogDir: false }),
+        sitemapManifestPlugin({
+            blogDir: false,
+            extraPages: competitors.map((c) => ({
+                route: `/compare/${c.slug}`,
+                source: 'src/lib/compare-data.ts'
+            }))
+        }),
         demoManifestPlugin(),
         docMirrorsPlugin({ siteUrl: 'https://jsonview.svelte.page' }),
         llmsFullPlugin({

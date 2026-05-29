@@ -16,7 +16,7 @@
     "dependencies": {
         "@fontsource-variable/inter": "^5.2.8",
         "@fontsource-variable/jetbrains-mono": "^5.2.8",
-        "@humanspeak/docs-kit": "github:humanspeak/docs-kit#2026.5.41",
+        "@humanspeak/docs-kit": "github:humanspeak/docs-kit#8d0a50f",
         "@humanspeak/svelte-json-view-lite": "workspace:*",
         "@humanspeak/svelte-markdown": "^1.5.2",
         "runed": "^0.37.1"

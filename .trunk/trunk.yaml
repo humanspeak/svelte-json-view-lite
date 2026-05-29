@@ -31,11 +31,6 @@ lint:
         - linters: [prettier]
           paths:
               - docs/src/lib/demo-manifest.json
-        - linters: [oxipng]
-          paths:
-              - docs/static/og-default.png
-              - docs/static/twitter-default.png
-              - docs/static/social-cards/**
     definitions:
         - name: prettier
           files:

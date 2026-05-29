@@ -58,7 +58,6 @@ docs/static/docs/
 docs/static/llms.txt
 docs/static/llms-full.txt
 !docs/src/lib/demo-manifest.json
-!docs/static/og-default.png
-!docs/static/twitter-default.png
-!docs/static/social-cards/
-!docs/static/social-cards/*.png
+docs/static/og-default.png
+docs/static/twitter-default.png
+docs/static/social-cards/
