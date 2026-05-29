@@ -31,7 +31,6 @@ lint:
         - linters: [prettier]
           paths:
               - docs/src/lib/demo-manifest.json
-              - docs/src/lib/sitemap-manifest.json
         - linters: [oxipng]
           paths:
               - docs/static/og-default.png
