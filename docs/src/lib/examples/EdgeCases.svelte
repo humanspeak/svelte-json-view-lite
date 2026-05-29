@@ -1,10 +1,6 @@
 <script lang="ts">
-    import {
-        JsonView,
-        allExpanded,
-        darkStyles,
-        defaultStyles
-    } from '@humanspeak/svelte-json-view-lite'
+    import { JsonView, allExpanded } from '@humanspeak/svelte-json-view-lite'
+    import { docsDarkJsonViewStyles, docsDefaultJsonViewStyles } from '$lib/json-view-docs-style'
     import { mode } from 'mode-watcher'
     import { jsonData } from '../../../../src/routes/test/sample'
 
@@ -14,7 +10,7 @@
     let compactTopLevel = $state(false)
 
     const style = $derived({
-        ...(mode.current === 'light' ? defaultStyles : darkStyles),
+        ...(mode.current === 'light' ? docsDefaultJsonViewStyles : docsDarkJsonViewStyles),
         stringifyStringValues,
         quotesForFieldNames,
         noQuotesForStringValues

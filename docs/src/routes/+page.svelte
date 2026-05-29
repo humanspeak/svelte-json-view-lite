@@ -1,7 +1,8 @@
 <script lang="ts">
     import { HeaderV2, FooterV2, getBreadcrumbContext, getSeoContext } from '@humanspeak/docs-kit'
-    import { JsonView, defaultStyles, darkStyles } from '@humanspeak/svelte-json-view-lite'
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
     import { AnimatePresence, MotionButton, MotionSpan } from '@humanspeak/svelte-motion'
+    import { docsDarkJsonViewStyles, docsDefaultJsonViewStyles } from '$lib/json-view-docs-style'
     import { competitors } from '$lib/compare-data'
     import { docsConfig } from '$lib/docs-config'
     import { headerNav } from '$lib/docsNav'
@@ -67,7 +68,9 @@
         nextReview: null
     }
 
-    const viewerStyle = $derived(mode.current === 'dark' ? darkStyles : defaultStyles)
+    const viewerStyle = $derived(
+        mode.current === 'dark' ? docsDarkJsonViewStyles : docsDefaultJsonViewStyles
+    )
     const sampleJsonText = JSON.stringify(sampleJson, null, 4)
     let editorText = $state(sampleJsonText)
 
@@ -347,9 +350,7 @@
                     <div>component · <span class="v">JsonView</span></div>
                     <div>expansion · <span class="v">clickToExpandNode</span></div>
                     <div>
-                        style · <span class="v"
-                            >{mode.current === 'dark' ? 'darkStyles' : 'defaultStyles'}</span
-                        >
+                        style · <span class="v">docs theme</span>
                     </div>
                     <div>
                         status · <span class="v accent">read-only tree viewer</span>

@@ -1,10 +1,6 @@
 <script lang="ts">
-    import {
-        JsonView,
-        allExpanded,
-        darkStyles,
-        defaultStyles
-    } from '@humanspeak/svelte-json-view-lite'
+    import { JsonView, allExpanded } from '@humanspeak/svelte-json-view-lite'
+    import { docsDarkJsonViewStyles, docsDefaultJsonViewStyles } from '$lib/json-view-docs-style'
     import { mode } from 'mode-watcher'
 
     const payload = {
@@ -33,7 +29,9 @@
         }
     }
 
-    const style = $derived(mode.current === 'light' ? defaultStyles : darkStyles)
+    const style = $derived(
+        mode.current === 'light' ? docsDefaultJsonViewStyles : docsDarkJsonViewStyles
+    )
 </script>
 
 <div class="json-demo grid">

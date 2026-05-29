@@ -2,10 +2,9 @@
     import {
         JsonView,
         allExpanded,
-        darkStyles,
-        defaultStyles,
         type NodeExpandingEvent
     } from '@humanspeak/svelte-json-view-lite'
+    import { docsDarkJsonViewStyles, docsDefaultJsonViewStyles } from '$lib/json-view-docs-style'
     import { mode } from 'mode-watcher'
 
     type VetoMode = 'none' | 'keep-root' | 'shallow-only' | 'confirm'
@@ -59,7 +58,9 @@
         }
     }
 
-    const style = $derived(mode.current === 'light' ? defaultStyles : darkStyles)
+    const style = $derived(
+        mode.current === 'light' ? docsDefaultJsonViewStyles : docsDarkJsonViewStyles
+    )
 </script>
 
 <div class="json-demo split">

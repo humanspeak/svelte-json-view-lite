@@ -1,11 +1,6 @@
 <script lang="ts">
-    import {
-        JsonView,
-        allExpanded,
-        collapseAllNested,
-        darkStyles,
-        defaultStyles
-    } from '@humanspeak/svelte-json-view-lite'
+    import { JsonView, allExpanded, collapseAllNested } from '@humanspeak/svelte-json-view-lite'
+    import { docsDarkJsonViewStyles, docsDefaultJsonViewStyles } from '$lib/json-view-docs-style'
     import { mode } from 'mode-watcher'
 
     type ParseMode = 'json' | 'js'
@@ -27,9 +22,17 @@
     user: { id: 42, name: 'Ada Lovelace', joined: new Date('2024-01-15') },
     counter: 9007199254740991n,
     active: true,
-    render: () => 'hi',
+    render: function() { },
     nextReview: null
 })`
+
+    const jsValue = {
+        user: { id: 42, name: 'Ada Lovelace', joined: new Date('2024-01-15') },
+        counter: 9007199254740991n,
+        active: true,
+        render: function () {},
+        nextReview: null
+    }
 
     let parseMode = $state<ParseMode>('json')
     let source = $state(defaultSource)
@@ -44,8 +47,13 @@
             if (parseMode === 'json') {
                 return { value: JSON.parse(source), error: null }
             }
-            const value = new Function(`return ${source || 'undefined'}`)()
-            return { value, error: null }
+            if (source.trim() === jsDefault.trim()) {
+                return { value: jsValue, error: null }
+            }
+            return {
+                value: jsValue,
+                error: 'JS expression editing is disabled by the docs CSP. Switch to JSON for editable input.'
+            }
         } catch (err) {
             return { value: null, error: err instanceof Error ? err.message : String(err) }
         }
@@ -57,7 +65,9 @@
         return (level: number) => level < expandLevel
     })
 
-    const style = $derived(mode.current === 'light' ? defaultStyles : darkStyles)
+    const style = $derived(
+        mode.current === 'light' ? docsDefaultJsonViewStyles : docsDarkJsonViewStyles
+    )
 
     const swapMode = (next: ParseMode) => {
         if (next === parseMode) return
