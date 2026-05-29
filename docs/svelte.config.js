@@ -46,9 +46,9 @@ const config = {
             directives: {
                 'default-src': ['self'],
                 'script-src': ['self', 'https://*.ahrefs.com', 'unsafe-inline', 'wasm-unsafe-eval'],
-                'style-src': ['self', 'unsafe-inline', 'https://cdn.jsdelivr.net'],
+                'style-src': ['self', 'unsafe-inline'],
                 'img-src': ['self', 'data:', 'https:'],
-                'font-src': ['self', 'data:', 'https://cdn.jsdelivr.net'],
+                'font-src': ['self', 'data:'],
                 'worker-src': ['self', 'blob:'],
                 'connect-src': ['self', 'https:'],
                 'frame-ancestors': ['none'],

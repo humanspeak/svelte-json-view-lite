@@ -34,7 +34,7 @@ npm i @humanspeak/svelte-json-view-lite
 | `shouldExpandNode` | `shouldExpandNode` | Same purpose: decide initial expansion by level and value. |
 | `clickToExpandNode` | `clickToExpandNode` | Same interaction model. |
 | `compactTopLevel` | `compactTopLevel` | Same root rendering option. |
-| custom renderers | `snippets` | Svelte snippets replace React render callbacks. |
+| custom renderers | snippet props | Svelte snippets replace React render callbacks. |
 
 ## Snippet Override
 
@@ -45,7 +45,7 @@ npm i @humanspeak/svelte-json-view-lite
     const data = { url: 'https://jsonview.svelte.page' }
 </script>
 
-{#snippet stringValue(value: string)}
+{#snippet stringValue({ value }: { value: string })}
     {#if value.startsWith('https://')}
         <a href={value}>{value}</a>
     {:else}
@@ -56,7 +56,7 @@ npm i @humanspeak/svelte-json-view-lite
 <JsonView
     {data}
     style={defaultStyles}
-    snippets={{ string: stringValue }}
+    string={stringValue}
 />
 ```
 

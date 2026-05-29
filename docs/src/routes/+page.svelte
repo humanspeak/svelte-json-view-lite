@@ -126,14 +126,26 @@
     const compareRows = competitors.slice(0, 6).map((c) => {
         const featureMap = new Map(c.features.map((f) => [f.name, f]))
         const find = (name: string) => featureMap.get(name)?.them
+        const framework = () => {
+            if (
+                find('Svelte 5 Native') === true ||
+                find('Svelte 5 Native') === 'Svelte component'
+            ) {
+                return 'Svelte'
+            }
+            if (find('Framework Agnostic')) return 'agnostic'
+            return 'React'
+        }
         return {
             slug: c.slug,
             name: c.name,
-            type: c.type,
-            svelte5: find('Svelte 5 Native') ?? false,
+            framework: framework(),
+            readOnly: find('Read-only Tree View') ?? true,
             editing: find('JSON Editing') ?? false,
-            snippets: find('Snippet Overrides') ?? false,
-            zeroDeps: find('Zero Runtime Dependencies') ?? false
+            snippets: find('Snippet Overrides') ?? find('Svelte Snippets') ?? false,
+            theming:
+                find('Theme Customization') ?? (c.name.includes('jsoneditor') ? true : 'theme'),
+            deps: find('Zero Runtime Dependencies') ?? false
         }
     })
 
@@ -382,48 +394,48 @@
             <div class="k">FIG-005 / COMPARISON MATRIX</div>
             <h2>how we <span>compare</span>.</h2>
             <p class="lede-p">
-                Viewer vs editor, React vs Svelte, heavy inspector vs tiny display component.
+                A compact side-by-side look at JSON viewers and editors you might consider for
+                Svelte surfaces.
             </p>
             <div class="comp-scroll">
                 <table>
                     <thead>
                         <tr>
                             <th>library</th>
-                            <th>category</th>
-                            <th>svelte 5</th>
+                            <th>framework</th>
+                            <th>read-only</th>
                             <th>editing</th>
                             <th>snippets</th>
+                            <th>theming</th>
                             <th>zero deps</th>
-                            <th class="comp-read-th">read more</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="us-row">
-                            <td class="us">{PKG_NAME} ●</td>
-                            <td class="us">tree viewer</td>
+                            <td class="us">{PKG_NAME} <span aria-hidden="true">●</span></td>
+                            <td class="us">Svelte 5</td>
                             <td class="y">yes</td>
                             <td class="n">no</td>
                             <td class="y">yes</td>
+                            <td class="y">CSS vars</td>
                             <td class="y">yes</td>
-                            <td class="comp-read"><span class="comp-read-self">this row</span></td>
                         </tr>
                         {#each compareRows as row (row.slug)}
-                            {@const svelte5 = formatCell(row.svelte5)}
+                            {@const readOnly = formatCell(row.readOnly)}
                             {@const editing = formatCell(row.editing)}
                             {@const snippets = formatCell(row.snippets)}
-                            {@const zeroDeps = formatCell(row.zeroDeps)}
+                            {@const theming = formatCell(row.theming)}
+                            {@const deps = formatCell(row.deps)}
                             <tr>
-                                <td>{row.name}</td>
-                                <td>{row.type}</td>
-                                <td class={svelte5.cls}>{svelte5.text}</td>
+                                <td>
+                                    <a href="/compare/{row.slug}" class="comp-link">{row.name}</a>
+                                </td>
+                                <td>{row.framework}</td>
+                                <td class={readOnly.cls}>{readOnly.text}</td>
                                 <td class={editing.cls}>{editing.text}</td>
                                 <td class={snippets.cls}>{snippets.text}</td>
-                                <td class={zeroDeps.cls}>{zeroDeps.text}</td>
-                                <td class="comp-read">
-                                    <a href="/compare/{row.slug}" class="comp-read-link">
-                                        read more <span aria-hidden="true">→</span>
-                                    </a>
-                                </td>
+                                <td class={theming.cls}>{theming.text}</td>
+                                <td class={deps.cls}>{deps.text}</td>
                             </tr>
                         {/each}
                     </tbody>
@@ -841,8 +853,7 @@
         text-transform: lowercase;
         font-weight: 500;
     }
-    .brut-ex .lede h2,
-    .brut-comp h2 {
+    .brut-ex .lede h2 {
         max-width: 900px;
         margin: 10px 0;
         color: var(--brut-ink);
@@ -1139,36 +1150,76 @@
         text-transform: lowercase;
     }
     .brut-comp {
-        padding: 56px 24px;
+        padding: 28px 24px;
         border-bottom: 1px solid var(--brut-rule);
+    }
+    .brut-comp h2 {
+        margin: 12px 0 24px;
+        color: var(--brut-ink);
+        font-family: 'JetBrains Mono Variable', monospace;
+        font-size: 28px;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        line-height: 1.12;
+        text-transform: lowercase;
+    }
+    .brut-comp h2 span {
+        color: var(--brut-accent);
+    }
+    .brut-comp .lede-p {
+        max-width: 760px;
+        margin-bottom: 28px;
+        font-size: 14px;
+        line-height: 1.6;
     }
     .comp-scroll {
         overflow-x: auto;
-        border: 1px solid var(--brut-rule);
     }
-    table {
+    .brut-comp table {
         width: 100%;
-        min-width: 760px;
+        min-width: 880px;
         border-collapse: collapse;
         font-size: 13px;
+        font-family: 'JetBrains Mono Variable', monospace;
     }
-    th,
-    td {
-        border-right: 1px solid var(--brut-rule);
+    .brut-comp th,
+    .brut-comp td {
         border-bottom: 1px solid var(--brut-rule);
-        padding: 12px;
+        padding: 13px 14px;
         text-align: left;
+        color: var(--brut-ink);
     }
-    th {
+    .brut-comp th {
         color: var(--brut-ink-3);
-        text-transform: uppercase;
+        font-size: 10.5px;
+        font-weight: 400;
+        letter-spacing: 0.14em;
+        text-transform: lowercase;
     }
-    .us,
-    .y {
+    .brut-comp tr.us-row {
+        background: var(--brut-accent-soft);
+    }
+    .brut-comp tr:not(.us-row):hover {
+        background: var(--brut-bg-2);
+    }
+    .brut-comp .us,
+    .brut-comp .y {
         color: var(--brut-accent);
     }
-    .n {
+    .brut-comp .n {
         color: var(--brut-ink-3);
+    }
+    .brut-comp .comp-link {
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px solid var(--brut-rule-2);
+        transition:
+            color 0.15s,
+            border-color 0.15s;
+    }
+    .brut-comp .comp-link:hover {
+        color: var(--brut-accent);
+        border-bottom-color: var(--brut-accent);
     }
     .comp-all,
     .ex-all {
