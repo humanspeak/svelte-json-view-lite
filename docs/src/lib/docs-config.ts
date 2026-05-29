@@ -7,7 +7,7 @@ export const docsConfig: DocsKitConfig = {
     repo: 'humanspeak/svelte-json-view-lite',
     url: 'https://jsonview.svelte.page',
     description:
-        'Fast, tiny JSON tree viewer for Svelte 5 — port of react-json-view-lite with runes, SSR, per-type Snippet overrides, CSS-variable theming, and zero runtime dependencies.',
+        'Fast, tiny JSON tree viewer for Svelte 5 — a react-json-view-lite port with runes, SSR-safe ARIA tree semantics, per-type snippet overrides, CSS-variable theming, and zero runtime dependencies.',
     keywords: [
         'svelte',
         'svelte5',
@@ -15,17 +15,23 @@ export const docsConfig: DocsKitConfig = {
         'json',
         'json-view',
         'json-tree',
+        'json-inspector',
+        'json-viewer',
         'viewer',
         'tree',
         'runes',
         'typescript',
-        'lite'
+        'lite',
+        'accessibility',
+        'svelte-snippets'
     ],
     defaultFeatures: [
         'Svelte 5 Runes',
         'Per-type Snippet Overrides',
         'CSS-Variable Theming',
-        'WAI-ARIA Treeview'
+        'WAI-ARIA Treeview',
+        'Zero Dependencies',
+        'React API Parity'
     ],
     fallbackStars: 0
 }

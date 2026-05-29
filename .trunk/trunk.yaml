@@ -23,6 +23,14 @@ lint:
         - linters: [osv-scanner]
           paths:
               - '**/pnpm-lock.yaml'
+        - linters: [markdownlint, prettier]
+          paths:
+              - docs/static/docs/**
+              - docs/static/llms.txt
+              - docs/static/llms-full.txt
+        - linters: [prettier]
+          paths:
+              - docs/src/lib/demo-manifest.json
     definitions:
         - name: prettier
           files:

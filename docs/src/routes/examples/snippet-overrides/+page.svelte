@@ -2,6 +2,7 @@
     import { getSeoContext } from '@humanspeak/docs-kit'
     import Example from '$lib/components/general/Example.svelte'
     import SnippetOverrides from '$lib/examples/SnippetOverrides.svelte'
+    import sourceCode from '$lib/examples/SnippetOverrides.svelte?raw'
 
     const seo = getSeoContext()
     if (seo) {
@@ -17,6 +18,14 @@
 
 <Example
     title="Snippet Overrides"
+    description="Flip typed snippet renderers on and off to customize URLs, dates, booleans, numbers, and labels."
+    tag="SNIPPETS"
+    filename="SnippetOverrides.svelte"
+    {sourceCode}
+    barCells={[
+        { k: 'api', v: 'snippets' },
+        { k: 'slots', v: 'typed' }
+    ]}
     sourceUrl="https://github.com/humanspeak/svelte-json-view-lite/blob/main/docs/src/lib/examples/SnippetOverrides.svelte"
 >
     <SnippetOverrides />

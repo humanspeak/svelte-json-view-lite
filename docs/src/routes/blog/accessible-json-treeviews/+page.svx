@@ -1,0 +1,78 @@
+---
+title: Accessible JSON Treeviews in Svelte 5
+date: 2026-05-28
+description: JSON viewers show up in logs, dashboards, docs, API explorers, and AI tooling. Here is the shape that makes a compact JSON tree viewer feel good in Svelte 5.
+tags:
+    - accessibility
+    - json
+    - svelte-5
+    - treeview
+author: Jason Kummerl
+readingTime: 5
+---
+
+<script lang="ts">
+    import { BlogPostV2, type BlogPostMeta } from '@humanspeak/docs-kit/blog'
+    import { docsConfig } from '$lib/docs-config'
+
+    const post: BlogPostMeta = {
+        slug: 'accessible-json-treeviews',
+        title: 'Accessible JSON Treeviews in Svelte 5',
+        date: '2026-05-28',
+        description:
+            'JSON viewers show up in logs, dashboards, docs, API explorers, and AI tooling. Here is the shape that makes a compact JSON tree viewer feel good in Svelte 5.',
+        tags: ['accessibility', 'json', 'svelte-5', 'treeview'],
+        author: 'Jason Kummerl',
+        readingTime: 5
+    }
+</script>
+
+<BlogPostV2 {post} config={docsConfig}>
+
+JSON viewers look small until they are everywhere: API explorers, webhook logs, observability dashboards, docs examples, agent traces, admin tools, and support consoles. They are often read-only, but they still need to feel like a real control instead of a prettified `<pre>`.
+
+That is the line `@humanspeak/svelte-json-view-lite` is built around: keep the viewer tiny, keep the API familiar for teams migrating from `react-json-view-lite`, and make the tree usable with a keyboard and screen reader.
+
+## A Tree, Not Just Indented Text
+
+When a JSON value can collapse and expand, it is interactive state. The root should expose a tree, each expandable value should expose a tree item, and open child collections should be grouped. That gives assistive technology the same mental model sighted users get from indentation and disclosure arrows.
+
+The component uses:
+
+- `role="tree"` on the root.
+- `role="treeitem"` on expandable nodes.
+- `aria-expanded` for live open/closed state.
+- `aria-controls` pointing at each expanded child group.
+- Roving `tabindex` so one expander participates in tab order at a time.
+
+## Why Svelte 5 Helps
+
+The port uses Svelte 5 runes throughout: `$props`, `$state`, `$derived`, and `$effect`. The interesting bit is not just syntax. `$props.id()` gives the component stable ids for `aria-controls` across SSR and hydration without bolting on a separate id generator.
+
+That matters in docs and dashboard shells where JSON viewers often render server-side first. Hydration should not rewrite the accessibility graph.
+
+## Snippets Are the Escape Hatch
+
+The React original has a tight, useful API. The Svelte port keeps that shape, but adds typed snippet overrides for values and labels:
+
+```svelte
+<JsonView {data}>
+    {#snippet string({ value })}
+        {#if value.startsWith('https://')}
+            <a href={value}>{value}</a>
+        {:else}
+            "{value}"
+        {/if}
+    {/snippet}
+</JsonView>
+```
+
+This is intentionally narrow. The component is still a viewer, not a data editor. Snippets let teams decorate URLs, timestamps, ids, booleans, and labels without forking the tree logic.
+
+## Keep the Surface Honest
+
+If users need schema validation, inline editing, search/replace, or save workflows, use a JSON editor. A read-only viewer should not pretend to be that tool.
+
+The sweet spot here is display: API responses, event payloads, config previews, log details, and generated JSON artifacts where the user needs to inspect structure quickly and trust the keyboard path.
+
+</BlogPostV2>

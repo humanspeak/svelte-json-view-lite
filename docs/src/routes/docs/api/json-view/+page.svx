@@ -1,6 +1,6 @@
 ---
 title: JsonView Props
-description: Complete prop reference for the <JsonView> component in @humanspeak/svelte-json-view-lite.
+description: Complete prop reference for the JsonView component in @humanspeak/svelte-json-view-lite.
 ---
 
 <script>
@@ -9,7 +9,7 @@ description: Complete prop reference for the <JsonView> component in @humanspeak
     const seo = getSeoContext()
     if (seo) {
         seo.title = 'JsonView Props | Svelte JSON View Lite'
-        seo.description = 'Complete prop reference for the <JsonView> component in @humanspeak/svelte-json-view-lite.'
+        seo.description = 'Complete prop reference for the JsonView component in @humanspeak/svelte-json-view-lite.'
         seo.ogTitle = 'JsonView Props'
         seo.ogTagline = 'Every prop, default, and type — mapped to the source.'
         seo.ogFeatures = ['Prop Reference', 'TypeScript Types', 'Defaults', 'Callbacks']
@@ -33,9 +33,9 @@ description: Complete prop reference for the <JsonView> component in @humanspeak
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `data` | `object \| unknown[]` | — | **Required.** Any JSON-serializable value. Arrays, plain objects, `Date`, `bigint`, `null`, and `undefined` all render. |
+| `data` | `object \| unknown[]` | — | **Required.** Object or array payload. Nested values can include strings, numbers, booleans, `Date`, `bigint`, functions, `null`, and `undefined`. |
 | `style` | `Partial<StyleProps>` | `defaultStyles` | Classname map. Import `defaultStyles` or `darkStyles`, or pass a partial to override individual keys. |
-| `shouldExpandNode` | `(level: number, value: unknown, field?: string) => boolean` | Expand root only | Predicate called for every expandable node. Return `true` to expand. Use the exported `allExpanded` / `collapseAllNested` helpers for the common cases. |
+| `shouldExpandNode` | `(level: number, value: unknown, field?: string) => boolean` | `allExpanded` | Predicate called for every expandable node. Return `true` to expand. Use the exported `allExpanded` / `collapseAllNested` helpers for the common cases. |
 | `clickToExpandNode` | `boolean` | `false` | When `true`, clicking the field label (key) also toggles expand/collapse, not just the arrow. |
 | `beforeExpandChange` | `(event: NodeExpandingEvent) => boolean` | — | Veto handler. Receives `{ level, value, field, newExpandValue }`. Return `false` to cancel the transition. |
 | `compactTopLevel` | `boolean` | `false` | Render top-level primitives inline without the enclosing `{…}` wrapper. Useful when `data` is an array of mixed primitives. |
@@ -51,13 +51,13 @@ description: Complete prop reference for the <JsonView> component in @humanspeak
 
 ## `data`
 
-Any value that round-trips through `JSON.parse` renders — plus a few richer types:
+The root `data` prop is an object or array. Inside that tree, the viewer handles JSON values plus a few richer JavaScript leaves:
 
 - **Plain objects and arrays** render as collapsible branches.
 - **`Date`** renders with `toISOString()` by default; override with the `date` snippet.
 - **`bigint`** renders as its decimal representation with the `n` suffix preserved in source.
 - **`null` and `undefined`** render as red sentinels (color driven by `--sjv-null` / `--sjv-undefined`).
-- **Functions** render as `[Function]` by default; override with the `function` snippet.
+- **Functions** render as `function() { }` by default; override with the `function` snippet.
 
 ```svelte
 <JsonView

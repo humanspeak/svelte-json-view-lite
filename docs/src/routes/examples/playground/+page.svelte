@@ -2,6 +2,7 @@
     import { getSeoContext } from '@humanspeak/docs-kit'
     import Example from '$lib/components/general/Example.svelte'
     import JsonPlayground from '$lib/examples/JsonPlayground.svelte'
+    import sourceCode from '$lib/examples/JsonPlayground.svelte?raw'
 
     const seo = getSeoContext()
     if (seo) {
@@ -17,6 +18,14 @@
 
 <Example
     title="Live Playground"
+    description="Edit JSON in real time, switch expansion behavior, and preview the rendered tree without leaving the page."
+    tag="DEMO"
+    filename="JsonPlayground.svelte"
+    {sourceCode}
+    barCells={[
+        { k: 'input', v: 'json' },
+        { k: 'preview', v: 'JsonView' }
+    ]}
     sourceUrl="https://github.com/humanspeak/svelte-json-view-lite/blob/main/docs/src/lib/examples/JsonPlayground.svelte"
 >
     <JsonPlayground />

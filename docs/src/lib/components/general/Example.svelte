@@ -1,104 +1,118 @@
 <script lang="ts">
+    import {
+        CodeReferenceV2,
+        ExampleV2,
+        type DemoManifestEntry,
+        type ExampleSection
+    } from '@humanspeak/docs-kit'
+    import { Code, Keyboard, MousePointerClick } from '@lucide/svelte'
     import type { Snippet } from 'svelte'
-    import { ExternalLink, Grid2x2, RotateCw } from '@lucide/svelte'
+
+    type BarCell = {
+        k: string
+        v: string
+    }
 
     type ExampleProps = {
         children: Snippet
-        title?: string
+        title: string
+        description: string
+        tag?: string
+        figId?: string
         sourceUrl?: string | null
+        filename?: string
+        sourceCode?: string
+        barCells?: BarCell[]
     }
 
-    const { children, title, sourceUrl }: ExampleProps = $props()
+    const {
+        children,
+        title,
+        description,
+        tag = 'DEMO',
+        figId = 'FIG-001',
+        sourceUrl = null,
+        filename,
+        sourceCode,
+        barCells = [{ k: 'mode', v: 'live' }]
+    }: ExampleProps = $props()
 
-    let refreshKey = $state(0)
-    const refresh = () => {
-        refreshKey++
-    }
+    const codeEntry = $derived<DemoManifestEntry | null>(
+        sourceCode
+            ? {
+                  code: sourceCode,
+                  lang: 'svelte'
+              }
+            : null
+    )
+
+    const section = $derived<ExampleSection>({
+        figId,
+        tag,
+        title: { accent: title.toLowerCase(), end: '.' },
+        description,
+        snippet: children,
+        codeSnippet: codeEntry ? codeSnippet : undefined,
+        notes,
+        barCells,
+        sourceUrl: sourceUrl ?? undefined
+    })
 </script>
 
-{#if title}
-    <h1 class="sr-only">{title}</h1>
-{/if}
+{#snippet notes()}
+    <ul>
+        <li>
+            <Code />
+            <span>
+                The demo is a focused Svelte component wired to
+                <code>@humanspeak/svelte-json-view-lite</code>.
+            </span>
+        </li>
+        <li>
+            <MousePointerClick />
+            <span>
+                Interactions stay local to the example so you can copy the pattern without pulling
+                in the docs shell.
+            </span>
+        </li>
+        <li>
+            <Keyboard />
+            <span>
+                Viewer behavior keeps the same keyboard-ready tree semantics as the packaged
+                component.
+            </span>
+        </li>
+    </ul>
+{/snippet}
 
-<div class="isolate flex h-full w-full flex-1 flex-col">
-    <div class="border-border bg-card/50 flex h-12 w-full items-center border-b px-4">
-        <div class="flex flex-1 items-center gap-2">
-            <a
-                href="/examples"
-                class="border-border text-muted-foreground hover:border-brand-500/50 hover:text-foreground inline-flex items-center justify-center gap-1.5 rounded-md border px-2.5 py-1.5 text-sm transition-colors"
-            >
-                <Grid2x2 class="size-3" />
-                Examples
-            </a>
-            {#if title}
-                <span class="text-muted-foreground">/</span>
-                <span class="text-foreground text-sm font-medium">{title}</span>
-            {/if}
-        </div>
-        <div class="flex items-center gap-2">
-            {#if sourceUrl}
-                <a
-                    href={sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="border-border text-muted-foreground hover:border-brand-500/50 hover:text-foreground inline-flex items-center justify-center gap-1.5 rounded-md border px-2.5 py-1.5 text-sm transition-colors"
-                >
-                    <ExternalLink class="size-3" />
-                    Source
-                </a>
-            {/if}
-            <button
-                onclick={refresh}
-                class="border-border text-muted-foreground hover:border-brand-500/50 hover:text-foreground inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors"
-                title="Reset example"
-                aria-label="Reset example"
-            >
-                <RotateCw class="size-3" />
-            </button>
-        </div>
-    </div>
+{#snippet codeSnippet()}
+    {#if codeEntry}
+        <CodeReferenceV2
+            samples={[
+                {
+                    id: 'source',
+                    label: filename ?? `${title}.svelte`,
+                    ...codeEntry
+                }
+            ]}
+            columns={1}
+        />
+    {/if}
+{/snippet}
 
-    <div class="bg-grid-brand pointer-events-none fixed inset-0 top-12 bottom-16 z-0"></div>
-
-    <div class="relative z-10 flex flex-1 items-center justify-center p-8">
-        {#key refreshKey}
-            {@render children()}
-        {/key}
-    </div>
-</div>
-
-<style>
-    .bg-grid-brand {
-        background-image:
-            radial-gradient(
-                color-mix(in srgb, var(--color-brand-600) 20%, transparent) 1.5px,
-                transparent 1.5px
-            ),
-            radial-gradient(
-                color-mix(in srgb, var(--color-brand-600) 10%, transparent) 1.5px,
-                transparent 1.5px
-            );
-        background-position:
-            0 0,
-            12px 12px;
-        background-size: 24px 24px;
-        mask-image: linear-gradient(
-            to top,
-            rgba(0, 0, 0, 1) 0%,
-            rgba(0, 0, 0, 0.8) 10%,
-            rgba(0, 0, 0, 0) 30%
-        );
-    }
-
-    :global(.dark) .bg-grid-brand {
-        background-image:
-            radial-gradient(
-                color-mix(in srgb, var(--color-brand-500) 18%, transparent) 1.5px,
-                transparent 1.5px
-            ),
-            radial-gradient(
-                color-mix(in srgb, var(--color-brand-500) 10%, transparent) 1.5px,
-                transparent 1.5px
-            );
-    }
-</style>
+<ExampleV2
+    figId={section.figId}
+    tag={section.tag}
+    title={section.title}
+    description={section.description}
+    mode={section.mode ?? 'live'}
+    sheetLabel="SHEET 01 / 01"
+    barCells={section.barCells}
+    sourceUrl={section.sourceUrl}
+    {filename}
+    codeSnippet={section.codeSnippet}
+    codeLabel="show code"
+    notes={section.notes}
+>
+    {@render section.snippet()}
+</ExampleV2>

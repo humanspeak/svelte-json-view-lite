@@ -97,41 +97,28 @@
     const tokenKeys = Object.keys(tokenLabels) as TokenKey[]
 </script>
 
-<div
-    class="border-border bg-card mx-auto grid h-[calc(100vh-10rem)] min-h-[640px] w-full max-w-6xl grid-cols-1 overflow-hidden rounded-xl border shadow-sm lg:grid-cols-[320px_1fr]"
->
-    <aside class="border-border bg-muted/40 overflow-auto border-b p-4 lg:border-r lg:border-b-0">
+<div class="json-demo grid">
+    <aside class="json-demo-rail">
         <div class="mb-4">
-            <div class="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
-                Presets
-            </div>
-            <div class="flex flex-wrap gap-2">
+            <div class="json-demo-k">Presets</div>
+            <div class="json-demo-actions">
                 {#each Object.keys(presets) as name (name)}
-                    <button
-                        onclick={() => applyPreset(name)}
-                        class="border-border text-foreground hover:border-brand-500/50 rounded-md border bg-white px-2.5 py-1 text-xs font-medium transition-colors"
-                    >
+                    <button onclick={() => applyPreset(name)}>
                         {name}
                     </button>
                 {/each}
             </div>
         </div>
 
-        <div class="space-y-2">
+        <div>
             {#each tokenKeys as key (key)}
-                <label class="flex items-center justify-between gap-2 text-xs">
-                    <span class="text-muted-foreground font-mono">{tokenLabels[key]}</span>
-                    <span class="flex items-center gap-2">
-                        <input
-                            type="color"
-                            bind:value={tokens[key]}
-                            class="border-border h-6 w-8 cursor-pointer rounded border"
-                        />
-                        <input
-                            type="text"
-                            bind:value={tokens[key]}
-                            class="border-border bg-background text-foreground w-20 rounded border px-1.5 py-0.5 font-mono text-xs"
-                        />
+                <label class="json-demo-color-row">
+                    <span>{tokenLabels[key]}</span>
+                    <span>
+                        <input type="color" bind:value={tokens[key]} />
+                    </span>
+                    <span>
+                        <input type="text" bind:value={tokens[key]} />
                     </span>
                 </label>
             {/each}
@@ -139,7 +126,7 @@
     </aside>
 
     <div
-        class="themer-preview bg-background overflow-auto p-6"
+        class="themer-preview json-demo-body"
         style:--sjv-background={tokens.background}
         style:--sjv-label={tokens.label}
         style:--sjv-punctuation={tokens.punctuation}

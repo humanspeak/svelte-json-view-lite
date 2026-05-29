@@ -2,6 +2,7 @@
     import { getSeoContext } from '@humanspeak/docs-kit'
     import Example from '$lib/components/general/Example.svelte'
     import ClickToExpand from '$lib/examples/ClickToExpand.svelte'
+    import sourceCode from '$lib/examples/ClickToExpand.svelte?raw'
 
     const seo = getSeoContext()
     if (seo) {
@@ -17,6 +18,14 @@
 
 <Example
     title="Click to Expand"
+    description="Toggle label-click expansion and watch beforeExpandChange veto decisions stream into a live event log."
+    tag="INTERACTION"
+    filename="ClickToExpand.svelte"
+    {sourceCode}
+    barCells={[
+        { k: 'prop', v: 'clickToExpandNode' },
+        { k: 'hook', v: 'beforeExpandChange' }
+    ]}
     sourceUrl="https://github.com/humanspeak/svelte-json-view-lite/blob/main/docs/src/lib/examples/ClickToExpand.svelte"
 >
     <ClickToExpand />

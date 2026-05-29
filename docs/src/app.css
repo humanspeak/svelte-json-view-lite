@@ -1,4 +1,344 @@
 @import 'tailwindcss';
 @source '../node_modules/@humanspeak/docs-kit/dist';
 @import '@humanspeak/docs-kit/styles/base.css';
+@import '@humanspeak/docs-kit/styles/brutalist.css';
+@import '@humanspeak/docs-kit/styles/prose-v2.css';
 @plugin '@tailwindcss/typography';
+
+/* Project-specific: legacy landing page decorative styles kept for examples
+   and older cards that still reference these helpers. */
+.orb-a-bg {
+    background: radial-gradient(
+        circle at 30% 30%,
+        color-mix(in oklab, var(--color-brand-100) 40%, transparent),
+        color-mix(in oklab, var(--color-brand-100) 10%, transparent)
+    );
+}
+
+.orb-b-bg {
+    background: radial-gradient(
+        circle at 70% 50%,
+        color-mix(in oklab, var(--color-brand-500) 30%, transparent),
+        color-mix(in oklab, var(--color-brand-500) 8%, transparent)
+    );
+}
+
+/* V2 example internals: these live inside docs-kit's ExampleV2 panel body. */
+.json-demo {
+    display: flex;
+    min-height: 620px;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--brut-bg);
+    color: var(--brut-ink);
+    font-family: 'Inter Variable', 'Inter', system-ui, sans-serif;
+}
+
+.json-demo.column {
+    flex-direction: column;
+}
+
+.json-demo.grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.36fr) minmax(0, 1fr);
+}
+
+.json-demo.split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+}
+
+.json-demo.split.click-demo {
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
+}
+
+.json-demo.split > .json-demo-rail {
+    border-right: 0;
+    border-left: 1px solid var(--brut-rule);
+}
+
+.json-demo-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--brut-rule);
+    background: var(--brut-bg-2);
+    font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--brut-ink-2);
+}
+
+.json-demo-control,
+.json-demo-control-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.json-demo-control input[type='checkbox'] {
+    width: 13px;
+    height: 13px;
+    accent-color: var(--brut-accent);
+}
+
+.json-demo-control button,
+.json-demo-control-group button,
+.json-demo select,
+.json-demo input[type='number'],
+.json-demo input[type='text'] {
+    border: 1px solid var(--brut-rule);
+    border-radius: 0;
+    background: var(--brut-bg);
+    color: var(--brut-ink);
+    font: inherit;
+    padding: 4px 8px;
+}
+
+.json-demo-control button.active,
+.json-demo-control-group button.active {
+    border-color: var(--brut-accent);
+    background: var(--brut-accent);
+    color: var(--brut-accent-ink);
+}
+
+.json-demo-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--brut-rule);
+}
+
+.json-demo-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 24px;
+    background: var(--brut-bg);
+}
+
+.json-demo-source {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-right: 1px solid var(--brut-rule);
+}
+
+.json-demo textarea {
+    width: 100%;
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+    overflow: auto;
+    resize: none;
+    border: 0;
+    background: var(--brut-bg);
+    color: var(--brut-ink);
+    font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    padding: 18px;
+    outline: none;
+}
+
+.json-demo-error {
+    border-top: 1px solid var(--brut-rule);
+    padding: 8px 14px;
+    color: #ff5c7a;
+    background: color-mix(in srgb, #ff5c7a 12%, transparent);
+    font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+}
+
+.sjv-docs-theme {
+    --sjv-background: var(--brut-bg) !important;
+    --sjv-label: var(--brut-ink) !important;
+    --sjv-punctuation: var(--brut-ink) !important;
+    --sjv-null: var(--brut-ink-3) !important;
+    --sjv-undefined: var(--brut-ink-3) !important;
+    --sjv-string: var(--brut-accent) !important;
+    --sjv-number: #d85f8f !important;
+    --sjv-boolean: #9f78ff !important;
+    --sjv-other: #6aa7d8 !important;
+    --sjv-expander: var(--brut-ink) !important;
+    background: var(--brut-bg) !important;
+    color: var(--brut-ink);
+    font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.55;
+}
+
+:root:not(.dark) .sjv-docs-theme {
+    --sjv-background: var(--brut-bg) !important;
+    --sjv-label: #111111 !important;
+    --sjv-punctuation: #111111 !important;
+    --sjv-null: #6f7774 !important;
+    --sjv-undefined: #6f7774 !important;
+    --sjv-string: #1d7f71 !important;
+    --sjv-number: #0f6fbd !important;
+    --sjv-boolean: #7d4fd1 !important;
+    --sjv-other: #4f6863 !important;
+    --sjv-expander: #111111 !important;
+}
+
+.sjv-docs-theme [role='treeitem'] {
+    padding-right: 12px;
+    padding-left: calc(10px + var(--sjv-docs-indent, 0px));
+}
+
+.sjv-docs-theme span {
+    letter-spacing: 0;
+}
+
+.json-demo-rail {
+    min-height: 0;
+    overflow: auto;
+    border-right: 1px solid var(--brut-rule);
+    background: var(--brut-bg-2);
+    padding: 18px;
+}
+
+.event-log-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+}
+
+.event-log-panel .event-log-head {
+    height: 47.5px;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--brut-rule);
+}
+
+.event-log-body {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
+    padding: 14px 18px;
+}
+
+.json-demo-k {
+    margin: 0 0 10px;
+    color: var(--brut-ink-3);
+    font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.json-demo h3 {
+    margin: 0;
+    color: var(--brut-ink);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.json-demo p {
+    margin: 12px 0 0;
+    color: var(--brut-ink-2);
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.json-demo-list,
+.json-demo-log {
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+    font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--brut-ink-2);
+}
+
+.json-demo-list li,
+.json-demo-log li {
+    padding: 7px 0;
+    border-bottom: 1px solid var(--brut-rule);
+}
+
+.json-demo-log {
+    margin-top: 0;
+}
+
+.json-demo-log li.allow {
+    color: var(--brut-accent);
+}
+
+.json-demo-log li.veto {
+    color: #ff5c7a;
+}
+
+.json-demo-log li.empty {
+    color: var(--brut-ink-3);
+}
+
+.json-demo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.json-demo-actions button,
+.json-demo-clear {
+    cursor: pointer;
+}
+
+.json-demo-color-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--brut-rule);
+    font-family: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--brut-ink-2);
+}
+
+.json-demo input[type='color'] {
+    width: 30px;
+    height: 24px;
+    border: 1px solid var(--brut-rule);
+    border-radius: 0;
+    background: var(--brut-bg);
+    padding: 0;
+}
+
+.json-demo-badge {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid currentColor;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.json-demo-badge.true {
+    color: var(--brut-accent);
+}
+
+.json-demo-badge.false {
+    color: #ff5c7a;
+}
+
+@media (max-width: 900px) {
+    .json-demo.grid,
+    .json-demo.split {
+        grid-template-columns: 1fr;
+    }
+
+    .json-demo-source,
+    .json-demo-rail {
+        border-right: 0;
+        border-bottom: 1px solid var(--brut-rule);
+    }
+
+    .json-demo.split > .json-demo-rail {
+        border-left: 0;
+    }
+}
