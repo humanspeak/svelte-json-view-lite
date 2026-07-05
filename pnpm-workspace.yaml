@@ -4,3 +4,7 @@ packages:
 minimumReleaseAge: 2880
 minimumReleaseAgeExclude:
     - '@humanspeak/*'
+# pnpm 11 no longer reads pnpm.onlyBuiltDependencies from package.json.
+# docs-kit is a git-hosted dependency whose prepare script builds dist/.
+onlyBuiltDependencies:
+    - '@humanspeak/docs-kit'

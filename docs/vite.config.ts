@@ -1,6 +1,7 @@
 import {
     demoManifestPlugin,
     docMirrorsPlugin,
+    indexNowPlugin,
     llmsFullPlugin,
     llmsPlugin,
     sitemapManifestPlugin,
@@ -12,6 +13,10 @@ import { defineConfig } from 'vite'
 
 import { competitors } from './src/lib/compare-data'
 import { docsConfig } from './src/lib/docs-config'
+
+// IndexNow verification key. The matching `static/<key>.txt` file must be
+// deployed and publicly reachable at `${siteUrl}/<key>.txt`.
+const indexNowKey = 'b655e901-d19a-4812-88a3-49781404940d'
 
 export default defineConfig({
     plugins: [
@@ -62,6 +67,13 @@ export default defineConfig({
                     ogFeatures: ['ARIA Treeview', 'Svelte 5', 'Snippet Overrides', 'Zero Deps']
                 }
             ]
+        }),
+        // Submits changed URLs to IndexNow (Bing, Yandex, etc.) on deploy.
+        // Gated behind `--mode indexnow` so ordinary `vite build` never pings.
+        indexNowPlugin({
+            siteUrl: docsConfig.url,
+            key: indexNowKey,
+            productionMode: 'indexnow'
         }),
         tailwindcss(),
         sveltekit()
