@@ -3,6 +3,7 @@
     import { defaultStyles } from './index.js'
     import type { OuterRef, Props, StyleProps } from './types.js'
     import { isObject } from './utils/dataTypeDetection.js'
+    import { createExpanderNavigation } from './utils/expanderNavigation.js'
     import { allExpanded } from './utils/expandStrategies.js'
 
     const {
@@ -26,6 +27,7 @@
     }: Props = $props()
 
     let outerElement = $state<HTMLDivElement | null>(null)
+    const navigation = createExpanderNavigation()
 
     // Merge user theme onto defaults. Also emit a deprecation warning when the
     // legacy `ariaLables` key (typo in react-json-view-lite) is supplied
@@ -52,7 +54,8 @@
     const outerRef: OuterRef = {
         get current() {
             return outerElement
-        }
+        },
+        navigation
     }
 
     const snippets = $derived({

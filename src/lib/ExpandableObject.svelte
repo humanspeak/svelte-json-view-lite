@@ -60,6 +60,11 @@
 
     let expanderButton = $state<HTMLSpanElement | null>(null)
 
+    $effect(() => {
+        if (!expanderButton) return
+        return outerRef.navigation.register(expanderButton)
+    })
+
     const activeAriaLabels = $derived<AriaLabels>(
         style.ariaLabels ??
             style.ariaLables ?? {
@@ -112,29 +117,13 @@
         if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return
         e.preventDefault()
         const direction = e.key === 'ArrowUp' ? -1 : 1
-        const outer = outerRef.current
-        if (!outer) return
-        const buttons = outer.querySelectorAll<HTMLElement>('[role=button]')
-        let currentIndex = -1
-        for (let i = 0; i < buttons.length; i++) {
-            if (buttons[i].tabIndex === 0) {
-                currentIndex = i
-                break
-            }
-        }
-        if (currentIndex < 0) return
-        const nextIndex = (currentIndex + direction + buttons.length) % buttons.length
-        buttons[currentIndex].tabIndex = -1
-        buttons[nextIndex].tabIndex = 0
-        buttons[nextIndex].focus()
+        if (expanderButton) outerRef.navigation.move(expanderButton, direction)
     }
 
     function onClick() {
         setExpandWithCallback(!expanded)
         if (!expanderButton) return
-        const prev = outerRef.current?.querySelector<HTMLElement>('[role=button][tabindex="0"]')
-        if (prev) prev.tabIndex = -1
-        expanderButton.tabIndex = 0
+        outerRef.navigation.activate(expanderButton)
         expanderButton.focus()
     }
 </script>
