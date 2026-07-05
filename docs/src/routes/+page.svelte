@@ -354,8 +354,7 @@
                         id="home-json-source"
                         bind:value={editorText}
                         spellcheck="false"
-                        aria-label="JSON source"
-                    ></textarea>
+                        aria-label="JSON source"></textarea>
                     <button type="button" onclick={resetJson}>↻ reset sample</button>
                 </div>
                 <div class="footer">
@@ -933,8 +932,10 @@
         text-transform: uppercase;
     }
     .json-card {
+        display: flex;
+        flex-direction: column;
         width: min(620px, calc(100% - 72px));
-        max-height: 328px;
+        height: 328px;
         border: 1px solid var(--brut-rule);
         background: var(--brut-bg);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
@@ -957,7 +958,8 @@
     }
     .json-card :global(.sjv-container-light),
     .json-card :global(.sjv-container-dark) {
-        max-height: 280px;
+        flex: 1;
+        min-height: 0;
         padding: 18px;
         overflow: auto;
     }

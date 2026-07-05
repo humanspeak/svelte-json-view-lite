@@ -1,6 +1,8 @@
 import {
     demoManifestPlugin,
     docMirrorsPlugin,
+    exampleMirrorsPlugin,
+    indexNowPlugin,
     llmsFullPlugin,
     llmsPlugin,
     sitemapManifestPlugin,
@@ -13,6 +15,10 @@ import { defineConfig } from 'vite'
 import { competitors } from './src/lib/compare-data'
 import { docsConfig } from './src/lib/docs-config'
 
+// IndexNow verification key. The matching `static/<key>.txt` file must be
+// deployed and publicly reachable at `${siteUrl}/<key>.txt`.
+const indexNowKey = 'b655e901-d19a-4812-88a3-49781404940d'
+
 export default defineConfig({
     plugins: [
         sitemapManifestPlugin({
@@ -22,8 +28,12 @@ export default defineConfig({
                 source: 'src/lib/compare-data.ts'
             }))
         }),
-        demoManifestPlugin(),
+        demoManifestPlugin({ split: true }),
         docMirrorsPlugin({ siteUrl: 'https://jsonview.svelte.page' }),
+        exampleMirrorsPlugin({
+            siteUrl: 'https://jsonview.svelte.page',
+            sourceBaseUrl: 'https://github.com/humanspeak/svelte-json-view-lite/blob/main/docs'
+        }),
         llmsFullPlugin({
             siteUrl: 'https://jsonview.svelte.page',
             pkgName: '@humanspeak/svelte-json-view-lite'
@@ -62,6 +72,13 @@ export default defineConfig({
                     ogFeatures: ['ARIA Treeview', 'Svelte 5', 'Snippet Overrides', 'Zero Deps']
                 }
             ]
+        }),
+        // Submits changed URLs to IndexNow (Bing, Yandex, etc.) on deploy.
+        // Gated behind `--mode indexnow` so ordinary `vite build` never pings.
+        indexNowPlugin({
+            siteUrl: docsConfig.url,
+            key: indexNowKey,
+            productionMode: 'indexnow'
         }),
         tailwindcss(),
         sveltekit()

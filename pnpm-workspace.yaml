@@ -1,6 +1,15 @@
 packages:
     - .
     - docs
+allowBuilds:
+    esbuild: true
+    sharp: true
+    workerd: true
+    '@humanspeak/docs-kit@https://codeload.github.com/humanspeak/docs-kit/tar.gz/30c325691f170eb5877519a4aac2f32015d02a5e': true
 minimumReleaseAge: 2880
 minimumReleaseAgeExclude:
     - '@humanspeak/*'
+# pnpm 11 no longer reads pnpm.onlyBuiltDependencies from package.json.
+# docs-kit is a git-hosted dependency whose prepare script builds dist/.
+onlyBuiltDependencies:
+    - '@humanspeak/docs-kit'

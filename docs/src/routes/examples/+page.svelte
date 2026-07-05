@@ -67,6 +67,7 @@
     }
     if (seo) {
         seo.title = 'Interactive Examples | Svelte JSON View Lite'
+        seo.h1 = { title: 'Interactive Examples' }
         seo.description =
             'Live demos for @humanspeak/svelte-json-view-lite: JSON editing, snippet overrides, CSS-variable theming, click-to-expand behavior, edge cases, and ARIA tree semantics.'
         seo.ogTitle = 'Interactive Examples'
