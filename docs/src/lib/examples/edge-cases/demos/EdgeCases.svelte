@@ -2,7 +2,7 @@
     import { JsonView, allExpanded } from '@humanspeak/svelte-json-view-lite'
     import { docsDarkJsonViewStyles, docsDefaultJsonViewStyles } from '$lib/json-view-docs-style'
     import { mode } from 'mode-watcher'
-    import { jsonData } from '../../../../src/routes/test/sample'
+    import { jsonData } from '../../../../../../src/routes/test/sample'
 
     let stringifyStringValues = $state(false)
     let quotesForFieldNames = $state(false)

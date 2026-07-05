@@ -1,6 +1,7 @@
 import {
     demoManifestPlugin,
     docMirrorsPlugin,
+    exampleMirrorsPlugin,
     indexNowPlugin,
     llmsFullPlugin,
     llmsPlugin,
@@ -27,8 +28,12 @@ export default defineConfig({
                 source: 'src/lib/compare-data.ts'
             }))
         }),
-        demoManifestPlugin(),
+        demoManifestPlugin({ split: true }),
         docMirrorsPlugin({ siteUrl: 'https://jsonview.svelte.page' }),
+        exampleMirrorsPlugin({
+            siteUrl: 'https://jsonview.svelte.page',
+            sourceBaseUrl: 'https://github.com/humanspeak/svelte-json-view-lite/blob/main/docs'
+        }),
         llmsFullPlugin({
             siteUrl: 'https://jsonview.svelte.page',
             pkgName: '@humanspeak/svelte-json-view-lite'
