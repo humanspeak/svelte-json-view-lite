@@ -13,7 +13,8 @@ interface ExpanderNode {
  * callback for unmount. The controller stores buttons in document order as a
  * linked list, so ArrowUp/ArrowDown can move from the current button to its
  * neighbor without querying `[role=button]` or scanning `tabIndex` across the
- * whole tree on every keypress.
+ * whole tree on every keypress. Normal document-order mounts append in O(1);
+ * the insertion scan is reserved for out-of-order registrations.
  *
  * @returns A navigation controller shared by every expandable node in one
  * `JsonView` tree.
@@ -97,6 +98,23 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
     /**
      * Make one registered button the active roving tabindex target.
      *
+     * @param node - Expander node that should receive `tabIndex=0`.
+     * @returns Nothing.
+     *
+     * @example
+     * ```ts
+     * setActive(node)
+     * ```
+     */
+    const setActive = (node: ExpanderNode) => {
+        if (active && active !== node) active.element.tabIndex = -1
+        active = node
+        node.element.tabIndex = 0
+    }
+
+    /**
+     * Make one registered button the explicit active roving tabindex target.
+     *
      * @param button - Expander button that should receive `tabIndex=0`.
      * @returns Nothing.
      *
@@ -109,9 +127,7 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
         const node = nodes.get(button)
         if (!node) return
 
-        if (active && active !== node) active.element.tabIndex = -1
-        active = node
-        node.element.tabIndex = 0
+        setActive(node)
     }
 
     /**
@@ -137,7 +153,7 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
 
         if (wasActive) {
             active = null
-            if (fallback) activate(fallback.element)
+            if (fallback) setActive(fallback)
         }
     }
 
@@ -160,18 +176,29 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
         const node: ExpanderNode = { element: button, previous: null, next: null }
         nodes.set(button, node)
 
-        let before: ExpanderNode | null = null
-        for (let cursor = first; cursor; cursor = cursor.next) {
-            if (button.compareDocumentPosition(cursor.element) & Node.DOCUMENT_POSITION_FOLLOWING) {
-                before = cursor
-                break
+        if (
+            !last ||
+            (last.element.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+        ) {
+            append(node)
+        } else {
+            let before: ExpanderNode | null = null
+            for (let cursor = first; cursor; cursor = cursor.next) {
+                if (
+                    (button.compareDocumentPosition(cursor.element) &
+                        Node.DOCUMENT_POSITION_FOLLOWING) !==
+                    0
+                ) {
+                    before = cursor
+                    break
+                }
             }
+
+            if (before) insertBefore(node, before)
+            else append(node)
         }
 
-        if (before) insertBefore(node, before)
-        else append(node)
-
-        if (!active || button.tabIndex === 0) activate(button)
+        if (!active || button.tabIndex === 0) setActive(node)
 
         return () => unregister(button)
     }
@@ -195,7 +222,7 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
         const next = direction === 1 ? (current.next ?? first) : (current.previous ?? last)
         if (!next) return
 
-        activate(next.element)
+        setActive(next)
         next.element.focus()
     }
 

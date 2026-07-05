@@ -60,10 +60,12 @@
 
     let expanderButton = $state<HTMLSpanElement | null>(null)
 
-    $effect(() => {
-        if (!expanderButton) return
-        return outerRef.navigation.register(expanderButton)
-    })
+    // Register from the node action, not a component effect: actions follow
+    // DOM creation order, so parent/top-level expanders append before children.
+    function registerExpander(node: HTMLSpanElement) {
+        const unregister = outerRef.navigation.register(node)
+        return { destroy: unregister }
+    }
 
     const activeAriaLabels = $derived<AriaLabels>(
         style.ariaLabels ??
@@ -148,7 +150,7 @@
             it tight anyway for a consistent rule.
         -->
         <!-- prettier-ignore -->
-        <span bind:this={expanderButton} class={expanderIconStyle} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown}></span>{#if hasField}{#if snippets.label}{@render snippets.label(
+        <span bind:this={expanderButton} use:registerExpander class={expanderIconStyle} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown}></span>{#if hasField}{#if snippets.label}{@render snippets.label(
                     { field: field ?? '', level }
                 )}{:else if clickToExpandNode}<!-- svelte-ignore a11y_no_static_element_interactions --><span
                     class={style.clickableLabel}
