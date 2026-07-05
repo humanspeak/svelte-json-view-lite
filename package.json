@@ -1,6 +1,6 @@
 {
     "name": "@humanspeak/svelte-json-view-lite",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "description": "Fast, tiny JSON tree viewer for Svelte 5 — port of react-json-view-lite with runes, SSR, snippet overrides, and zero runtime dependencies",
     "keywords": [
         "svelte",
