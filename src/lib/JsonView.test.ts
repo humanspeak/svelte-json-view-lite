@@ -117,6 +117,39 @@ describe('JsonView — compactTopLevel', () => {
         // as its own primitive / inline expandable row, not as a nested block.
         expect(container.querySelectorAll('[role="button"]').length).toBe(0)
     })
+
+    it('starts keyboard navigation at the first expandable top-level entry', async () => {
+        const { container } = render(JsonView, {
+            props: {
+                data: {
+                    first: { nested: { deep: [1] } },
+                    second: [2]
+                },
+                compactTopLevel: true
+            }
+        })
+
+        const buttons = Array.from(container.querySelectorAll<HTMLElement>('[role="button"]'))
+        const tabIndexes = buttons.map((button) => button.tabIndex)
+        const activeIndex = tabIndexes.findIndex((tabIndex) => tabIndex === 0)
+        expect(buttons.length).toBe(4)
+        expect(container.querySelectorAll('[tabindex="0"]').length).toBe(1)
+
+        expect(
+            activeIndex,
+            `compactTopLevel registered a nested expander before the first top-level entry settled: active expander index ${activeIndex}, tabIndexes [${tabIndexes.join(', ')}]. The first top-level expander should start at tabindex=0.`
+        ).toBe(0)
+        expect(buttons[1].tabIndex).toBe(-1)
+        expect(buttons[2].tabIndex).toBe(-1)
+        expect(buttons[3].tabIndex).toBe(-1)
+
+        buttons[0].focus()
+        await fireEvent.keyDown(buttons[0], { key: 'ArrowDown', code: 'ArrowDown' })
+
+        expect(document.activeElement).toBe(buttons[1])
+        expect(buttons[0].tabIndex).toBe(-1)
+        expect(buttons[1].tabIndex).toBe(0)
+    })
 })
 
 describe('JsonView — shouldExpandNode strategies', () => {
