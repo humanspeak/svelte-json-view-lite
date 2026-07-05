@@ -1,6 +1,9 @@
 packages:
     - .
     - docs
+allowBuilds:
+    esbuild: true
+    workerd: true
 minimumReleaseAge: 2880
 minimumReleaseAgeExclude:
     - '@humanspeak/*'

@@ -354,8 +354,7 @@
                         id="home-json-source"
                         bind:value={editorText}
                         spellcheck="false"
-                        aria-label="JSON source"
-                    ></textarea>
+                        aria-label="JSON source"></textarea>
                     <button type="button" onclick={resetJson}>↻ reset sample</button>
                 </div>
                 <div class="footer">
