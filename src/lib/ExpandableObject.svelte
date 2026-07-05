@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { untrack } from 'svelte'
     import DataRender from './DataRender.svelte'
     import EmptyObject from './EmptyObject.svelte'
     import type { AriaLabels, ExpandableRenderProps } from './types.js'
@@ -7,7 +8,7 @@
     const {
         field,
         value,
-        data,
+        isArray,
         lastElement,
         openBracket,
         closeBracket,
@@ -26,7 +27,21 @@
     // svelte-ignore state_referenced_locally
     let expanded = $state(shouldExpandNode(level, value, field))
 
+    // Once a node has been opened we keep its children materialized, even after
+    // it collapses again: re-deriving the tuple array (and re-reading N child
+    // values) on every re-expand would be its own waste. Latches true, stays true.
+    // svelte-ignore state_referenced_locally
+    let hasMaterialized = $state(expanded)
+
     let shouldExpandNodeCalled = false
+
+    // Single chokepoint for flipping expansion — every path (mount effect,
+    // click, keyboard) routes through here, so the materialization high-water
+    // mark can't be forgotten when a new expansion path is added.
+    function applyExpanded(next: boolean) {
+        expanded = next
+        if (next) hasMaterialized = true
+    }
 
     $effect(() => {
         const fn = shouldExpandNode
@@ -34,7 +49,10 @@
             shouldExpandNodeCalled = true
             return
         }
-        expanded = fn(level, value, field)
+        // Track only the callback identity: untrack level/value/field so an
+        // ancestor re-render that mutates them can't rerun this effect and
+        // overwrite the user's expansion state.
+        applyExpanded(untrack(() => fn(level, value, field)))
     })
 
     // SSR-stable id for aria-controls linkage.
@@ -54,16 +72,35 @@
         expanded ? activeAriaLabels.collapseJson : activeAriaLabels.expandJson
     )
     const childLevel = $derived(level + 1)
-    const lastIndex = $derived(data.length - 1)
     const hasField = $derived(field !== undefined)
     const labelText = $derived(quoteString(field ?? '', style.quotesForFieldNames))
+
+    // Object keys resolved once and shared by the count and the tuple builder,
+    // so an expanded object node enumerates its keys a single time. Arrays skip
+    // this entirely — their length is free.
+    const objectKeys = $derived(isArray ? null : Object.keys(value as Record<string, unknown>))
+
+    // Child *count* is cheap — array length, or the key count for objects.
+    // Neither touches child *values*, so a collapsed node stays allocation-free.
+    const count = $derived(objectKeys ? objectKeys.length : (value as unknown[]).length)
+    const lastIndex = $derived(count - 1)
+
+    // The tuple array is materialized lazily on first open, then kept: a node
+    // that is never expanded never allocates its N tuples or reads its N child
+    // values (#21); one that has been opened doesn't re-read them on re-expand.
+    const entries = $derived.by<Array<[string | undefined, unknown]>>(() => {
+        if (!hasMaterialized) return []
+        if (isArray) return (value as unknown[]).map((el) => [undefined, el])
+        const obj = value as Record<string, unknown>
+        return (objectKeys as string[]).map((k) => [k, obj[k]])
+    })
 
     function setExpandWithCallback(newExpandValue: boolean) {
         if (expanded === newExpandValue) return
         if (beforeExpandChange && !beforeExpandChange({ level, value, field, newExpandValue })) {
             return
         }
-        expanded = newExpandValue
+        applyExpanded(newExpandValue)
     }
 
     function onKeyDown(e: KeyboardEvent) {
@@ -102,7 +139,7 @@
     }
 </script>
 
-{#if data.length === 0}
+{#if count === 0}
     <EmptyObject {field} {openBracket} {closeBracket} {lastElement} {style} />
 {:else}
     <div
@@ -131,7 +168,7 @@
                 >{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}<span
             class={style.punctuation}>{openBracket}</span
         >{#if expanded}<ul id={contentsId} role="group" class={style.childFieldsContainer}>
-                {#each data as [childField, childValue], index (childField ?? index)}<DataRender
+                {#each entries as [childField, childValue], index (childField ?? index)}<DataRender
                         field={childField}
                         value={childValue}
                         {style}

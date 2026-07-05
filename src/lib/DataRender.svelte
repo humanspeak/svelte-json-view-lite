@@ -16,25 +16,18 @@
     const isArr = $derived(isArray(value))
     const isObj = $derived(isObject(value) && !isDate(value) && !isFunction(value))
 
-    // Derive the children tuple array from `value` so ExpandableObject
-    // receives a stable reference while `value` is unchanged — otherwise
-    // a fresh array identity on every parent tick invalidates the
-    // {#each} key and cascades re-renders down the tree.
-    const children = $derived.by<Array<[string | undefined, unknown]>>(() => {
-        if (isArr) return (value as unknown[]).map((el) => [undefined, el])
-        if (isObj) {
-            const obj = value as Record<string, unknown>
-            return Object.keys(obj).map((k) => [k, obj[k]])
-        }
-        return []
-    })
+    // The children tuple array is NOT built here: a collapsed node only needs
+    // its child *count*, and materializing `Array<[key, value]>` for every
+    // node (a 100k-element array = 100k throwaway tuples at mount under
+    // collapseAllNested) is pure waste. ExpandableObject derives the tuples
+    // lazily, gated on its own `expanded` state. See issue #21.
 </script>
 
 {#if isArr}
     <ExpandableObject
         {...props}
         value={value as unknown[]}
-        data={children}
+        isArray={true}
         openBracket="["
         closeBracket="]"
     />
@@ -42,7 +35,7 @@
     <ExpandableObject
         {...props}
         value={value as object}
-        data={children}
+        isArray={false}
         openBracket={OBJECT_OPEN}
         closeBracket={OBJECT_CLOSE}
     />

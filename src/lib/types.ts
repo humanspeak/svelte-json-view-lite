@@ -145,7 +145,9 @@ export interface JsonRenderProps<T> extends CommonRenderProps {
 export interface ExpandableRenderProps extends CommonRenderProps {
     field?: string
     value: object | unknown[]
-    data: Array<[string | undefined, unknown]>
+    /** Whether `value` is an array. Resolved once by DataRender (the type
+     *  dispatcher) so ExpandableObject never re-tests the value's shape. */
+    isArray: boolean
     openBracket: string
     closeBracket: string
 }
