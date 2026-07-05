@@ -73,6 +73,44 @@ describe('createExpanderNavigation', () => {
         expect(document.activeElement).toBe(second)
     })
 
+    it('seeds the initial active target from document order, not registration order', () => {
+        const navigation = createExpanderNavigation()
+        const [first, second, third] = appendButtons(3)
+
+        navigation.register(second)
+        navigation.register(third)
+        navigation.register(first)
+
+        expect(first.tabIndex).toBe(0)
+        expect(second.tabIndex).toBe(-1)
+        expect(third.tabIndex).toBe(-1)
+    })
+
+    it('does not replace an explicitly active target when an earlier button registers later', () => {
+        const navigation = createExpanderNavigation()
+        const [first, second] = appendButtons(2)
+
+        navigation.register(second)
+        navigation.activate(second)
+        navigation.register(first)
+
+        expect(first.tabIndex).toBe(-1)
+        expect(second.tabIndex).toBe(0)
+    })
+
+    it('keeps fallback activation seedable when the seeded button unregisters', () => {
+        const navigation = createExpanderNavigation()
+        const [first, second, third] = appendButtons(3)
+
+        const unregisterSecond = navigation.register(second)
+        navigation.register(third)
+        unregisterSecond()
+        navigation.register(first)
+
+        expect(first.tabIndex).toBe(0)
+        expect(third.tabIndex).toBe(-1)
+    })
+
     it('falls back to a neighbor when the active button unregisters', () => {
         const navigation = createExpanderNavigation()
         const [first, second, third] = appendButtons(3)

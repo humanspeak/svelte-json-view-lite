@@ -32,6 +32,7 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
     let first: ExpanderNode | null = null
     let last: ExpanderNode | null = null
     let active: ExpanderNode | null = null
+    let activeIsSeed = false
 
     /**
      * Detach a node from the linked list while preserving the surrounding
@@ -99,16 +100,19 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
      * Make one registered button the active roving tabindex target.
      *
      * @param node - Expander node that should receive `tabIndex=0`.
+     * @param seed - Whether this is the implicit initial target, which may
+     * move to the document-order head if earlier nodes register later.
      * @returns Nothing.
      *
      * @example
      * ```ts
-     * setActive(node)
+     * setActive(node, false)
      * ```
      */
-    const setActive = (node: ExpanderNode) => {
+    const setActive = (node: ExpanderNode, seed: boolean) => {
         if (active && active !== node) active.element.tabIndex = -1
         active = node
+        activeIsSeed = seed
         node.element.tabIndex = 0
     }
 
@@ -127,7 +131,7 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
         const node = nodes.get(button)
         if (!node) return
 
-        setActive(node)
+        setActive(node, false)
     }
 
     /**
@@ -148,12 +152,14 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
 
         const fallback = node.next ?? node.previous
         const wasActive = active === node
+        const wasSeed = activeIsSeed
         nodes.delete(button)
         unlink(node)
 
         if (wasActive) {
             active = null
-            if (fallback) setActive(fallback)
+            activeIsSeed = false
+            if (fallback) setActive(fallback, wasSeed)
         }
     }
 
@@ -198,7 +204,8 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
             else append(node)
         }
 
-        if (!active || button.tabIndex === 0) setActive(node)
+        if (button.tabIndex === 0) setActive(node, false)
+        else if ((!active || activeIsSeed) && first) setActive(first, true)
 
         return () => unregister(button)
     }
@@ -222,7 +229,7 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
         const next = direction === 1 ? (current.next ?? first) : (current.previous ?? last)
         if (!next) return
 
-        setActive(next)
+        setActive(next, false)
         next.element.focus()
     }
 
