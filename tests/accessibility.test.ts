@@ -18,17 +18,33 @@ test('root element is role=tree with the default aria-label', async ({ page }) =
     await expect(tree).toHaveAttribute('aria-label', 'JSON view')
 })
 
-test('every treeitem carries role=treeitem and a parent tree', async ({ page }) => {
+test('every treeitem carries role=treeitem and omits unselected aria-selected', async ({
+    page
+}) => {
     await page.goto('/test/basic')
+    const tree = rootTree(page)
     const items = treeitems(page)
-    expect(await items.count()).toBeGreaterThan(5)
-    // Spot-check the first three — role is set, aria-selected is present
-    // (the port ships `aria-selected="false"` so axe-like tooling is happy).
+    expect(
+        await items.count(),
+        '/test/basic must render real treeitems so aria-selected absence is not a false positive'
+    ).toBeGreaterThan(5)
+    expect(
+        await tree.locator('[role="treeitem"][aria-expanded="true"]').count(),
+        '/test/basic must include expanded treeitems so the test covers expandable row markup'
+    ).toBeGreaterThan(0)
+    expect(
+        await tree.locator('[role="treeitem"]:not([aria-expanded])').count(),
+        '/test/basic must include leaf treeitems so the test covers primitive row markup'
+    ).toBeGreaterThan(0)
+
     for (let i = 0; i < 3; i++) {
         const it = items.nth(i)
         await expect(it).toHaveAttribute('role', 'treeitem')
-        await expect(it).toHaveAttribute('aria-selected', 'false')
     }
+    await expect(
+        tree.locator('[role="treeitem"][aria-selected="false"]'),
+        'Match upstream: unselected treeitems must omit aria-selected instead of rendering aria-selected="false"'
+    ).toHaveCount(0)
 })
 
 test('every expander exposes aria-expanded + aria-controls when open', async ({ page }) => {

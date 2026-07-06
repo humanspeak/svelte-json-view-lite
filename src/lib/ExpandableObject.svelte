@@ -133,12 +133,9 @@
 {#if count === 0}
     <EmptyObject {field} {openBracket} {closeBracket} {lastElement} {style} />
 {:else}
-    <div
-        class={style.basicChildStyle}
-        role="treeitem"
-        aria-expanded={expanded}
-        aria-selected={false}
-    >
+    <!-- Upstream parity: unselected treeitems omit aria-selected entirely. -->
+    <!-- svelte-ignore a11y_role_has_required_aria_props -->
+    <div class={style.basicChildStyle} role="treeitem" aria-expanded={expanded}>
         <!--
             The entire inline sequence inside a row lives on a single
             prettier-ignored line because Svelte preserves template whitespace
