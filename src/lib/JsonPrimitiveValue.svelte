@@ -15,34 +15,22 @@
     const { field, value, style, lastElement, level, snippets }: JsonRenderProps<Primitive> =
         $props()
 
-    const hasField = $derived(field !== undefined)
     const labelText = $derived(quoteString(field ?? '', style.quotesForFieldNames))
 
-    type PrimitiveRender =
-        | { kind: 'null'; text: string; valueStyle: string; snippet: SnippetOverrides['null'] }
-        | {
-              kind: 'undefined'
-              text: string
-              valueStyle: string
-              snippet: SnippetOverrides['undefined']
-          }
-        | { kind: 'string'; text: string; valueStyle: string; snippet: SnippetOverrides['string'] }
-        | {
-              kind: 'boolean'
-              text: string
-              valueStyle: string
-              snippet: SnippetOverrides['boolean']
-          }
-        | { kind: 'number'; text: string; valueStyle: string; snippet: SnippetOverrides['number'] }
-        | { kind: 'bigint'; text: string; valueStyle: string; snippet: SnippetOverrides['bigint'] }
-        | { kind: 'date'; text: string; valueStyle: string; snippet: SnippetOverrides['date'] }
-        | {
-              kind: 'function'
-              text: string
-              valueStyle: string
-              snippet: SnippetOverrides['function']
-          }
-        | { kind: 'other'; text: string; valueStyle: string; snippet: undefined }
+    // `text`/`valueStyle` are common to every kind; only the discriminant and
+    // its snippet type vary. The intersection keeps `primitive.kind === 'x'`
+    // narrowing `primitive.snippet` to the one correct Snippet in the template.
+    type PrimitiveRender = { text: string; valueStyle: string } & (
+        | { kind: 'null'; snippet: SnippetOverrides['null'] }
+        | { kind: 'undefined'; snippet: SnippetOverrides['undefined'] }
+        | { kind: 'string'; snippet: SnippetOverrides['string'] }
+        | { kind: 'boolean'; snippet: SnippetOverrides['boolean'] }
+        | { kind: 'number'; snippet: SnippetOverrides['number'] }
+        | { kind: 'bigint'; snippet: SnippetOverrides['bigint'] }
+        | { kind: 'date'; snippet: SnippetOverrides['date'] }
+        | { kind: 'function'; snippet: SnippetOverrides['function'] }
+        | { kind: 'other'; snippet: undefined }
+    )
 
     // One predicate walk returns everything the row needs, avoiding three
     // separate reactions for the same primitive classification.
@@ -135,7 +123,7 @@
 <!-- svelte-ignore a11y_role_has_required_aria_props -->
 <div class={style.basicChildStyle} role="treeitem">
     <!-- prettier-ignore -->
-    {#if hasField}{#if snippets.label}{@render snippets.label({ field: field ?? '', level })}{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}{#if primitive.snippet && primitive.kind === 'null'}{@render primitive.snippet(
+    {#if field !== undefined}{#if snippets.label}{@render snippets.label({ field: field ?? '', level })}{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}{#if primitive.snippet && primitive.kind === 'null'}{@render primitive.snippet(
             { value: null, field, level }
         )}{:else if primitive.snippet && primitive.kind === 'undefined'}{@render primitive.snippet({
             value: undefined,
