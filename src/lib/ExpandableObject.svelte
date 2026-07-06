@@ -78,8 +78,6 @@
     const ariaLabel = $derived(
         expanded ? activeAriaLabels.collapseJson : activeAriaLabels.expandJson
     )
-    const childLevel = $derived(level + 1)
-    const hasField = $derived(field !== undefined)
     const labelText = $derived(quoteString(field ?? '', style.quotesForFieldNames))
 
     // Object keys resolved once and shared by the count and the tuple builder,
@@ -90,7 +88,6 @@
     // Child *count* is cheap — array length, or the key count for objects.
     // Neither touches child *values*, so a collapsed node stays allocation-free.
     const count = $derived(objectKeys ? objectKeys.length : (value as unknown[]).length)
-    const lastIndex = $derived(count - 1)
 
     // The tuple array is materialized lazily on first open, then kept: a node
     // that is never expanded never allocates its N tuples or reads its N child
@@ -147,7 +144,7 @@
             it tight anyway for a consistent rule.
         -->
         <!-- prettier-ignore -->
-        <span bind:this={expanderButton} use:registerExpander class={expanderIconStyle} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown}></span>{#if hasField}{#if snippets.label}{@render snippets.label(
+        <span bind:this={expanderButton} use:registerExpander class={expanderIconStyle} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown}></span>{#if field !== undefined}{#if snippets.label}{@render snippets.label(
                     { field: field ?? '', level }
                 )}{:else if clickToExpandNode}<!-- svelte-ignore a11y_no_static_element_interactions --><span
                     class={style.clickableLabel}
@@ -160,8 +157,8 @@
                         field={childField}
                         value={childValue}
                         {style}
-                        lastElement={index === lastIndex}
-                        level={childLevel}
+                        lastElement={index === count - 1}
+                        level={level + 1}
                         {shouldExpandNode}
                         {clickToExpandNode}
                         {beforeExpandChange}
