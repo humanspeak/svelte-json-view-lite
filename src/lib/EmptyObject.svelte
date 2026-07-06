@@ -15,7 +15,9 @@
     live in a single punctuation span so the `.punctuation-base + .punctuation-base`
     adjacent-sibling margin rule isn't needed here.
 -->
-<div class={style.basicChildStyle} role="treeitem" aria-selected={false}>
+<!-- Upstream parity: unselected treeitems omit aria-selected entirely. -->
+<!-- svelte-ignore a11y_role_has_required_aria_props -->
+<div class={style.basicChildStyle} role="treeitem">
     <!-- prettier-ignore -->
     {#if hasField}<span class={style.label}>{labelText}:</span>{/if}<span class={style.punctuation}
         >{openBracket}{closeBracket}{lastElement ? '' : ','}</span

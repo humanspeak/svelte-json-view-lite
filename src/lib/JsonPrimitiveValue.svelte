@@ -112,7 +112,9 @@
     whitespace natively; we hand-collapse it. Per-type snippet branches key
     off `kind` rather than re-running predicates.
 -->
-<div class={style.basicChildStyle} role="treeitem" aria-selected={false}>
+<!-- Upstream parity: unselected treeitems omit aria-selected entirely. -->
+<!-- svelte-ignore a11y_role_has_required_aria_props -->
+<div class={style.basicChildStyle} role="treeitem">
     <!-- prettier-ignore -->
     {#if hasField}{#if snippets.label}{@render snippets.label({ field: field ?? '', level })}{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}{#if activeSnippet && kind === 'null'}{@render snippets.null?.(
             { value: null, field, level }
