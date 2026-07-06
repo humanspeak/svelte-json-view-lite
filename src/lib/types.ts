@@ -116,13 +116,65 @@ export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'st
 }
 
 /**
- * Reference wrapper passed from the root down to every expandable node so
- * that cross-sibling keyboard navigation can query `[role=button]` elements
- * scoped to the tree. Using a getter ensures the child always reads the
- * current `bind:this` target rather than a frozen snapshot.
+ * Tree-local controller for roving tabindex across expandable nodes.
+ *
+ * The controller is intentionally passed through internal render props instead
+ * of discovered from the DOM on every keypress. Each expander registers its
+ * button while mounted, unregisters on `$effect` cleanup, and asks this helper
+ * to activate or move focus when the user clicks or presses ArrowUp/ArrowDown.
+ */
+export interface ExpanderNavigation {
+    /**
+     * Add a mounted expander button to the navigation order.
+     *
+     * @param _button - Expander button element rendered by an expandable node.
+     * @returns Cleanup callback that removes the button on component unmount.
+     *
+     * @example
+     * ```ts
+     * const cleanup = navigation.register(button)
+     * cleanup()
+     * ```
+     */
+    register(_button: HTMLElement): () => void
+
+    /**
+     * Make a registered button the only expander with `tabIndex=0`.
+     *
+     * @param _button - Registered expander button to activate.
+     * @returns Nothing.
+     *
+     * @example
+     * ```ts
+     * navigation.activate(button)
+     * ```
+     */
+    activate(_button: HTMLElement): void
+
+    /**
+     * Move focus to the next or previous registered expander.
+     *
+     * @param _button - Current registered expander button.
+     * @param _direction - `1` for ArrowDown, `-1` for ArrowUp.
+     * @returns Nothing.
+     *
+     * @example
+     * ```ts
+     * navigation.move(button, 1)
+     * ```
+     */
+    move(_button: HTMLElement, _direction: -1 | 1): void
+}
+
+/**
+ * Reference wrapper passed from the root down to every expandable node. Using
+ * a getter ensures the child always reads the current `bind:this` target rather
+ * than a frozen snapshot; the navigation helper keeps roving tabindex state
+ * tree-local without doing live DOM sweeps on every keypress.
  */
 export interface OuterRef {
     readonly current: HTMLDivElement | null
+    readonly navigation: ExpanderNavigation
 }
 
 /** Internal shared props threaded through every renderer. Not exported. */

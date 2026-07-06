@@ -117,6 +117,39 @@ describe('JsonView — compactTopLevel', () => {
         // as its own primitive / inline expandable row, not as a nested block.
         expect(container.querySelectorAll('[role="button"]').length).toBe(0)
     })
+
+    it('starts keyboard navigation at the first expandable top-level entry', async () => {
+        const { container } = render(JsonView, {
+            props: {
+                data: {
+                    first: { nested: { deep: [1] } },
+                    second: [2]
+                },
+                compactTopLevel: true
+            }
+        })
+
+        const buttons = Array.from(container.querySelectorAll<HTMLElement>('[role="button"]'))
+        const tabIndexes = buttons.map((button) => button.tabIndex)
+        const activeIndex = tabIndexes.findIndex((tabIndex) => tabIndex === 0)
+        expect(buttons.length).toBe(4)
+        expect(container.querySelectorAll('[tabindex="0"]').length).toBe(1)
+
+        expect(
+            activeIndex,
+            `compactTopLevel registered a nested expander before the first top-level entry settled: active expander index ${activeIndex}, tabIndexes [${tabIndexes.join(', ')}]. The first top-level expander should start at tabindex=0.`
+        ).toBe(0)
+        expect(buttons[1].tabIndex).toBe(-1)
+        expect(buttons[2].tabIndex).toBe(-1)
+        expect(buttons[3].tabIndex).toBe(-1)
+
+        buttons[0].focus()
+        await fireEvent.keyDown(buttons[0], { key: 'ArrowDown', code: 'ArrowDown' })
+
+        expect(document.activeElement).toBe(buttons[1])
+        expect(buttons[0].tabIndex).toBe(-1)
+        expect(buttons[1].tabIndex).toBe(0)
+    })
 })
 
 describe('JsonView — shouldExpandNode strategies', () => {
@@ -162,6 +195,12 @@ describe('JsonView — shouldExpandNode strategies', () => {
 })
 
 describe('JsonView — keyboard navigation', () => {
+    function manyExpandableSiblings(size: number) {
+        return Object.fromEntries(
+            Array.from({ length: size }, (_unused, index) => [`branch_${index}`, [index]])
+        )
+    }
+
     it('moves focus across sibling expanders with ArrowDown and ArrowUp, swapping tabindex', async () => {
         const { container } = render(JsonView, {
             props: { data: { test: [1, 2, 3], test2: [4, 5, 6] } }
@@ -206,6 +245,83 @@ describe('JsonView — keyboard navigation', () => {
 
         await fireEvent.keyDown(buttons[2], { key: 'ArrowDown', code: 'ArrowDown' })
         expect(document.activeElement).toBe(buttons[0])
+    })
+
+    it('does not run a full-tree role=button query on every vertical keypress', async () => {
+        const { container } = render(JsonView, {
+            props: { data: manyExpandableSiblings(120) }
+        })
+
+        const tree = container.querySelector<HTMLElement>('[role="tree"]')
+        expect(tree).not.toBeNull()
+        const root = tree as HTMLElement
+        const buttons = Array.from(root.querySelectorAll<HTMLElement>('[role="button"]'))
+        expect(buttons.length).toBe(121)
+
+        const originalQuerySelectorAll = root.querySelectorAll.bind(root)
+        const querySelectorAllSpy = vi.fn((selector: string) => originalQuerySelectorAll(selector))
+        Object.defineProperty(root, 'querySelectorAll', {
+            configurable: true,
+            value: querySelectorAllSpy
+        })
+
+        buttons[0].focus()
+        expect(document.activeElement).toBe(buttons[0])
+
+        for (let i = 0; i < 4; i++) {
+            await fireEvent.keyDown(document.activeElement as HTMLElement, {
+                key: 'ArrowDown',
+                code: 'ArrowDown'
+            })
+        }
+
+        const buttonSweepCalls = querySelectorAllSpy.mock.calls.filter(([selector]) => {
+            const value = String(selector)
+            return value.includes('role=button') || value.includes('role="button"')
+        }).length
+
+        expect(
+            buttonSweepCalls,
+            `ArrowDown made ${buttonSweepCalls} full-tree button queries for 4 keypresses across ${buttons.length} expanders. Issue #25 tracks moving the O(N) DOM sweep out of the keypress path.`
+        ).toBeLessThanOrEqual(1)
+    })
+
+    it('does not linearly inspect every expander tabindex to find the active item', async () => {
+        const { container } = render(JsonView, {
+            props: { data: manyExpandableSiblings(80) }
+        })
+
+        const buttons = Array.from(container.querySelectorAll<HTMLElement>('[role="button"]'))
+        expect(buttons.length).toBe(81)
+        const lastButton = buttons[buttons.length - 1]
+        let tabIndexReads = 0
+
+        buttons.forEach((button, index) => {
+            let currentTabIndex = button === lastButton ? 0 : -1
+            button.tabIndex = currentTabIndex
+            Object.defineProperty(button, 'tabIndex', {
+                configurable: true,
+                get() {
+                    tabIndexReads++
+                    return currentTabIndex
+                },
+                set(nextTabIndex: number) {
+                    currentTabIndex = nextTabIndex
+                }
+            })
+            expect(button.tabIndex).toBe(index === buttons.length - 1 ? 0 : -1)
+        })
+
+        lastButton.focus()
+        expect(document.activeElement).toBe(lastButton)
+
+        tabIndexReads = 0
+        await fireEvent.keyDown(lastButton, { key: 'ArrowDown', code: 'ArrowDown' })
+
+        expect(
+            tabIndexReads,
+            `ArrowDown read ${tabIndexReads} tabindex values to move from the last expander in an ${buttons.length}-button tree. Issue #25 expects navigation to use direct state/links instead of scanning every button.`
+        ).toBeLessThanOrEqual(2)
     })
 })
 

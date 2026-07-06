@@ -60,6 +60,13 @@
 
     let expanderButton = $state<HTMLSpanElement | null>(null)
 
+    // Register from the node action, not a component effect: actions follow
+    // DOM creation order, so parent/top-level expanders append before children.
+    function registerExpander(node: HTMLSpanElement) {
+        const unregister = outerRef.navigation.register(node)
+        return { destroy: unregister }
+    }
+
     const activeAriaLabels = $derived<AriaLabels>(
         style.ariaLabels ??
             style.ariaLables ?? {
@@ -112,29 +119,13 @@
         if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return
         e.preventDefault()
         const direction = e.key === 'ArrowUp' ? -1 : 1
-        const outer = outerRef.current
-        if (!outer) return
-        const buttons = outer.querySelectorAll<HTMLElement>('[role=button]')
-        let currentIndex = -1
-        for (let i = 0; i < buttons.length; i++) {
-            if (buttons[i].tabIndex === 0) {
-                currentIndex = i
-                break
-            }
-        }
-        if (currentIndex < 0) return
-        const nextIndex = (currentIndex + direction + buttons.length) % buttons.length
-        buttons[currentIndex].tabIndex = -1
-        buttons[nextIndex].tabIndex = 0
-        buttons[nextIndex].focus()
+        if (expanderButton) outerRef.navigation.move(expanderButton, direction)
     }
 
     function onClick() {
         setExpandWithCallback(!expanded)
         if (!expanderButton) return
-        const prev = outerRef.current?.querySelector<HTMLElement>('[role=button][tabindex="0"]')
-        if (prev) prev.tabIndex = -1
-        expanderButton.tabIndex = 0
+        outerRef.navigation.activate(expanderButton)
         expanderButton.focus()
     }
 </script>
@@ -159,7 +150,7 @@
             it tight anyway for a consistent rule.
         -->
         <!-- prettier-ignore -->
-        <span bind:this={expanderButton} class={expanderIconStyle} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown}></span>{#if hasField}{#if snippets.label}{@render snippets.label(
+        <span bind:this={expanderButton} use:registerExpander class={expanderIconStyle} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown}></span>{#if hasField}{#if snippets.label}{@render snippets.label(
                     { field: field ?? '', level }
                 )}{:else if clickToExpandNode}<!-- svelte-ignore a11y_no_static_element_interactions --><span
                     class={style.clickableLabel}
