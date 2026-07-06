@@ -19,7 +19,9 @@ function readComponentSource(fileName: string): string {
  */
 function derivedDeclarationNames(source: string): string[] {
     const declarations: string[] = []
-    const pattern = /\bconst\s+([A-Za-z_$][\w$]*)\s*=\s*\$derived(?:\.by)?/g
+    // Tolerate an optional type annotation (`const x: T = $derived(...)`) so a
+    // typed declaration can't slip past the budget check by dodging the match.
+    const pattern = /\bconst\s+([A-Za-z_$][\w$]*)\s*(?::\s*[^=]+)?=\s*\$derived(?:\.by)?/g
     for (const match of source.matchAll(pattern)) {
         const name = match[1]
         if (name) declarations.push(name)
