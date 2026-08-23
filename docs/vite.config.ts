@@ -12,8 +12,8 @@ import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 
-import { competitors } from './src/lib/compare-data'
-import { docsConfig } from './src/lib/docs-config'
+import { competitors, ours } from './src/lib/compare-data.js'
+import { docsConfig } from './src/lib/docs-config.js'
 
 // IndexNow verification key. The matching `static/<key>.txt` file must be
 // deployed and publicly reachable at `${siteUrl}/<key>.txt`.
@@ -43,6 +43,7 @@ export default defineConfig({
             pkgName: 'Svelte JSON View Lite',
             description:
                 'A fast, tiny JSON tree viewer for Svelte 5 with react-json-view-lite API parity, typed snippet overrides, SSR-safe ARIA tree semantics, CSS-variable theming, and zero runtime dependencies.',
+            comparisons: { ours, competitors },
             prepend: 'static/llms-prepend.md',
             append: 'static/llms-append.md'
         }),

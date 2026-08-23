@@ -57,6 +57,7 @@ docs/src/routes/social-cards/*.png
 docs/static/docs/
 docs/static/examples.md
 docs/static/examples/
+docs/static/compare/
 docs/static/llms.txt
 docs/static/llms-full.txt
 docs/src/lib/demo-loaders.ts

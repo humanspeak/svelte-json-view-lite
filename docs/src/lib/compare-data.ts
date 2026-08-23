@@ -30,6 +30,7 @@ export const competitors: Competitor[] = [
     {
         slug: 'vs-react-json-view-lite',
         name: 'react-json-view-lite',
+        seoTitle: 'react-json-view-lite for Svelte 5 | Comparison',
         tagline: 'React Original vs Svelte 5 Port',
         description:
             'react-json-view-lite is the upstream React package this library ports. @humanspeak/svelte-json-view-lite keeps the familiar API while moving the renderer to Svelte 5 runes and adding typed snippet overrides.',
