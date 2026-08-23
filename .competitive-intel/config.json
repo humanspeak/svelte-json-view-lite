@@ -1,0 +1,83 @@
+{
+    "project": "@humanspeak/svelte-json-view-lite",
+    "category": "Fast, tiny JSON tree viewer for Svelte 5 — a runes-native port of react-json-view-lite with SSR-safe ids, snippet overrides, and zero runtime dependencies",
+
+    "self_npm": "@humanspeak/svelte-json-view-lite",
+    "self_repo": "humanspeak/svelte-json-view-lite",
+    "ahrefs_project_id": 9886300,
+
+    "github_handle": "jaysin586",
+    "repo_triage": {
+        "enabled": true,
+        "_comment": "Public repo — GITHUB_TOKEN raises rate limits; public-read fallback works without it. Surfaces open PRs/issues NOT opened by github_handle, and threads awaiting your reply since the previous last_run."
+    },
+
+    "self_features": [
+        "Tiny, fast read-only JSON tree viewer; zero runtime dependencies",
+        "Svelte 5 runes-native with snippet overrides for custom rendering",
+        "SSR-safe aria ids (no hydration mismatch)",
+        "API parity with react-json-view-lite for easy cross-framework migration",
+        "Small display surface — drops into a page, not a full editor"
+    ],
+
+    "non_goals": [
+        "JSON editing / schema validation (this is a viewer, not an editor — svelte-jsoneditor's domain)",
+        "A framework-agnostic build (it's a Svelte 5 component; vanilla-jsoneditor covers agnostic use)"
+    ],
+
+    "competitors": [
+        {
+            "npm": "svelte-jsoneditor",
+            "repo": "josdejong/svelte-jsoneditor",
+            "note": "The dominant Svelte JSON tool, but a full editor (edit/validate/schema); heavier. We win on tiny read-only display + Svelte 5 + snippets."
+        },
+        {
+            "npm": "vanilla-jsoneditor",
+            "repo": "josdejong/svelte-jsoneditor",
+            "note": "Framework-agnostic build of the same editor; /compare rival for 'json viewer' intent."
+        }
+    ],
+
+    "watchlist": [
+        {
+            "npm": "react-json-view",
+            "repo": "mac-s-g/react-json-view",
+            "note": "React-only comparison-page and search competitor; track dormancy and factual claims, not as a Svelte substitute."
+        },
+        {
+            "npm": "@uiw/react-json-view",
+            "repo": "uiwjs/react-json-view",
+            "note": "High-traffic React-only viewer; watch for a stable 2.0 release and comparison-page claim drift."
+        },
+        {
+            "npm": "@textea/json-viewer",
+            "repo": "TexteaInc/json-viewer",
+            "note": "React-only comparison-page and search competitor; monitor release activity and dormancy framing."
+        }
+    ],
+
+    "upstream": [
+        {
+            "npm": "react-json-view-lite",
+            "repo": "AnyRoad/react-json-view-lite",
+            "note": "The React library this is a port of. Watch releases — new features/props upstream are candidates to port for API parity (same pattern as svelte-motion ← framer-motion)."
+        }
+    ],
+
+    "seo": {
+        "enabled": true,
+        "docs_domain": "jsonview.svelte.page",
+        "gsc_dir": ".competitive-intel/gsc",
+        "gsc_staleness_days": 14,
+        "_comment": "Greenfield — 0 keywords in Ahrefs rank tracker (project 9886300). Target terms: 'svelte json viewer', 'svelte json tree', 'json view svelte', 'react-json-view-lite svelte'. The port-parity angle ('X for Svelte') is on-brand and low-competition."
+    },
+
+    "compare_data_paths": ["docs/src/lib/compare-data.ts"],
+    "page_validation": {
+        "download_tolerance": 0.3,
+        "_comment": "compare-data.ts drives six /compare pages across direct competitors, the upstream port source, and React-only watchlist packages. Validator checks framework claims, hardcoded figures, dormancy framing, and them: feature cells on version bumps."
+    },
+
+    "slack_channel": "C0BP5BF1UTX",
+    "_slack_channel_comment": "#claude-reports in human-speak.slack.com via the shared webhook in common.env — same channel as the other OSS digests."
+}

@@ -2,6 +2,14 @@ import type { ComparisonOurs, Competitor } from '@humanspeak/docs-kit'
 
 export type { ComparisonFeature, ComparisonOurs, Competitor } from '@humanspeak/docs-kit'
 
+export type ComparisonRelationship = 'direct' | 'upstream' | 'reference'
+
+export interface ComparisonEntry extends Competitor {
+    relationship: ComparisonRelationship
+    relationshipLabel: string
+    scopeNote: string
+}
+
 export const ours: ComparisonOurs = {
     name: 'Svelte JSON View Lite',
     npmPackage: '@humanspeak/svelte-json-view-lite',
@@ -26,18 +34,23 @@ const shared = {
     ]
 }
 
-export const competitors: Competitor[] = [
+const comparisonRecords: ComparisonEntry[] = [
     {
         slug: 'vs-react-json-view-lite',
         name: 'react-json-view-lite',
-        tagline: 'React Original vs Svelte 5 Port',
+        relationship: 'upstream',
+        relationshipLabel: 'React upstream',
+        scopeNote:
+            'This is the React upstream that inspired our API, not a native Svelte alternative. It requires React 18 or 19; this Svelte 5 port is the migration target.',
+        seoTitle: 'react-json-view-lite for Svelte 5 | Svelte Port',
+        tagline: 'React Upstream (Requires React) vs Svelte 5 Port',
         description:
-            'react-json-view-lite is the upstream React package this library ports. @humanspeak/svelte-json-view-lite keeps the familiar API while moving the renderer to Svelte 5 runes and adding typed snippet overrides.',
+            'react-json-view-lite is the React upstream, not a native Svelte alternative. This Svelte 5 port preserves its familiar API while adding runes, typed snippets, SSR-safe IDs, and accessible tree navigation.',
         website: 'https://github.com/AnyRoad/react-json-view-lite',
         github: 'https://github.com/AnyRoad/react-json-view-lite',
         npm: 'react-json-view-lite',
-        type: 'React tree viewer',
-        approach: 'React component',
+        type: 'React upstream — not Svelte-native',
+        approach: 'React 18/19 component; source API for this Svelte port',
         features: [
             { name: 'Svelte 5 Native', us: true, them: false },
             { name: 'React API Parity', us: true, them: true },
@@ -58,14 +71,18 @@ export const competitors: Competitor[] = [
     {
         slug: 'vs-svelte-jsoneditor',
         name: 'svelte-jsoneditor',
-        tagline: 'Full Editor vs Lightweight Viewer',
+        relationship: 'direct',
+        relationshipLabel: 'Direct Svelte alternative',
+        scopeNote:
+            'This is a direct Svelte-compatible choice: use it when editing and validation matter more than a small read-only display surface.',
+        tagline: 'Direct Svelte Alternative · Full Editor vs Lightweight Viewer',
         description:
-            'svelte-jsoneditor is a powerful JSON editor with tree, text, table, and validation workflows. @humanspeak/svelte-json-view-lite is a small read-only tree viewer for display surfaces.',
+            'svelte-jsoneditor is a direct Svelte 5 alternative with tree, text, table, editing, and validation workflows. @humanspeak/svelte-json-view-lite is the smaller read-only choice for display surfaces.',
         website: 'https://github.com/josdejong/svelte-jsoneditor',
         github: 'https://github.com/josdejong/svelte-jsoneditor',
         npm: 'svelte-jsoneditor',
-        type: 'JSON editor',
-        approach: 'Full editing environment',
+        type: 'Direct Svelte alternative',
+        approach: 'Svelte 5 full editing environment',
         features: [
             { name: 'Svelte 5 Native', us: true, them: 'Svelte component' },
             { name: 'Read-only Tree View', us: true, them: true },
@@ -98,15 +115,19 @@ export const competitors: Competitor[] = [
     {
         slug: 'vs-vanilla-jsoneditor',
         name: 'vanilla-jsoneditor',
-        tagline: 'Framework-Agnostic Editor vs Svelte Component',
+        relationship: 'direct',
+        relationshipLabel: 'Svelte-compatible alternative',
+        scopeNote:
+            'This framework-agnostic editor can be integrated into Svelte, making it a real alternative when users need editing rather than a Svelte-native read-only component.',
+        tagline: 'Svelte-Compatible Alternative · Agnostic Editor vs Svelte Component',
         description:
-            'vanilla-jsoneditor is framework-agnostic and editor-focused. @humanspeak/svelte-json-view-lite is a Svelte component for read-only rendering with Svelte snippets and idiomatic props.',
+            'vanilla-jsoneditor is a Svelte-compatible, framework-agnostic editor. @humanspeak/svelte-json-view-lite is a native Svelte component for read-only rendering with snippets and idiomatic props.',
         website:
             'https://github.com/josdejong/svelte-jsoneditor/tree/main/packages/vanilla-jsoneditor',
         github: 'https://github.com/josdejong/svelte-jsoneditor',
         npm: 'vanilla-jsoneditor',
-        type: 'Framework-agnostic editor',
-        approach: 'Imperative editor instance',
+        type: 'Svelte-compatible alternative',
+        approach: 'Framework-agnostic imperative editor instance',
         features: [
             { name: 'Svelte Component API', us: true, them: false },
             { name: 'Framework Agnostic', us: false, them: true },
@@ -130,14 +151,19 @@ export const competitors: Competitor[] = [
     {
         slug: 'vs-react-json-view',
         name: 'react-json-view',
-        tagline: 'Legacy React Inspector vs Svelte 5 Viewer',
+        relationship: 'reference',
+        relationshipLabel: 'React-only reference',
+        scopeNote:
+            'This is a React-only search and feature reference, not a native Svelte alternative. Using it in a Svelte app would require React and an integration layer.',
+        seoTitle: 'react-json-view vs Svelte 5 | React-Only',
+        tagline: 'React-Only Reference · Legacy Inspector vs Svelte 5 Viewer',
         description:
-            'react-json-view is a long-running React JSON inspector with editing-oriented features. @humanspeak/svelte-json-view-lite focuses on a smaller Svelte 5 read-only surface.',
+            'react-json-view is a React-only JSON inspector, not a native Svelte alternative, and its last npm release was March 2021. This page exists for cross-framework evaluation and migration research.',
         website: 'https://github.com/mac-s-g/react-json-view',
         github: 'https://github.com/mac-s-g/react-json-view',
         npm: 'react-json-view',
-        type: 'React JSON inspector',
-        approach: 'React component',
+        type: 'React-only reference — not a Svelte option',
+        approach: 'Legacy React component; last npm release March 2021',
         features: [
             { name: 'Svelte 5 Native', us: true, them: false },
             { name: 'React Support', us: false, them: true },
@@ -151,51 +177,61 @@ export const competitors: Competitor[] = [
         consUs: shared.consUs,
         consThem: [
             'React-only',
-            'Older architecture',
+            'No npm release since March 2021',
             'Larger surface than display-only viewers need'
         ],
         verdict:
-            'Choose react-json-view for React inspector workflows. Choose @humanspeak/svelte-json-view-lite for Svelte 5 display-only JSON trees.',
+            'These are not drop-in alternatives within one framework. Choose react-json-view only for an existing React inspector workflow; choose @humanspeak/svelte-json-view-lite for a native Svelte 5 read-only tree.',
         keywords: ['react-json-view', 'json inspector', 'svelte json viewer']
     },
     {
         slug: 'vs-uiw-react-json-view',
         name: '@uiw/react-json-view',
-        tagline: 'Polished React Viewer vs Svelte 5 Port',
+        relationship: 'reference',
+        relationshipLabel: 'React-only reference',
+        scopeNote:
+            'This is a React-only search and feature reference, not a native Svelte alternative. Using it in a Svelte app would require React and an integration layer.',
+        seoTitle: '@uiw/react-json-view vs Svelte 5 | React-Only',
+        tagline: 'React-Only Reference · UIW Viewer vs Svelte 5 Port',
         description:
-            '@uiw/react-json-view is a polished React JSON viewer. @humanspeak/svelte-json-view-lite targets Svelte 5 with the react-json-view-lite API shape and Svelte snippets.',
+            '@uiw/react-json-view is a React-only viewer, not a native Svelte alternative. Its current release is a 2.0 alpha; this page exists for cross-framework feature and search comparison.',
         website: 'https://github.com/uiwjs/react-json-view',
         github: 'https://github.com/uiwjs/react-json-view',
         npm: '@uiw/react-json-view',
-        type: 'React JSON viewer',
-        approach: 'React component',
+        type: 'React-only reference — not a Svelte option',
+        approach: 'React 18+ component; current release is a 2.0 alpha',
         features: [
             { name: 'Svelte 5 Native', us: true, them: false },
             { name: 'React Support', us: false, them: true },
             { name: 'Theme Customization', us: true, them: true },
             { name: 'Snippet Overrides', us: true, them: false },
             { name: 'ARIA Tree Keyboarding', us: true, them: 'Different model' },
-            { name: 'Zero Runtime Dependencies', us: true, them: false }
+            { name: 'Zero Runtime Dependencies', us: true, them: true }
         ],
         prosUs: shared.prosUs,
         prosThem: ['Attractive React defaults', 'Broad UIW ecosystem', 'Good React fit'],
         consUs: shared.consUs,
         consThem: ['React-only', 'Not API-compatible with react-json-view-lite migrations'],
         verdict:
-            'Choose @uiw/react-json-view in React apps. Choose @humanspeak/svelte-json-view-lite when Svelte 5 integration and snippet overrides matter.',
+            'These are not drop-in alternatives within one framework. Choose @uiw/react-json-view for React apps; choose @humanspeak/svelte-json-view-lite for native Svelte 5 integration and snippet overrides.',
         keywords: ['@uiw/react-json-view', 'react json viewer', 'svelte json viewer']
     },
     {
         slug: 'vs-textea-json-viewer',
         name: '@textea/json-viewer',
-        tagline: 'Feature-Rich React Viewer vs Tiny Svelte Viewer',
+        relationship: 'reference',
+        relationshipLabel: 'React-only reference',
+        scopeNote:
+            'This is a React-only search and feature reference, not a native Svelte alternative. Using it in a Svelte app would require React and an integration layer.',
+        seoTitle: '@textea/json-viewer vs Svelte 5 | React-Only',
+        tagline: 'React-Only Reference · Rich Inspector vs Tiny Svelte Viewer',
         description:
-            '@textea/json-viewer is a feature-rich React JSON viewer with theming and interaction options. @humanspeak/svelte-json-view-lite keeps the Svelte surface compact and migration-friendly.',
+            '@textea/json-viewer is a React-only inspector, not a native Svelte alternative, with no npm release since December 2024. This page exists for cross-framework feature and search comparison.',
         website: 'https://viewer.textea.io',
         github: 'https://github.com/TexteaInc/json-viewer',
         npm: '@textea/json-viewer',
-        type: 'React JSON viewer',
-        approach: 'React component',
+        type: 'React-only reference — not a Svelte option',
+        approach: 'React component; last npm release December 2024',
         features: [
             { name: 'Svelte 5 Native', us: true, them: false },
             { name: 'React Support', us: false, them: true },
@@ -207,16 +243,22 @@ export const competitors: Competitor[] = [
         prosUs: shared.prosUs,
         prosThem: [
             'Large React feature set',
-            'Polished interactive inspector',
+            'Interactive inspector controls',
             'Good theming options'
         ],
         consUs: shared.consUs,
         consThem: ['React-only', 'More package surface than tiny read-only views require'],
         verdict:
-            'Choose @textea/json-viewer for feature-rich React inspectors. Choose @humanspeak/svelte-json-view-lite for a tiny, Svelte-native, read-only JSON tree.',
+            'These are not drop-in alternatives within one framework. Choose @textea/json-viewer for an existing React inspector; choose @humanspeak/svelte-json-view-lite for a small, native Svelte 5 read-only tree.',
         keywords: ['@textea/json-viewer', 'react json viewer', 'json tree viewer']
     }
 ]
 
-export const getCompetitor = (slug: string): Competitor | undefined =>
-    competitors.find((competitor) => competitor.slug === slug)
+export const comparisons = [
+    ...comparisonRecords.filter((entry) => entry.relationship === 'direct'),
+    ...comparisonRecords.filter((entry) => entry.relationship === 'upstream'),
+    ...comparisonRecords.filter((entry) => entry.relationship === 'reference')
+]
+
+export const getCompetitor = (slug: string): ComparisonEntry | undefined =>
+    comparisons.find((comparison) => comparison.slug === slug)

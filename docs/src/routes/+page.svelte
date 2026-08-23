@@ -3,7 +3,7 @@
     import { JsonView } from '@humanspeak/svelte-json-view-lite'
     import { AnimatePresence, MotionButton, MotionSpan } from '@humanspeak/svelte-motion'
     import { docsDarkJsonViewStyles, docsDefaultJsonViewStyles } from '$lib/json-view-docs-style'
-    import { competitors } from '$lib/compare-data'
+    import { comparisons } from '$lib/compare-data'
     import { docsConfig } from '$lib/docs-config'
     import { headerNav } from '$lib/docsNav'
     import favicon from '$lib/assets/logo.svg'
@@ -20,9 +20,9 @@
 
     const seo = getSeoContext()
     if (seo) {
-        seo.title = 'svelte-json-view-lite · accessible JSON tree viewer for Svelte 5'
+        seo.title = 'Svelte JSON Viewer for Svelte 5 | Zero Dependencies'
         seo.description =
-            'A fast, tiny JSON tree viewer for Svelte 5. React-json-view-lite API parity, SSR-safe ARIA tree semantics, typed snippet overrides, CSS-variable theming, and zero runtime dependencies.'
+            'Read-only Svelte JSON viewer for Svelte 5 with zero runtime dependencies, typed snippets, accessible tree navigation, and react-json-view-lite API compatibility.'
     }
 
     const PKG_NAME = $derived(packageStats.name)
@@ -123,7 +123,7 @@
         }
     ]
 
-    const compareRows = competitors.slice(0, 6).map((c) => {
+    const compareRows = comparisons.map((c) => {
         const featureMap = new Map(c.features.map((f) => [f.name, f]))
         const find = (name: string) => featureMap.get(name)?.them
         const framework = () => {
@@ -139,9 +139,10 @@
         return {
             slug: c.slug,
             name: c.name,
+            relationship: c.relationshipLabel,
             framework: framework(),
             readOnly: find('Read-only Tree View') ?? true,
-            editing: find('JSON Editing') ?? false,
+            editing: find('JSON Editing') ?? find('Editing Callbacks') ?? false,
             snippets: find('Snippet Overrides') ?? find('Svelte Snippets') ?? false,
             theming:
                 find('Theme Customization') ?? (c.name.includes('jsoneditor') ? true : 'theme'),
@@ -393,14 +394,15 @@
             <div class="k">FIG-005 / COMPARISON MATRIX</div>
             <h2>how we <span>compare</span>.</h2>
             <p class="lede-p">
-                A compact side-by-side look at JSON viewers and editors you might consider for
-                Svelte surfaces.
+                Direct Svelte-compatible choices come first. The upstream and React-only rows are
+                migration and feature references, not native Svelte alternatives.
             </p>
             <div class="comp-scroll">
                 <table>
                     <thead>
                         <tr>
                             <th>library</th>
+                            <th>relationship</th>
                             <th>framework</th>
                             <th>read-only</th>
                             <th>editing</th>
@@ -412,6 +414,7 @@
                     <tbody>
                         <tr class="us-row">
                             <td class="us">{PKG_NAME} <span aria-hidden="true">●</span></td>
+                            <td class="us">this package</td>
                             <td class="us">Svelte 5</td>
                             <td class="y">yes</td>
                             <td class="n">no</td>
@@ -429,6 +432,7 @@
                                 <td>
                                     <a href="/compare/{row.slug}" class="comp-link">{row.name}</a>
                                 </td>
+                                <td>{row.relationship}</td>
                                 <td>{row.framework}</td>
                                 <td class={readOnly.cls}>{readOnly.text}</td>
                                 <td class={editing.cls}>{editing.text}</td>
@@ -1179,7 +1183,7 @@
     }
     .brut-comp table {
         width: 100%;
-        min-width: 880px;
+        min-width: 1080px;
         border-collapse: collapse;
         font-size: 13px;
         font-family: 'JetBrains Mono Variable', monospace;
