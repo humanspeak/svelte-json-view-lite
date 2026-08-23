@@ -54,7 +54,6 @@ docs/.wrangler
 docs/src/lib/github-stats.json
 docs/src/lib/sitemap-manifest.json
 docs/src/lib/demo-manifest.json
-docs/src/worker-configuration.d.ts
 docs/src/routes/social-cards/*.png
 docs/static/docs/
 docs/static/examples.md
