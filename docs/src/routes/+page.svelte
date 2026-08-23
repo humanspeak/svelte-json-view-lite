@@ -20,9 +20,9 @@
 
     const seo = getSeoContext()
     if (seo) {
-        seo.title = 'svelte-json-view-lite · accessible JSON tree viewer for Svelte 5'
+        seo.title = 'Svelte JSON Viewer for Svelte 5 | Zero Dependencies'
         seo.description =
-            'A fast, tiny JSON tree viewer for Svelte 5. React-json-view-lite API parity, SSR-safe ARIA tree semantics, typed snippet overrides, CSS-variable theming, and zero runtime dependencies.'
+            'Read-only Svelte JSON viewer for Svelte 5 with zero runtime dependencies, typed snippets, accessible tree navigation, and react-json-view-lite API compatibility.'
     }
 
     const PKG_NAME = $derived(packageStats.name)
