@@ -29,6 +29,8 @@ export default defineConfig({
             'playwright.config.ts',
             'tests-results/**'
         ],
+        // junit feeds the trunk analytics uploader in CI (junit-vitest.xml
+        // matches the workflow's junit-paths)
         reporters: ['verbose', ['junit', { outputFile: './junit-vitest.xml' }]]
     },
     server: {
