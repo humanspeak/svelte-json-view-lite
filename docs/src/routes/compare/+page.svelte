@@ -1,10 +1,10 @@
 <script lang="ts">
     import { CompareIndexV2 } from '@humanspeak/docs-kit'
-    import { competitors, ours } from '$lib/compare-data'
+    import { comparisons, ours } from '$lib/compare-data'
 </script>
 
 <CompareIndexV2
-    {competitors}
+    competitors={comparisons}
     {ours}
-    introHtml="Honest, side-by-side comparisons of <b>@humanspeak/svelte-json-view-lite</b> against JSON tree viewers and editors you might consider — including <b>react-json-view-lite</b>, <b>svelte-jsoneditor</b>, <b>vanilla-jsoneditor</b>, <b>react-json-view</b>, <b>@uiw/react-json-view</b>, and <b>@textea/json-viewer</b>. Feature matrices, pros / cons, verdicts. No spin."
+    introHtml="Start with the installable choices: <b>svelte-jsoneditor</b> is Svelte-native and <b>vanilla-jsoneditor</b> is framework-agnostic. <b>react-json-view-lite</b> is our React upstream. The remaining React-only pages are migration, feature, and search references — <b>not native Svelte alternatives</b>."
 />

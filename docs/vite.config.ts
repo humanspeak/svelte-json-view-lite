@@ -12,7 +12,7 @@ import { sveltekit } from '@sveltejs/kit/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 
-import { competitors, ours } from './src/lib/compare-data.js'
+import { comparisons, ours } from './src/lib/compare-data.js'
 import { docsConfig } from './src/lib/docs-config.js'
 
 // IndexNow verification key. The matching `static/<key>.txt` file must be
@@ -23,7 +23,7 @@ export default defineConfig({
     plugins: [
         sitemapManifestPlugin({
             blogDir: false,
-            extraPages: competitors.map((c) => ({
+            extraPages: comparisons.map((c) => ({
                 route: `/compare/${c.slug}`,
                 source: 'src/lib/compare-data.ts'
             }))
@@ -43,7 +43,7 @@ export default defineConfig({
             pkgName: 'Svelte JSON View Lite',
             description:
                 'A fast, tiny JSON tree viewer for Svelte 5 with react-json-view-lite API parity, typed snippet overrides, SSR-safe ARIA tree semantics, CSS-variable theming, and zero runtime dependencies.',
-            comparisons: { ours, competitors },
+            comparisons: { ours, competitors: comparisons },
             prepend: 'static/llms-prepend.md',
             append: 'static/llms-append.md'
         }),
@@ -54,7 +54,7 @@ export default defineConfig({
                 'Fast, accessible JSON tree viewing for Svelte 5 with typed snippets and zero runtime dependencies.',
             defaultFeatures: docsConfig.defaultFeatures,
             extraPages: [
-                ...competitors.map((c) => ({
+                ...comparisons.map((c) => ({
                     ogSlug: `compare-${c.slug}`,
                     ogTitle: `vs ${c.name}`,
                     ogTagline: c.tagline,
