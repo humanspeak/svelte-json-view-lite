@@ -1,0 +1,195 @@
+{
+    "last_run": "2026-08-23",
+    "run_type": "baseline",
+    "fetched_at": "2026-08-23T11:00:17Z",
+    "self": {
+        "npm": "@humanspeak/svelte-json-view-lite",
+        "repo": "humanspeak/svelte-json-view-lite",
+        "latest_version": "0.2.2",
+        "last_publish": "2026-07-23",
+        "weekly_downloads": 125,
+        "svelte_peer": "^5.0.0",
+        "stars": 1,
+        "archived": false,
+        "pushed_at": "2026-08-12",
+        "last_release": "2026-07-23",
+        "error": null
+    },
+    "upstream": [
+        {
+            "npm": "react-json-view-lite",
+            "repo": "AnyRoad/react-json-view-lite",
+            "latest_version": "2.5.0",
+            "last_publish": "2025-09-06",
+            "weekly_downloads": 1893828,
+            "svelte_peer": null,
+            "stars": 245,
+            "archived": false,
+            "pushed_at": "2026-02-16",
+            "last_release": "2025-09-06",
+            "error": null
+        }
+    ],
+    "competitors": [
+        {
+            "npm": "svelte-jsoneditor",
+            "repo": "josdejong/svelte-jsoneditor",
+            "latest_version": "3.13.0",
+            "last_publish": "2026-07-24",
+            "weekly_downloads": 34214,
+            "svelte_peer": "^5.0.0",
+            "stars": 1261,
+            "archived": false,
+            "pushed_at": "2026-07-24",
+            "last_release": "2026-07-24",
+            "error": null
+        },
+        {
+            "npm": "vanilla-jsoneditor",
+            "repo": "josdejong/svelte-jsoneditor",
+            "latest_version": "3.13.0",
+            "last_publish": "2026-07-24",
+            "weekly_downloads": 258214,
+            "svelte_peer": null,
+            "stars": 1261,
+            "archived": false,
+            "pushed_at": "2026-07-24",
+            "last_release": "2026-07-24",
+            "error": null
+        }
+    ],
+    "watchlist": [],
+    "page_only_rivals": [
+        {
+            "npm": "react-json-view",
+            "repo": "mac-s-g/react-json-view",
+            "latest_version": "1.21.3",
+            "last_publish": "2021-03-09",
+            "weekly_downloads": 1437832,
+            "stars": 3660,
+            "archived": false,
+            "pushed_at": "2026-02-18",
+            "error": null
+        },
+        {
+            "npm": "@uiw/react-json-view",
+            "repo": "uiwjs/react-json-view",
+            "latest_version": "2.0.0-alpha.43",
+            "last_publish": "2026-05-21",
+            "weekly_downloads": 851365,
+            "stars": 417,
+            "archived": false,
+            "pushed_at": "2026-05-21",
+            "error": null
+        },
+        {
+            "npm": "@textea/json-viewer",
+            "repo": "TexteaInc/json-viewer",
+            "latest_version": "4.0.1",
+            "last_publish": "2024-12-15",
+            "weekly_downloads": 137582,
+            "stars": 533,
+            "archived": false,
+            "pushed_at": "2025-07-04",
+            "error": null
+        }
+    ],
+    "open_gaps": [
+        {
+            "gap": "Find-in-JSON (search/filter within the tree)",
+            "who_has_it": ["svelte-jsoneditor", "@textea/json-viewer"],
+            "why_it_matters": "Documents large enough to need a viewer are large enough that scrolling for a key hurts.",
+            "worth_doing": "maybe \u2014 pulls in state + highlight rendering, tension with the tiny/zero-dep pitch",
+            "first_seen": "2026-08-23"
+        },
+        {
+            "gap": "Distribution, not features",
+            "who_has_it": ["svelte-jsoneditor (34k/wk)", "vanilla-jsoneditor (258k/wk)"],
+            "why_it_matters": "125 weekly downloads / 1 star; the feature matrix does not explain the spread, discoverability does.",
+            "worth_doing": "yes \u2014 SEO work is the highest-leverage lever right now",
+            "first_seen": "2026-08-23"
+        }
+    ],
+    "declined_as_non_goals": [
+        "JSON editing / schema validation",
+        "framework-agnostic build",
+        "virtualization",
+        "copy-to-clipboard"
+    ],
+    "compare_validation": {
+        "react-json-view-lite": {
+            "validated_against_version": "2.5.0",
+            "status": "clean"
+        },
+        "svelte-jsoneditor": {
+            "validated_against_version": "3.13.0",
+            "status": "clean"
+        },
+        "vanilla-jsoneditor": {
+            "validated_against_version": "3.13.0",
+            "status": "clean"
+        },
+        "react-json-view": {
+            "validated_against_version": "1.21.3",
+            "status": "underclaim: 'older architecture' -> unmaintained since 2021"
+        },
+        "@uiw/react-json-view": {
+            "validated_against_version": "2.0.0-alpha.43",
+            "status": "WRONG: 'Zero Runtime Dependencies: them false' \u2014 latest has no runtime deps"
+        },
+        "@textea/json-viewer": {
+            "validated_against_version": "4.0.1",
+            "status": "underclaim: dormancy (last publish 2024-12-15) not mentioned"
+        }
+    },
+    "upstream_parity": {
+        "react-json-view-lite": {
+            "parity_through": "2.5.0",
+            "status": "complete"
+        }
+    },
+    "rank_tracker": {
+        "project_id": 9886300,
+        "tracked": 0,
+        "note": "empty \u2014 seed from GSC queries"
+    },
+    "seo": {
+        "export_date": "2026-08-22",
+        "striking_distance": [
+            {
+                "query": "react-json-view-lite",
+                "impressions": 28,
+                "position": 11.71
+            }
+        ],
+        "underperforming_pages": [
+            {
+                "page": "https://jsonview.svelte.page/",
+                "impressions": 273,
+                "position": 15.54,
+                "ctr": 4.76
+            }
+        ],
+        "recommendations_open": [
+            "rewrite homepage title/meta (pos 15.5, 273 impr, 4.76% CTR)",
+            "target 'react-json-view-lite' on vs-react-json-view-lite page (pos 11.7, 0 clicks)",
+            "seed Ahrefs rank tracker 9886300 with 5 GSC-proven queries",
+            "defend 'svelte json viewer' (pos 5, 14.3% CTR)"
+        ]
+    },
+    "repo_triage": {
+        "since": "2026-07-24",
+        "new_external_prs": 0,
+        "new_external_issues": 0,
+        "awaiting_your_reply": 0,
+        "bots": {
+            "prs": 0,
+            "issues": 0
+        }
+    },
+    "delivery": {
+        "channel": "C0BP5BF1UTX",
+        "method": "webhook",
+        "status": "posted"
+    }
+}
