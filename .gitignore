@@ -53,6 +53,8 @@ docs/dist
 docs/.wrangler
 docs/src/lib/github-stats.json
 docs/src/lib/sitemap-manifest.json
+docs/src/lib/demo-manifest.json
+docs/src/worker-configuration.d.ts
 docs/src/routes/social-cards/*.png
 docs/static/docs/
 docs/static/examples.md
@@ -62,7 +64,6 @@ docs/static/llms.txt
 docs/static/llms-full.txt
 docs/src/lib/demo-loaders.ts
 docs/src/lib/demo-virtual.d.ts
-!docs/src/lib/demo-manifest.json
 docs/static/og-default.png
 docs/static/twitter-default.png
 docs/static/social-cards/

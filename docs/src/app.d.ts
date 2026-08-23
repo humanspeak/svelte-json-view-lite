@@ -3,7 +3,12 @@
 declare global {
     namespace App {
         interface Platform {
-            env: Env
+            env: {
+                ASSETS: Fetcher
+                PUBLIC_ENVIRONMENT: 'production'
+                ENVIRONMENT: 'production'
+                NODE_ENV: 'production'
+            }
             cf: CfProperties
             ctx: ExecutionContext
         }
