@@ -38,6 +38,24 @@
         }
     ],
 
+    "watchlist": [
+        {
+            "npm": "react-json-view",
+            "repo": "mac-s-g/react-json-view",
+            "note": "React-only comparison-page and search competitor; track dormancy and factual claims, not as a Svelte substitute."
+        },
+        {
+            "npm": "@uiw/react-json-view",
+            "repo": "uiwjs/react-json-view",
+            "note": "High-traffic React-only viewer; watch for a stable 2.0 release and comparison-page claim drift."
+        },
+        {
+            "npm": "@textea/json-viewer",
+            "repo": "TexteaInc/json-viewer",
+            "note": "React-only comparison-page and search competitor; monitor release activity and dormancy framing."
+        }
+    ],
+
     "upstream": [
         {
             "npm": "react-json-view-lite",
@@ -57,7 +75,7 @@
     "compare_data_paths": ["docs/src/lib/compare-data.ts"],
     "page_validation": {
         "download_tolerance": 0.3,
-        "_comment": "compare-data.ts drives /compare pages: vs-react-json-view-lite (the upstream), vs-svelte-jsoneditor, vs-vanilla-jsoneditor. Validator checks Svelte-5/framework claims, hardcoded figures, and them: feature cells on competitor version bumps."
+        "_comment": "compare-data.ts drives six /compare pages across direct competitors, the upstream port source, and React-only watchlist packages. Validator checks framework claims, hardcoded figures, dormancy framing, and them: feature cells on version bumps."
     },
 
     "slack_channel": "C0BP5BF1UTX",
