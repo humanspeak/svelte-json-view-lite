@@ -15,7 +15,7 @@
         seo.title = 'Edge Cases | Examples | Svelte JSON View Lite'
         seo.h1 = { title: 'Edge Cases' }
         seo.description =
-            'Render every supported value type — dates, bigints, functions, nulls, empty containers, long strings — against the same canonical fixture as the react-json-view-lite Storybook.'
+            'Render every supported value type — dates, bigints, functions, nulls, empty containers, and long strings — against the canonical upstream fixture.'
         seo.ogTitle = 'Edge Cases'
         seo.ogTagline = 'Every value type the viewer handles, in one payload.'
         seo.ogFeatures = ['BigInt', 'Dates', 'Functions', 'Nested Objects']
@@ -66,8 +66,9 @@
         <li>
             <Braces />
             <span>
-                Driven by the same canonical fixture as the react-json-view-lite Storybook, so
-                behavior is directly comparable.
+                Driven by the same canonical fixture as the <a
+                    href="/compare/vs-react-json-view-lite">react-json-view-lite Storybook</a
+                >, so behavior is directly comparable.
             </span>
         </li>
     </ul>

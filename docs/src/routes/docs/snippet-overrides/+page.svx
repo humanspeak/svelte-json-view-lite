@@ -19,7 +19,7 @@ description: Replace the default renderer for any primitive, Date, bigint, funct
 
 # Snippet Overrides
 
-Snippet overrides are the one deliberate extension the Svelte port adds on top of `react-json-view-lite`'s API. Pass a `Snippet` as any of the nine type-keyed props and the viewer calls it instead of the built-in renderer for every matching value.
+Snippet overrides are the one deliberate extension the Svelte port adds on top of [react-json-view-lite's API](/compare/vs-react-json-view-lite). Pass a `Snippet` as any of the nine type-keyed props and the viewer calls it instead of the built-in renderer for every matching value.
 
 ```svelte
 <script lang="ts">

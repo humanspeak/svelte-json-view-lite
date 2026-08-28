@@ -22,7 +22,7 @@
     if (seo) {
         seo.title = 'Svelte JSON Viewer for Svelte 5 | Zero Dependencies'
         seo.description =
-            'Read-only Svelte JSON viewer for Svelte 5 with zero runtime dependencies, typed snippets, accessible tree navigation, and react-json-view-lite API compatibility.'
+            'Read-only Svelte JSON viewer for Svelte 5 with zero runtime dependencies, typed snippets, accessible tree navigation, CSS-variable themes, and SSR-safe IDs.'
     }
 
     const PKG_NAME = $derived(packageStats.name)
@@ -99,7 +99,7 @@
     const features = [
         {
             title: 'React API Parity',
-            body: 'Keep the familiar react-json-view-lite prop shape while moving rendering into Svelte 5.'
+            body: 'Keep familiar component props, theme maps, and expansion helpers while moving rendering into Svelte 5.'
         },
         {
             title: 'Svelte 5 Runes',
@@ -241,9 +241,11 @@
                     >
                 </h1>
                 <p class="sub">
-                    A <b>fast, tiny</b> JSON tree viewer for Svelte 5 — built for API explorers, dashboards,
-                    logs, docs, and generated JSON artifacts. React API parity, typed snippets, SSR-safe
-                    ARIA tree semantics, CSS-variable theming, and zero runtime dependencies.
+                    A <b>fast, tiny</b> JSON tree viewer for Svelte 5 — built for API explorers,
+                    dashboards, logs, docs, and generated JSON artifacts.
+                    <a href="/compare/vs-react-json-view-lite">react-json-view-lite API parity</a>,
+                    typed snippets, SSR-safe ARIA tree semantics, CSS-variable theming, and zero
+                    runtime dependencies.
                 </p>
                 <div class="cta-row">
                     <a class="pri" href="/docs/getting-started">get started ↗</a>

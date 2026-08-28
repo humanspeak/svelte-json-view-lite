@@ -31,7 +31,7 @@ readingTime: 5
 
 JSON viewers look small until they are everywhere: API explorers, webhook logs, observability dashboards, docs examples, agent traces, admin tools, and support consoles. They are often read-only, but they still need to feel like a real control instead of a prettified `<pre>`.
 
-That is the line `@humanspeak/svelte-json-view-lite` is built around: keep the viewer tiny, keep the API familiar for teams migrating from `react-json-view-lite`, and make the tree usable with a keyboard and screen reader.
+That is the line `@humanspeak/svelte-json-view-lite` is built around: keep the viewer tiny, keep the API familiar for teams [migrating from `react-json-view-lite`](/compare/vs-react-json-view-lite), and make the tree usable with a keyboard and screen reader.
 
 ## A Tree, Not Just Indented Text
 

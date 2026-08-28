@@ -86,7 +86,7 @@ Override for localization or terser wording by setting `ariaLabels` on your styl
 <JsonView data={payload} {style} />
 ```
 
-> **Note on `ariaLables` (sic).** `react-json-view-lite`'s original `StyleProps` shipped the typoed key. The Svelte port accepts either at runtime for parity but logs a `console.warn` when only the typoed key is present. Prefer `ariaLabels`; the alias is removed in 2.0.
+> **Note on `ariaLables` (sic).** [react-json-view-lite's original `StyleProps`](/compare/vs-react-json-view-lite) shipped the typoed key. The Svelte port accepts either at runtime for parity but logs a `console.warn` when only the typoed key is present. Prefer `ariaLabels`; the alias is removed in 2.0.
 
 ## Click-to-Expand Considerations
 

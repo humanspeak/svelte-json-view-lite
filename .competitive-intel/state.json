@@ -1,17 +1,17 @@
 {
-    "last_run": "2026-08-23",
-    "run_type": "baseline",
-    "fetched_at": "2026-08-23T11:00:17Z",
+    "last_run": "2026-08-28",
+    "run_type": "delta",
+    "fetched_at": "2026-08-28T11:00:18Z",
     "self": {
         "npm": "@humanspeak/svelte-json-view-lite",
         "repo": "humanspeak/svelte-json-view-lite",
         "latest_version": "0.2.2",
         "last_publish": "2026-07-23",
-        "weekly_downloads": 125,
+        "weekly_downloads": 143,
         "svelte_peer": "^5.0.0",
         "stars": 1,
         "archived": false,
-        "pushed_at": "2026-08-12",
+        "pushed_at": "2026-08-26",
         "last_release": "2026-07-23",
         "error": null
     },
@@ -21,9 +21,9 @@
             "repo": "AnyRoad/react-json-view-lite",
             "latest_version": "2.5.0",
             "last_publish": "2025-09-06",
-            "weekly_downloads": 1893828,
+            "weekly_downloads": 1921822,
             "svelte_peer": null,
-            "stars": 245,
+            "stars": 246,
             "archived": false,
             "pushed_at": "2026-02-16",
             "last_release": "2025-09-06",
@@ -36,9 +36,9 @@
             "repo": "josdejong/svelte-jsoneditor",
             "latest_version": "3.13.0",
             "last_publish": "2026-07-24",
-            "weekly_downloads": 34214,
+            "weekly_downloads": 36588,
             "svelte_peer": "^5.0.0",
-            "stars": 1261,
+            "stars": 1259,
             "archived": false,
             "pushed_at": "2026-07-24",
             "last_release": "2026-07-24",
@@ -49,9 +49,9 @@
             "repo": "josdejong/svelte-jsoneditor",
             "latest_version": "3.13.0",
             "last_publish": "2026-07-24",
-            "weekly_downloads": 258214,
+            "weekly_downloads": 265188,
             "svelte_peer": null,
-            "stars": 1261,
+            "stars": 1259,
             "archived": false,
             "pushed_at": "2026-07-24",
             "last_release": "2026-07-24",
@@ -65,10 +65,12 @@
             "repo": "mac-s-g/react-json-view",
             "latest_version": "1.21.3",
             "last_publish": "2021-03-09",
-            "weekly_downloads": 1437832,
+            "weekly_downloads": 1504668,
+            "svelte_peer": null,
             "stars": 3660,
             "archived": false,
             "pushed_at": "2026-02-18",
+            "last_release": null,
             "error": null
         },
         {
@@ -76,10 +78,12 @@
             "repo": "uiwjs/react-json-view",
             "latest_version": "2.0.0-alpha.43",
             "last_publish": "2026-05-21",
-            "weekly_downloads": 851365,
+            "weekly_downloads": 855786,
+            "svelte_peer": null,
             "stars": 417,
             "archived": false,
             "pushed_at": "2026-05-21",
+            "last_release": "2026-05-21",
             "error": null
         },
         {
@@ -87,10 +91,12 @@
             "repo": "TexteaInc/json-viewer",
             "latest_version": "4.0.1",
             "last_publish": "2024-12-15",
-            "weekly_downloads": 137582,
+            "weekly_downloads": 144677,
+            "svelte_peer": null,
             "stars": 533,
             "archived": false,
             "pushed_at": "2025-07-04",
+            "last_release": "2024-12-15",
             "error": null
         }
     ],
@@ -131,15 +137,15 @@
         },
         "react-json-view": {
             "validated_against_version": "1.21.3",
-            "status": "underclaim: 'older architecture' -> unmaintained since 2021"
+            "status": "clean \u2014 2026-08-28: dormancy since March 2021 now stated explicitly (prior underclaim fixed)"
         },
         "@uiw/react-json-view": {
             "validated_against_version": "2.0.0-alpha.43",
-            "status": "WRONG: 'Zero Runtime Dependencies: them false' \u2014 latest has no runtime deps"
+            "status": "clean \u2014 2026-08-28: Zero Runtime Dependencies corrected to them:true"
         },
         "@textea/json-viewer": {
             "validated_against_version": "4.0.1",
-            "status": "underclaim: dormancy (last publish 2024-12-15) not mentioned"
+            "status": "clean \u2014 2026-08-28: dormancy since December 2024 now stated explicitly"
         }
     },
     "upstream_parity": {
@@ -150,11 +156,63 @@
     },
     "rank_tracker": {
         "project_id": 9886300,
-        "tracked": 0,
-        "note": "empty \u2014 seed from GSC queries"
+        "tracked": 7,
+        "ranked": 4,
+        "top3": 0,
+        "top10": 0,
+        "top100": 4,
+        "avg_position": 14.2,
+        "date": "2026-08-28",
+        "date_compared": "2026-08-21",
+        "note": "seeded since last run (was 0); first measurement \u2014 position_prev null, so API 'declined:4' is a baseline artifact, not real movement",
+        "rows": [
+            {
+                "keyword": "svelte json viewer",
+                "position": 11,
+                "volume": 0,
+                "kd": 2
+            },
+            {
+                "keyword": "json viewer svelte",
+                "position": 13,
+                "volume": 0,
+                "kd": 2
+            },
+            {
+                "keyword": "svelte json tree",
+                "position": 13,
+                "volume": 0,
+                "kd": 7
+            },
+            {
+                "keyword": "react-json-view-lite",
+                "position": 20,
+                "volume": 50,
+                "kd": 5
+            },
+            {
+                "keyword": "react json viewer",
+                "position": null,
+                "volume": 40,
+                "kd": 17
+            },
+            {
+                "keyword": "react-json-view",
+                "position": null,
+                "volume": 150,
+                "kd": 17
+            },
+            {
+                "keyword": "svelte json tree view",
+                "position": null,
+                "volume": 0,
+                "kd": 6
+            }
+        ]
     },
     "seo": {
         "export_date": "2026-08-22",
+        "export_unchanged_since_last_run": true,
         "striking_distance": [
             {
                 "query": "react-json-view-lite",
@@ -172,13 +230,19 @@
         ],
         "recommendations_open": [
             "rewrite homepage title/meta (pos 15.5, 273 impr, 4.76% CTR)",
-            "target 'react-json-view-lite' on vs-react-json-view-lite page (pos 11.7, 0 clicks)",
-            "seed Ahrefs rank tracker 9886300 with 5 GSC-proven queries",
-            "defend 'svelte json viewer' (pos 5, 14.3% CTR)"
+            "target 'react-json-view-lite' on vs-react-json-view-lite page (pos 11.7 GSC / 20 Ahrefs, 0 clicks, vol 50, KD 5)",
+            "defend 'svelte json viewer' (Ahrefs pos 11; GSC pos 5 @ 14.3% CTR)"
+        ],
+        "recommendations_closed": [
+            {
+                "rec": "seed Ahrefs rank tracker 9886300 with 5 GSC-proven queries",
+                "closed": "2026-08-28",
+                "evidence": "tracker now 7 keywords, 4 ranked"
+            }
         ]
     },
     "repo_triage": {
-        "since": "2026-07-24",
+        "since": "2026-08-23",
         "new_external_prs": 0,
         "new_external_issues": 0,
         "awaiting_your_reply": 0,

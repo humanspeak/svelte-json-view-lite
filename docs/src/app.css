@@ -5,6 +5,22 @@
 @import '@humanspeak/docs-kit/styles/prose-v2.css';
 @plugin '@tailwindcss/typography';
 
+/* Internal landing-page links injected through docs-kit's hero HTML. */
+.brut-hero .sub a {
+    color: var(--brut-ink);
+    text-decoration-color: var(--brut-accent);
+    text-underline-offset: 0.16em;
+}
+
+.brut-hero .sub a:hover {
+    color: var(--brut-accent);
+}
+
+/* Keep wide comparison matrices inside their own horizontal scroller. */
+.brut-section > * {
+    min-width: 0;
+}
+
 /* Project-specific: legacy landing page decorative styles kept for examples
    and older cards that still reference these helpers. */
 .orb-a-bg {

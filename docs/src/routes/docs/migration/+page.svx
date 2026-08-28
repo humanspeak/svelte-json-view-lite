@@ -5,7 +5,7 @@ description: Port react-json-view-lite usage to Svelte JSON View Lite with match
 
 # Migration
 
-Svelte JSON View Lite intentionally follows `react-json-view-lite` closely. Most migrations are a component import change plus replacing React render functions with Svelte snippets when you need custom values.
+Svelte JSON View Lite intentionally follows [react-json-view-lite](/compare/vs-react-json-view-lite) closely. Most migrations are a component import change plus replacing React render functions with Svelte snippets when you need custom values.
 
 ## Install
 

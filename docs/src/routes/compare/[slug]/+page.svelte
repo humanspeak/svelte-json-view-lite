@@ -5,6 +5,9 @@
     const { data }: { data: CompareSlugLoadData } = $props()
     const comparison = $derived(getCompetitor(data.competitor.slug) ?? data.competitor)
     const others = $derived(comparisons.filter((c) => c.slug !== data.competitor.slug))
+    const isUpstream = $derived(
+        'relationship' in comparison && comparison.relationship === 'upstream'
+    )
 </script>
 
 {#if 'relationshipLabel' in comparison && 'scopeNote' in comparison}
@@ -14,7 +17,19 @@
     </aside>
 {/if}
 
-<ComparisonPageV2 competitor={comparison} {others} {ours} getStartedHref="/docs/getting-started" />
+<ComparisonPageV2
+    competitor={comparison}
+    {others}
+    {ours}
+    getStartedHref={isUpstream ? '/docs/migration' : '/docs/getting-started'}
+    footerCta={isUpstream
+        ? {
+              href: '/docs/migration',
+              label: { prefix: 'migrate to ', accent: 'svelte 5' },
+              hint: 'keep the familiar API'
+          }
+        : undefined}
+/>
 
 <style>
     .comparison-scope {
