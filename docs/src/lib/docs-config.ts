@@ -7,7 +7,7 @@ export const docsConfig: DocsKitConfig = {
     repo: 'humanspeak/svelte-json-view-lite',
     url: 'https://jsonview.svelte.page',
     description:
-        'Fast, tiny JSON tree viewer for Svelte 5 — a react-json-view-lite port with runes, SSR-safe ARIA tree semantics, per-type snippet overrides, CSS-variable theming, and zero runtime dependencies.',
+        'Fast, tiny JSON tree viewer for Svelte 5 with runes, SSR-safe ARIA tree semantics, per-type snippet overrides, CSS-variable theming, a migration-friendly API, and zero runtime dependencies.',
     keywords: [
         'svelte',
         'svelte5',

@@ -20,7 +20,7 @@ export const ours: ComparisonOurs = {
 const shared = {
     prosUs: [
         'Svelte 5 runes-native implementation',
-        'Drop-in API shape for teams migrating from react-json-view-lite',
+        'Familiar API shape for cross-framework migrations',
         'Typed Svelte snippet overrides for primitive values and labels',
         'SSR-safe ids through $props.id()',
         'WAI-ARIA tree semantics with keyboard navigation',
@@ -41,32 +41,101 @@ const comparisonRecords: ComparisonEntry[] = [
         relationship: 'upstream',
         relationshipLabel: 'React upstream',
         scopeNote:
-            'This is the React upstream that inspired our API, not a native Svelte alternative. It requires React 18 or 19; this Svelte 5 port is the migration target.',
-        seoTitle: 'react-json-view-lite for Svelte 5 | Svelte Port',
-        tagline: 'React Upstream (Requires React) vs Svelte 5 Port',
+            'This is the React upstream that defines this port’s API, not a competing Svelte package. A migration changes the import and component syntax while retaining the core prop names, theme exports, expansion helpers, and keyboard model.',
+        seoTitle: 'react-json-view-lite for Svelte 5 | API-Compatible Port',
+        tagline: 'React 18/19 Original → API-Parity Svelte 5 Port',
         description:
-            'react-json-view-lite is the React upstream, not a native Svelte alternative. This Svelte 5 port preserves its familiar API while adding runes, typed snippets, SSR-safe IDs, and accessible tree navigation.',
+            'react-json-view-lite for Svelte 5: keep its familiar props, themes, and keyboard navigation in a runes-native port with typed snippets and SSR-safe IDs.',
         website: 'https://github.com/AnyRoad/react-json-view-lite',
         github: 'https://github.com/AnyRoad/react-json-view-lite',
         npm: 'react-json-view-lite',
         type: 'React upstream — not Svelte-native',
-        approach: 'React 18/19 component; source API for this Svelte port',
+        approach: 'React 18/19 source API; mechanical migration target for Svelte 5',
         features: [
-            { name: 'Svelte 5 Native', us: true, them: false },
-            { name: 'React API Parity', us: true, them: true },
+            {
+                name: 'Framework Runtime',
+                us: 'Svelte 5',
+                them: 'React 18/19',
+                note: 'Separate native implementations; the Svelte port does not ship React.'
+            },
+            {
+                name: 'JsonView API',
+                us: 'Same component + core props',
+                them: 'Original API',
+                note: 'data, style, shouldExpandNode, clickToExpandNode, compactTopLevel, and beforeExpandChange retain their names and purpose.'
+            },
+            {
+                name: 'Theme API',
+                us: 'Same style-map shape',
+                them: 'defaultStyles + darkStyles',
+                note: 'The built-in theme exports and StyleProps surface port directly.'
+            },
+            {
+                name: 'Expand Strategies',
+                us: 'Same helpers',
+                them: 'allExpanded + collapseAllNested',
+                note: 'Existing expansion logic can move across without a new mental model.'
+            },
+            {
+                name: 'Keyboard Navigation',
+                us: 'WAI-ARIA treeview',
+                them: 'WAI-ARIA treeview',
+                note: 'Both support arrow-key navigation through expandable nodes.'
+            },
             { name: 'TypeScript Support', us: true, them: true },
-            { name: 'Snippet Overrides', us: true, them: false },
-            { name: 'SSR-safe aria ids', us: true, them: 'React useId' },
+            {
+                name: 'Per-type Rendering',
+                us: '9 typed Svelte snippets',
+                them: false,
+                note: 'The Svelte port adds overrides for labels and every primitive value type.'
+            },
+            {
+                name: 'SSR-safe ARIA IDs',
+                us: 'Svelte $props.id()',
+                them: 'React useId',
+                note: 'Each implementation uses its framework-native stable-id primitive.'
+            },
+            {
+                name: 'CSS Variable Overrides',
+                us: true,
+                them: false,
+                note: 'The Svelte port layers --sjv-* custom properties onto the familiar style map.'
+            },
             { name: 'Zero Runtime Dependencies', us: true, them: true },
             { name: 'JSON Editing', us: false, them: false }
         ],
-        prosUs: [...shared.prosUs, 'Designed for SvelteKit and Svelte 5 SSR'],
-        prosThem: ['Original project with established React users', 'Best fit for React apps'],
+        prosUs: [
+            'Same JsonView component name and core prop names',
+            'Same defaultStyles, darkStyles, allExpanded, and collapseAllNested exports',
+            'Svelte 5 runes-native implementation with no React compatibility layer',
+            'Typed Svelte snippet overrides for primitive values and labels',
+            'SSR-safe ids through $props.id()',
+            'WAI-ARIA tree semantics with keyboard navigation',
+            'Light and dark themes with CSS-variable overrides',
+            'Zero runtime dependencies'
+        ],
+        prosThem: [
+            'Original project and source of the shared API',
+            'Established package for React applications',
+            'React 18/19-native implementation',
+            'Accessible tree navigation with zero runtime dependencies'
+        ],
         consUs: shared.consUs,
-        consThem: ['Requires React', 'No Svelte snippets', 'Not built for SvelteKit layouts'],
+        consThem: [
+            'Requires React 18 or 19',
+            'Cannot render as a native Svelte component',
+            'No typed Svelte snippet overrides',
+            'No --sjv-* CSS-variable override layer'
+        ],
         verdict:
-            'Choose react-json-view-lite for React applications. Choose @humanspeak/svelte-json-view-lite when you want the same lightweight tree-viewer ergonomics in Svelte 5.',
-        keywords: ['react-json-view-lite', 'svelte json viewer', 'react json view lite svelte']
+            'Stay with react-json-view-lite in a React 18 or 19 application. When moving to Svelte 5, switch the package import and component syntax, keep the familiar props, theme maps, and expansion helpers, then opt into typed snippets where useful. The migration is mechanical because this port deliberately preserves the upstream API shape.',
+        keywords: [
+            'react-json-view-lite',
+            'react-json-view-lite svelte',
+            'react json view lite svelte',
+            'svelte react-json-view-lite port',
+            'react-json-view-lite alternative'
+        ]
     },
     {
         slug: 'vs-svelte-jsoneditor',

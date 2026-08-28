@@ -19,7 +19,7 @@ description: Install and render your first JSON tree with @humanspeak/svelte-jso
 
 # Getting Started
 
-**@humanspeak/svelte-json-view-lite** is a Svelte 5 port of [react-json-view-lite](https://github.com/AnyRoad/react-json-view-lite). It renders any JSON-serializable value as a collapsible tree with keyboard navigation, SSR-stable IDs, CSS-variable theming, and typed per-type `Snippet` overrides — all with zero runtime dependencies.
+**@humanspeak/svelte-json-view-lite** is a Svelte 5 port of [react-json-view-lite](/compare/vs-react-json-view-lite). It renders any JSON-serializable value as a collapsible tree with keyboard navigation, SSR-stable IDs, CSS-variable theming, and typed per-type `Snippet` overrides — all with zero runtime dependencies.
 
 ## Installation
 
