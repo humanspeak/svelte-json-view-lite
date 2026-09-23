@@ -12,7 +12,7 @@ function readComponentSource(fileName: string): string {
 }
 
 /**
- * Finds top-level const declarations that allocate a Svelte `$derived` reaction.
+ * Finds declarations that allocate a Svelte `$derived` reaction.
  *
  * @param source - Raw Svelte component source.
  * @returns Declaration names in source order.
@@ -21,7 +21,7 @@ function derivedDeclarationNames(source: string): string[] {
     const declarations: string[] = []
     // Tolerate an optional type annotation (`const x: T = $derived(...)`) so a
     // typed declaration can't slip past the budget check by dodging the match.
-    const pattern = /\bconst\s+([A-Za-z_$][\w$]*)\s*(?::\s*[^=]+)?=\s*\$derived(?:\.by)?/g
+    const pattern = /\b(?:const|let)\s+([A-Za-z_$][\w$]*)\s*(?::\s*[^=]+)?=\s*\$derived(?:\.by)?/g
     for (const match of source.matchAll(pattern)) {
         const name = match[1]
         if (name) declarations.push(name)
@@ -80,9 +80,14 @@ describe('per-node Svelte signal budgets', () => {
                 'ExpandableObject should allocate at most 7 `$derived` reactions per container row.',
                 `Found ${deriveds.length}:`,
                 numberedNames(deriveds),
-                'Expected budget after issue #23: no deriveds for childLevel, hasField, or lastIndex.'
+                'Expansion is state; the root owns the only strategy subscription (#22).'
             ].join('\n')
         ).toBeLessThanOrEqual(7)
+    })
+
+    test('DataRender classifies nodes with at most two derived reactions', () => {
+        const deriveds = derivedDeclarationNames(readComponentSource('DataRender.svelte'))
+        expect(deriveds.length, numberedNames(deriveds)).toBeLessThanOrEqual(2)
     })
 
     test('ExpandableObject inlines trivial scalar deriveds', () => {

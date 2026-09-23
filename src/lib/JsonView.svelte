@@ -1,7 +1,8 @@
 <script lang="ts">
+    import { untrack } from 'svelte'
     import DataRender from './DataRender.svelte'
     import { defaultStyles } from './index.js'
-    import type { OuterRef, Props, StyleProps } from './types.js'
+    import type { ExpansionListener, OuterRef, Props, StyleProps } from './types.js'
     import { isObject } from './utils/dataTypeDetection.js'
     import { createExpanderNavigation } from './utils/expanderNavigation.js'
     import { allExpanded } from './utils/expandStrategies.js'
@@ -25,6 +26,19 @@
         'aria-label': ariaLabel = 'JSON view',
         ...rest
     }: Props = $props()
+
+    // One strategy subscription per tree. Untracked dispatch lets each node read
+    // its current props without turning data/theme changes into expansion resets.
+    const expansionListeners = new Set<ExpansionListener>()
+    let previousStrategy = untrack(() => shouldExpandNode)
+    $effect(() => {
+        const fn = shouldExpandNode
+        if (previousStrategy === fn) return
+        previousStrategy = fn
+        untrack(() => {
+            for (const update of expansionListeners) update(fn)
+        })
+    })
 
     let outerElement = $state<HTMLDivElement | null>(null)
     const navigation = createExpanderNavigation()
@@ -55,7 +69,8 @@
         get current() {
             return outerElement
         },
-        navigation
+        navigation,
+        expansionListeners
     }
 
     const snippets = $derived({

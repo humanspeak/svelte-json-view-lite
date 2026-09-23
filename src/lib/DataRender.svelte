@@ -13,8 +13,13 @@
     const value = $derived(props.value)
 
     // Array check first — arrays are also objects, so order matters.
-    const isArr = $derived(isArray(value))
-    const isObj = $derived(isObject(value) && !isDate(value) && !isFunction(value))
+    const kind = $derived(
+        isArray(value)
+            ? 'array'
+            : isObject(value) && !isDate(value) && !isFunction(value)
+              ? 'object'
+              : 'primitive'
+    )
 
     // The children tuple array is NOT built here: a collapsed node only needs
     // its child *count*, and materializing `Array<[key, value]>` for every
@@ -23,7 +28,7 @@
     // lazily, gated on its own `expanded` state. See issue #21.
 </script>
 
-{#if isArr}
+{#if kind === 'array'}
     <ExpandableObject
         {...props}
         value={value as unknown[]}
@@ -31,7 +36,7 @@
         openBracket="["
         closeBracket="]"
     />
-{:else if isObj}
+{:else if kind === 'object'}
     <ExpandableObject
         {...props}
         value={value as object}

@@ -1,8 +1,7 @@
 <script lang="ts">
     import { untrack } from 'svelte'
     import DataRender from './DataRender.svelte'
-    import EmptyObject from './EmptyObject.svelte'
-    import type { AriaLabels, ExpandableRenderProps } from './types.js'
+    import type { AriaLabels, ExpandableRenderProps, ExpansionStrategy } from './types.js'
     import { quoteString } from './utils/quoteString.js'
 
     const {
@@ -21,9 +20,8 @@
         snippets
     }: ExpandableRenderProps = $props()
 
-    // Initial expand state captured once on mount; the effect below
-    // re-runs only when the callback identity changes so level/value/
-    // field mutations from ancestor re-renders don't collapse the node.
+    // Capture initial expansion once; only a new strategy or a user toggle
+    // changes it. Data/theme updates preserve the user's manual override.
     // svelte-ignore state_referenced_locally
     let expanded = $state(shouldExpandNode(level, value, field))
 
@@ -33,38 +31,39 @@
     // svelte-ignore state_referenced_locally
     let hasMaterialized = $state(expanded)
 
-    let shouldExpandNodeCalled = false
+    let appliedStrategy = untrack(() => shouldExpandNode)
 
-    // Single chokepoint for flipping expansion — every path (mount effect,
-    // click, keyboard) routes through here, so the materialization high-water
-    // mark can't be forgotten when a new expansion path is added.
+    // Preserve the child cache through both strategy changes and user toggles.
     function applyExpanded(next: boolean) {
         expanded = next
         if (next) hasMaterialized = true
     }
 
-    $effect(() => {
-        const fn = shouldExpandNode
-        if (!shouldExpandNodeCalled) {
-            shouldExpandNodeCalled = true
-            return
-        }
-        // Track only the callback identity: untrack level/value/field so an
-        // ancestor re-render that mutates them can't rerun this effect and
-        // overwrite the user's expansion state.
-        applyExpanded(untrack(() => fn(level, value, field)))
-    })
+    const updateExpansion = (fn: ExpansionStrategy) => {
+        if (appliedStrategy === fn) return
+        appliedStrategy = fn
+        applyExpanded(fn(level, value, field))
+    }
 
     // SSR-stable id for aria-controls linkage.
     const contentsId = $props.id()
 
     let expanderButton = $state<HTMLSpanElement | null>(null)
 
-    // Register from the node action, not a component effect: actions follow
-    // DOM creation order, so parent/top-level expanders append before children.
-    function registerExpander(node: HTMLSpanElement) {
-        const unregister = outerRef.navigation.register(node)
-        return { destroy: unregister }
+    // The container survives empty/nonempty transitions, so it keeps receiving
+    // strategy updates even when there is no expander button. Its action owns
+    // both cleanup paths; no node subscribes to shouldExpandNode reactively.
+    function registerContainer(_node: HTMLDivElement) {
+        outerRef.expansionListeners.add(updateExpansion)
+        $effect(() => {
+            const button = expanderButton
+            if (button) return untrack(() => outerRef.navigation.register(button))
+        })
+        return {
+            destroy() {
+                outerRef.expansionListeners.delete(updateExpansion)
+            }
+        }
     }
 
     const activeAriaLabels = $derived<AriaLabels>(
@@ -127,12 +126,19 @@
     }
 </script>
 
-{#if count === 0}
-    <EmptyObject {field} {openBracket} {closeBracket} {lastElement} {style} />
-{:else}
-    <!-- Upstream parity: unselected treeitems omit aria-selected entirely. -->
-    <!-- svelte-ignore a11y_role_has_required_aria_props -->
-    <div class={style.basicChildStyle} role="treeitem" aria-expanded={expanded}>
+<!-- svelte-ignore a11y_role_has_required_aria_props -->
+<div
+    class={style.basicChildStyle}
+    role="treeitem"
+    aria-expanded={count === 0 ? undefined : expanded}
+    use:registerContainer
+>
+    {#if count === 0}
+        <!-- prettier-ignore -->
+        {#if field !== undefined}<span class={style.label}>{labelText}:</span>{/if}<span
+            class={style.punctuation}>{openBracket}{closeBracket}{lastElement ? '' : ','}</span
+        >
+    {:else}
         <!--
             The entire inline sequence inside a row lives on a single
             prettier-ignored line because Svelte preserves template whitespace
@@ -144,7 +150,7 @@
             it tight anyway for a consistent rule.
         -->
         <!-- prettier-ignore -->
-        <span bind:this={expanderButton} use:registerExpander class={expanderIconStyle} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown}></span>{#if field !== undefined}{#if snippets.label}{@render snippets.label(
+        <span bind:this={expanderButton} class={expanderIconStyle} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown}></span>{#if field !== undefined}{#if snippets.label}{@render snippets.label(
                     { field: field ?? '', level }
                 )}{:else if clickToExpandNode}<!-- svelte-ignore a11y_no_static_element_interactions --><span
                     class={style.clickableLabel}
@@ -172,5 +178,5 @@
             ></span>{/if}<span class={style.punctuation}
             >{closeBracket}{lastElement ? '' : ','}</span
         >
-    </div>
-{/if}
+    {/if}
+</div>

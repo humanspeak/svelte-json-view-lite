@@ -103,5 +103,19 @@ export default [
             'prefer-const': ['off'],
             'svelte/no-navigation-without-resolve': ['off']
         }
+    },
+    {
+        // Enforce the complexity limit for production package code.
+        // Modified complexity counts each switch once, regardless of case count.
+        files: ['src/lib/**/*.{ts,js,svelte}'],
+        ignores: [
+            'src/lib/test/**',
+            'src/lib/**/*.test.*',
+            'src/lib/**/*.spec.*',
+            'src/lib/**/*.d.ts'
+        ],
+        rules: {
+            complexity: ['error', { max: 15, variant: 'modified' }]
+        }
     }
 ]
