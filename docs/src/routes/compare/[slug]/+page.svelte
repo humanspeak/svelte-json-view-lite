@@ -18,19 +18,24 @@
     </aside>
 {/if}
 
-<ComparisonPageV2
-    competitor={comparison}
-    {others}
-    {ours}
-    getStartedHref={isUpstream ? '/docs/migration' : '/docs/getting-started'}
-    footerCta={isUpstream
-        ? {
-              href: '/docs/migration',
-              label: { prefix: 'migrate to ', accent: 'svelte 5' },
-              hint: 'keep the familiar API'
-          }
-        : undefined}
-/>
+<div
+    class="comparison-content"
+    class:long-package-name={comparison.npm === '@zerodevx/svelte-json-view'}
+>
+    <ComparisonPageV2
+        competitor={comparison}
+        {others}
+        {ours}
+        getStartedHref={isUpstream ? '/docs/migration' : '/docs/getting-started'}
+        footerCta={isUpstream
+            ? {
+                  href: '/docs/migration',
+                  label: { prefix: 'migrate to ', accent: 'svelte 5' },
+                  hint: 'keep the familiar API'
+              }
+            : undefined}
+    />
+</div>
 
 {#if evidence?.sources?.length}
     <section class="comparison-evidence" aria-labelledby="comparison-sources">
@@ -45,6 +50,18 @@
 {/if}
 
 <style>
+    .comparison-content :global(.brut-hero .hero-body) {
+        min-width: 0;
+    }
+
+    .comparison-content :global(.brut-hero h1) {
+        overflow-wrap: anywhere;
+    }
+
+    .long-package-name :global(.brut-hero h1) {
+        font-size: clamp(2rem, 6vw, 6rem);
+    }
+
     .comparison-evidence {
         padding: 24px;
         border-top: 1px solid var(--brut-rule);
