@@ -34,8 +34,7 @@ src/
 │   ├── index.ts                   # Public exports + defaultStyles/darkStyles
 │   ├── JsonView.svelte            # Root component
 │   ├── DataRender.svelte          # Type dispatcher
-│   ├── ExpandableObject.svelte    # Collapsible container (hot path)
-│   ├── EmptyObject.svelte         # Empty {}/[] placeholder
+│   ├── ExpandableObject.svelte    # Collapsible container + empty {}/[] rows (hot path)
 │   ├── JsonPrimitiveValue.svelte  # Leaf renderer + snippet dispatch
 │   ├── types.ts                   # All public + internal types
 │   ├── styles.module.css          # Light + dark themes (verbatim port)
@@ -86,14 +85,17 @@ pnpm lint:fix         # prettier --write + eslint --fix
 ### Component rendering
 
 - `JsonView` merges the user theme onto `defaultStyles`, owns the
-  `outerRef` getter wrapper, and dispatches the root `DataRender` (or
+  `outerRef` getter wrapper and the tree's expansion-strategy subscription,
+  and dispatches the root `DataRender` (or
   multiple `DataRender` calls when `compactTopLevel` is true).
 - `DataRender` is a pure dispatcher: `isArray` first, then
   `isObject && !isDate && !isFunction`, else `JsonPrimitiveValue`.
   Order matters — arrays are also objects.
 - `ExpandableObject` is the hot path. It owns the `expanded` state,
   the `$props.id()` for `aria-controls`, the arrow-key handler, and
-  the click handler that swaps the roving `tabindex`.
+  the click handler that swaps the roving `tabindex`. Its container action
+  registers expansion updates and manages button navigation, including
+  empty/nonempty transitions and cleanup.
 - `JsonPrimitiveValue` checks `snippets.<type>` before falling back to
   the default `<span class="{style.xxxValue}">...</span>`.
 

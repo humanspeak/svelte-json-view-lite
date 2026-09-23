@@ -19,7 +19,7 @@ test('collapsed tree reads zero child values on load', async ({ page }) => {
     await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'lazy')
 })
 
-test('expanding the root materializes its children', async ({ page }) => {
+test('strategy changes materialize children once and reuse them on reopen', async ({ page }) => {
     await page.goto('/test/lazy-children')
 
     await page.getByTestId('expand-root').click()
@@ -27,4 +27,14 @@ test('expanding the root materializes its children', async ({ page }) => {
     // Opening the node reads each child value exactly once.
     await expect(page.getByTestId('read-count')).toHaveText('1,000')
     await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'open')
+
+    await page.getByTestId('collapse-root').click()
+    await expect(page.getByRole('button', { name: 'expand JSON', exact: true })).toHaveAttribute(
+        'aria-expanded',
+        'false'
+    )
+    await expect(page.getByTestId('read-count')).toHaveText('1,000')
+    await page.getByTestId('expand-root').click()
+    await expect(page.getByTestId('status')).toHaveAttribute('data-state', 'open')
+    await expect(page.getByTestId('read-count')).toHaveText('1,000')
 })

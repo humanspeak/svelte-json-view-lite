@@ -115,6 +115,10 @@ export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'st
     label?: Snippet<[LabelSnippetProps]>
 }
 
+/** Internal expansion callbacks shared by one viewer's controller. */
+export type ExpansionStrategy = NonNullable<Props['shouldExpandNode']>
+export type ExpansionListener = (_strategy: ExpansionStrategy) => void
+
 /**
  * Tree-local controller for roving tabindex across expandable nodes.
  *
@@ -175,6 +179,7 @@ export interface ExpanderNavigation {
 export interface OuterRef {
     readonly current: HTMLDivElement | null
     readonly navigation: ExpanderNavigation
+    readonly expansionListeners: Set<ExpansionListener>
 }
 
 /** Internal shared props threaded through every renderer. Not exported. */
@@ -202,12 +207,4 @@ export interface ExpandableRenderProps extends CommonRenderProps {
     isArray: boolean
     openBracket: string
     closeBracket: string
-}
-
-export interface EmptyRenderProps {
-    field?: string
-    openBracket: string
-    closeBracket: string
-    lastElement: boolean
-    style: StyleProps
 }
