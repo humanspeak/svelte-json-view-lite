@@ -56,9 +56,7 @@
             "pushed_at": "2026-07-24",
             "last_release": "2026-07-24",
             "error": null
-        }
-    ],
-    "watchlist": [
+        },
         {
             "npm": "@zerodevx/svelte-json-view",
             "repo": "zerodevx/svelte-json-view",
@@ -72,8 +70,10 @@
             "last_release": "2026-07-31",
             "error": null,
             "first_seen": "2026-09-02",
-            "note": "Closest rival: runes-native Svelte 5 read-only viewer. Still NOT in config.competitors after 4 runs. RECOMMEND promoting and adding a /compare page. Fetched manually (not in config watchlist)."
-        },
+            "note": "Direct Svelte 5 read-only rival. Promoted to config.competitors on 2026-09-23; comparison implemented, deployment pending. Metrics retained from the September 23 digest."
+        }
+    ],
+    "watchlist": [
         {
             "npm": "svelte-json-tree",
             "repo": "tanhauhau/svelte-json-tree",
@@ -150,16 +150,19 @@
             "why_it_matters": "994 weekly downloads / 1 star. 2026-09-23: rank-tracker flat (avg 8.0, 3 in top 10); GSC 28d impressions +70%, homepage pos 17.2->10.5.",
             "worth_doing": "yes \u2014 SEO work is the highest-leverage lever right now",
             "first_seen": "2026-08-23"
-        },
+        }
+    ],
+    "closed_gaps": [
         {
             "gap": "No comparison coverage for the closest Svelte 5 rival (@zerodevx/svelte-json-view)",
             "who_has_it": ["@zerodevx/svelte-json-view"],
             "why_it_matters": "Runes-native Svelte 5 read-only viewer at 36k/wk vs our 1k/wk, with no /compare page. Still missing from config.competitors (4th run).",
             "worth_doing": "yes \u2014 promote to config.competitors, add /compare page, audit which differentiators (snippets, SSR-safe ARIA ids, rjvl API parity, ARIA tree keyboarding) it lacks",
-            "first_seen": "2026-09-02"
+            "first_seen": "2026-09-02",
+            "closed": "2026-09-23",
+            "evidence": "Added comparison page and promoted package to config.competitors. Deployment pending; Ahrefs keyword tracking remains open."
         }
     ],
-    "closed_gaps": [],
     "declined_as_non_goals": [
         "JSON editing / schema validation",
         "framework-agnostic build",
@@ -198,11 +201,11 @@
             "last_checked": "2026-09-23"
         },
         "@zerodevx/svelte-json-view": {
-            "validated_against_version": null,
-            "status": "MISSING \u2014 no /compare page exists for this rival (discovered 2026-09-02)",
+            "validated_against_version": "2.0.0",
+            "status": "Source/API claims reviewed; comparison implemented at /compare/vs-zerodevx-svelte-json-view. Deployment pending.",
             "last_checked": "2026-09-23"
         },
-        "_note": "2026-09-23: Tier 1 clean for all 6 pages (origin/main e1a7052). No versions moved; Tier 2 gated off. No hardcoded download figures."
+        "_note": "2026-09-23: Tier 1 clean for all 6 pages (origin/main e1a7052). No versions moved; Tier 2 gated off. No hardcoded download figures. Follow-up: seventh page for zerodevx 2.0.0 reviewed against published source; deployment pending."
     },
     "upstream_parity": {
         "react-json-view-lite": {
@@ -318,8 +321,7 @@
         "recommendations_open": [
             "rewrite homepage title/meta (pos 14.2, 439 impr, 4.1% CTR) - now top-10 for core terms",
             "verify 'react-json-view-lite' ranks via /compare/vs-react-json-view-lite, not vs-textea-json-viewer (GSC top page as of 2026-09-20)",
-            "add '@zerodevx/svelte-json-view' + 'zerodevx json view' to Ahrefs rank tracker 9886300",
-            "build /compare page vs @zerodevx/svelte-json-view"
+            "add '@zerodevx/svelte-json-view' + 'zerodevx json view' to Ahrefs rank tracker 9886300"
         ],
         "recommendations_closed": [
             {
@@ -341,6 +343,11 @@
                 "rec": "refresh the GSC export",
                 "closed": "2026-09-23",
                 "evidence": "export dated 2026-09-23, age 0 days"
+            },
+            {
+                "rec": "build /compare page vs @zerodevx/svelte-json-view",
+                "closed": "2026-09-23",
+                "evidence": "Implemented /compare/vs-zerodevx-svelte-json-view with source links and dated 2.0.0 comparison. Deployment pending."
             }
         ],
         "trends_latest_date": "2026-09-20"

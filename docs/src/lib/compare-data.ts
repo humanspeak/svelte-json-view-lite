@@ -8,6 +8,8 @@ export interface ComparisonEntry extends Competitor {
     relationship: ComparisonRelationship
     relationshipLabel: string
     scopeNote: string
+    verifiedAgainst?: string
+    sources?: { label: string; href: string }[]
 }
 
 export const ours: ComparisonOurs = {
@@ -35,6 +37,121 @@ const shared = {
 }
 
 const comparisonRecords: ComparisonEntry[] = [
+    {
+        slug: 'vs-zerodevx-svelte-json-view',
+        name: '@zerodevx/svelte-json-view',
+        relationship: 'direct',
+        relationshipLabel: 'Direct Svelte alternative',
+        scopeNote:
+            'Both are lightweight, read-only Svelte 5 viewers with runes, CSS-variable theming, and zero runtime dependencies. Compare rendering overrides and tree navigation with a minimal json/depth API and a standalone JavaScript bundle.',
+        seoTitle: '@zerodevx/svelte-json-view vs Svelte JSON View Lite',
+        tagline: 'Two Svelte 5 Viewers · Minimal Props or Typed Snippets',
+        description:
+            'Compare @zerodevx/svelte-json-view with Svelte JSON View Lite: Svelte 5 runes, typed snippets, keyboard navigation, depth controls, and vanilla-JS support.',
+        website: 'https://github.com/zerodevx/svelte-json-view',
+        github: 'https://github.com/zerodevx/svelte-json-view',
+        npm: '@zerodevx/svelte-json-view',
+        type: 'Direct Svelte alternative',
+        approach: 'Svelte 5 read-only viewer with an optional standalone JavaScript bundle',
+        features: [
+            { name: 'Svelte 5 Native', us: true, them: true },
+            { name: 'Read-only Tree View', us: true, them: true },
+            { name: 'Zero Runtime Dependencies', us: true, them: true },
+            { name: 'Theme Customization', us: true, them: true },
+            {
+                name: 'CSS Variable Overrides',
+                us: '--sjv-* variables + style maps',
+                them: 'Ten --json* variables'
+            },
+            {
+                name: 'Expansion Policy',
+                us: 'shouldExpandNode(level, value, field)',
+                them: 'Numeric depth prop',
+                note: 'Both expand all nodes by default. In zerodevx, depth={0} leaves the root expanded and collapses nested containers.'
+            },
+            { name: 'Expansion Veto Callback', us: 'beforeExpandChange', them: false },
+            {
+                name: 'Snippet Overrides',
+                us: '9 typed value and label snippets',
+                them: false,
+                note: 'The zerodevx public API exposes json and depth, with no custom-renderer prop.'
+            },
+            {
+                name: 'Keyboard Navigation',
+                us: 'Arrow keys, roving tabindex, Enter/Space',
+                them: 'Tab to brackets; Enter/Space to toggle',
+                note: 'Both support keyboard interaction; their navigation models differ.'
+            },
+            {
+                name: 'ARIA Tree Semantics',
+                us: 'Tree roles and expansion state',
+                them: 'Lists and bracket buttons',
+                note: 'The inspected zerodevx 2.0.0 component has no tree roles or aria-expanded. This comparison is not an accessibility certification.'
+            },
+            { name: 'TypeScript Support', us: true, them: true },
+            {
+                name: 'Standalone Vanilla-JS Bundle',
+                us: false,
+                them: 'createJsonView, update, destroy',
+                note: 'zerodevx also documents CDN usage; our package is a Svelte component.'
+            },
+            { name: 'JSON Editing', us: false, them: false },
+            { name: 'Virtualization', us: false, them: false }
+        ],
+        prosUs: [
+            'Typed snippets for primitive values and field labels',
+            'Tree roles, expansion state, and arrow-key navigation with roving tabindex',
+            'Expansion policies can inspect level, value, and field name',
+            'beforeExpandChange can veto a toggle',
+            'Familiar react-json-view-lite API and built-in light/dark style maps'
+        ],
+        prosThem: [
+            'Small public API: json and depth',
+            'Svelte 5 runes-native implementation',
+            'Standalone JavaScript bundle with update and destroy methods',
+            'CSS-variable theming and zero runtime dependencies',
+            'Svelte 4 and earlier users can stay on the v1 release line'
+        ],
+        consUs: [
+            'No standalone vanilla-JS or CDN widget API',
+            'Requires Svelte 5; no Svelte 4 compatibility',
+            'More configuration choices than a two-prop viewer',
+            'No editing or virtualization'
+        ],
+        consThem: [
+            'No public snippet or custom-renderer API',
+            'No field-aware expansion policy or expansion veto callback',
+            'No arrow-key tree navigation, tree roles, or aria-expanded in 2.0.0',
+            'No editing or virtualization'
+        ],
+        verdict:
+            'Choose @zerodevx/svelte-json-view for a minimal json/depth interface or a standalone vanilla-JS widget. Choose Svelte JSON View Lite when typed snippets, tree keyboard navigation, expansion callbacks, or react-json-view-lite API familiarity matter. Both use Svelte 5 runes and have zero runtime dependencies; no speed or bundle-size advantage is claimed here. To migrate basic usage, change the import and rename json to data. Map depth={d} to shouldExpandNode={(level) => level <= d} for the initial expansion threshold, then adapt CSS variable names and verify dynamic expansion behavior.',
+        keywords: [
+            '@zerodevx/svelte-json-view',
+            'zerodevx json view',
+            'zerodevx svelte-json-view alternative',
+            'svelte json viewer comparison'
+        ],
+        verifiedAgainst: 'Compared against @zerodevx/svelte-json-view 2.0.0 on September 23, 2026.',
+        sources: [
+            {
+                label: 'v2.0.0 release',
+                href: 'https://github.com/zerodevx/svelte-json-view/releases/tag/v2.0.0'
+            },
+            {
+                label: 'Documented props, themes, and standalone usage',
+                href: 'https://github.com/zerodevx/svelte-json-view/blob/v2.0.0/README.md'
+            },
+            {
+                label: 'Component source and keyboard behavior',
+                href: 'https://github.com/zerodevx/svelte-json-view/blob/v2.0.0/src/lib/JsonView.svelte'
+            },
+            {
+                label: 'Published package metadata',
+                href: 'https://registry.npmjs.org/@zerodevx/svelte-json-view/2.0.0'
+            }
+        ]
+    },
     {
         slug: 'vs-react-json-view-lite',
         name: 'react-json-view-lite',

@@ -22,6 +22,11 @@
     ],
     "competitors": [
         {
+            "npm": "@zerodevx/svelte-json-view",
+            "repo": "zerodevx/svelte-json-view",
+            "note": "Direct Svelte 5 runes-native read-only rival. Both have CSS variables and zero runtime dependencies; compare typed snippets, ARIA tree navigation, expansion callbacks, and its standalone JS bundle."
+        },
+        {
             "npm": "svelte-jsoneditor",
             "repo": "josdejong/svelte-jsoneditor",
             "note": "The dominant Svelte JSON tool, but a full editor (edit/validate/schema); heavier. We win on tiny read-only display + Svelte 5 + snippets."
@@ -132,7 +137,7 @@
     "compare_data_paths": ["docs/src/lib/compare-data.ts"],
     "page_validation": {
         "download_tolerance": 0.3,
-        "_comment": "compare-data.ts drives six /compare pages across direct competitors, the upstream port source, and React-only watchlist packages. Validator checks framework claims, hardcoded figures, dormancy framing, and them: feature cells on version bumps."
+        "_comment": "compare-data.ts drives seven /compare pages across direct competitors, the upstream port source, and React-only watchlist packages. Validator checks framework claims, hardcoded figures, dormancy framing, and them: feature cells on version bumps."
     },
     "slack_channel": "C0BP5BF1UTX",
     "_slack_channel_comment": "#claude-reports in human-speak.slack.com via the shared webhook in common.env — same channel as the other OSS digests."
