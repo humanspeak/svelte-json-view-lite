@@ -226,7 +226,11 @@ export const createExpanderNavigation = (): ExpanderNavigation => {
         const current = nodes.get(button)
         if (!current) return
 
-        const next = direction === 1 ? (current.next ?? first) : (current.previous ?? last)
+        let next = direction === 1 ? (current.next ?? first) : (current.previous ?? last)
+        while (next?.element.closest('[inert], [aria-hidden="true"]')) {
+            next = direction === 1 ? (next.next ?? first) : (next.previous ?? last)
+            if (next === current) return
+        }
         if (!next) return
 
         setActive(next, false)

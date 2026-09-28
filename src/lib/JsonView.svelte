@@ -13,6 +13,7 @@
         shouldExpandNode = allExpanded,
         clickToExpandNode = false,
         beforeExpandChange,
+        childrenTransition,
         compactTopLevel = false,
         string,
         number,
@@ -104,6 +105,7 @@
                 {shouldExpandNode}
                 {clickToExpandNode}
                 {beforeExpandChange}
+                {childrenTransition}
                 {outerRef}
                 {snippets}
             />
@@ -117,6 +119,7 @@
             {shouldExpandNode}
             {clickToExpandNode}
             {beforeExpandChange}
+            {childrenTransition}
             {outerRef}
             {snippets}
         />

@@ -7,6 +7,7 @@ export type {
     AriaLabels,
     BigIntSnippetProps,
     BooleanSnippetProps,
+    ChildrenTransition,
     DateSnippetProps,
     FunctionSnippetProps,
     LabelSnippetProps,

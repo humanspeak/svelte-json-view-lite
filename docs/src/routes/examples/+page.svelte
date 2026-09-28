@@ -1,64 +1,11 @@
 <script lang="ts">
+    import { examples } from '$lib/examplesIndex'
     import { BrutIndexV2 } from '@humanspeak/docs-kit'
     import { getBreadcrumbContext } from '$lib/components/contexts/Breadcrumb/Breadcrumb.context'
     import { getSeoContext } from '$lib/components/contexts/Seo/Seo.context'
     import rootPkg from '../../../../package.json'
 
     const PKG_NAME = rootPkg.name
-
-    type ExampleTag = 'DEMO' | 'SNIPPETS' | 'THEMING' | 'INTERACTION' | 'VALUES' | 'A11Y'
-
-    type Example = {
-        slug: string
-        title: string
-        tag: ExampleTag
-        description: string
-    }
-
-    const examples: Example[] = [
-        {
-            slug: 'playground',
-            title: 'Live Playground',
-            tag: 'DEMO',
-            description:
-                'Edit JSON in real time and see the tree render instantly with inline parse errors.'
-        },
-        {
-            slug: 'snippet-overrides',
-            title: 'Snippet Overrides',
-            tag: 'SNIPPETS',
-            description:
-                'Decorate strings, numbers, dates, booleans, labels, and primitive values with typed Svelte snippets.'
-        },
-        {
-            slug: 'css-variables',
-            title: 'CSS Variable Themer',
-            tag: 'THEMING',
-            description:
-                'Tune the --sjv-* theme tokens live without replacing the viewer style map.'
-        },
-        {
-            slug: 'click-to-expand',
-            title: 'Click to Expand',
-            tag: 'INTERACTION',
-            description:
-                'Toggle label-click expansion and watch beforeExpandChange decisions stream into a live event log.'
-        },
-        {
-            slug: 'edge-cases',
-            title: 'Edge Cases',
-            tag: 'VALUES',
-            description:
-                'Render dates, bigints, functions, nulls, empty containers, nested arrays, and long strings.'
-        },
-        {
-            slug: 'accessibility',
-            title: 'ARIA Treeview',
-            tag: 'A11Y',
-            description:
-                'Inspect tree roles, expanded state, labelled controls, and keyboard-ready focus behavior.'
-        }
-    ]
 
     const breadcrumbs = getBreadcrumbContext()
     const seo = getSeoContext()

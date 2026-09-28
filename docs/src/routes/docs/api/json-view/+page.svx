@@ -38,6 +38,7 @@ description: Complete prop reference for the JsonView component in @humanspeak/s
 | `shouldExpandNode` | `(level: number, value: unknown, field?: string) => boolean` | `allExpanded` | Predicate called for every expandable node. Return `true` to expand. Use the exported `allExpanded` / `collapseAllNested` helpers for the common cases. |
 | `clickToExpandNode` | `boolean` | `false` | When `true`, clicking the field label (key) also toggles expand/collapse, not just the arrow. |
 | `beforeExpandChange` | `(event: NodeExpandingEvent) => boolean` | — | Veto handler. Receives `{ level, value, field, newExpandValue }`. Return `false` to cancel the transition. |
+| `childrenTransition` | `ChildrenTransition` | — | Optional `(node: HTMLElement) => TransitionConfig` for local, reversible child-group animation. Omit for instant updates. |
 | `compactTopLevel` | `boolean` | `false` | Render top-level primitives inline without the enclosing `{…}` wrapper. Useful when `data` is an array of mixed primitives. |
 | `string` | `Snippet<[StringSnippetProps]>` | Default renderer | Override the renderer for string values. See [Snippet overrides](/docs/snippet-overrides). |
 | `number` | `Snippet<[NumberSnippetProps]>` | Default renderer | Override the renderer for numbers. |
@@ -120,6 +121,30 @@ Called synchronously before an expansion state change. Return `false` to cancel.
 
 <JsonView data={payload} beforeExpandChange={veto} />
 ```
+
+## `childrenTransition`
+
+Use a Svelte transition to animate each node's live child group. The callback receives
+its `HTMLElement` and returns a `TransitionConfig`. For example, `slide` animates
+height and spacing without scaling the child rows:
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+    import { prefersReducedMotion } from 'svelte/motion'
+    import { slide } from 'svelte/transition'
+
+    const slideChildren = (node: HTMLElement) =>
+        slide(node, { duration: prefersReducedMotion.current ? 0 : 240 })
+</script>
+
+<JsonView data={payload} childrenTransition={slideChildren} />
+```
+
+Transitions are local to the toggled group and reverse on rapid toggles. Exiting
+children stay mounted until the outro finishes, but leave the accessibility tree
+and keyboard navigation immediately. Honor reduced-motion preferences in your
+callback. Omitting this prop preserves instant expansion and collapse.
 
 ## `compactTopLevel`
 

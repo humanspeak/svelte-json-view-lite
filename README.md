@@ -65,6 +65,7 @@ pnpm add @humanspeak/svelte-json-view-lite
 | `shouldExpandNode`      | `(level, value, field?) => boolean`      | `allExpanded`   | Initial-expand strategy per node.                                                  |
 | `clickToExpandNode`     | `boolean`                                | `false`         | When true, clicking the field label also toggles the node.                         |
 | `beforeExpandChange`    | `(event: NodeExpandingEvent) => boolean` | —               | Return `false` to veto an expand/collapse transition.                              |
+| `childrenTransition`    | `ChildrenTransition`                     | —               | Optional Svelte transition for child groups; updates are instant when omitted.     |
 | `compactTopLevel`       | `boolean`                                | `false`         | Spread root-object entries instead of nesting them under a single root expander.   |
 | `string`, `number`, ... | `Snippet<[{ value, field?, level }]>`    | —               | Optional per-type renderer overrides. See [Snippet overrides](#snippet-overrides). |
 
@@ -95,6 +96,31 @@ Override individual slots by spreading:
     }}
 />
 ```
+
+## Animate expansion
+
+Pass an optional `childrenTransition` function to animate the live child group
+when a node opens or closes. It receives the group's `HTMLElement` and returns a
+Svelte `TransitionConfig`. The transition is local and reversible: closing a
+parent slides the whole subtree together, and clicking again reverses it.
+No animation dependency is added to the viewer.
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+    import { prefersReducedMotion } from 'svelte/motion'
+    import { slide } from 'svelte/transition'
+
+    const slideChildren = (node: HTMLElement) =>
+        slide(node, { duration: prefersReducedMotion.current ? 0 : 240 })
+</script>
+
+<JsonView {data} childrenTransition={slideChildren} />
+```
+
+Exiting children remain visible until the transition ends, but are hidden from
+assistive technology and skipped by keyboard navigation. Without this prop,
+expansion and collapse remain instant.
 
 ## Retheme via CSS variables
 

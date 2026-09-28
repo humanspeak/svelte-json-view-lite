@@ -17,6 +17,7 @@
         clickToExpandNode,
         outerRef,
         beforeExpandChange,
+        childrenTransition,
         snippets
     }: ExpandableRenderProps = $props()
 
@@ -98,6 +99,26 @@
         return (objectKeys as string[]).map((k) => [k, obj[k]])
     })
 
+    function transitionChildren(node: HTMLElement) {
+        return childrenTransition?.(node) ?? { duration: 0 }
+    }
+
+    function hideExitingChildren(event: Event) {
+        const group = event.currentTarget as HTMLElement
+        group.setAttribute('aria-hidden', 'true')
+        // Exiting children stay mounted visually, but leave keyboard navigation
+        // immediately. Move a descendant's roving tab stop back to its parent.
+        if (expanderButton && group.querySelector('[role="button"][tabindex="0"]')) {
+            outerRef.navigation.activate(expanderButton)
+            if (group.contains(document.activeElement)) expanderButton.focus()
+        }
+    }
+
+    function showEnteringChildren(event: Event) {
+        const group = event.currentTarget as HTMLElement
+        group.removeAttribute('aria-hidden')
+    }
+
     function setExpandWithCallback(newExpandValue: boolean) {
         if (expanded === newExpandValue) return
         if (beforeExpandChange && !beforeExpandChange({ level, value, field, newExpandValue })) {
@@ -158,7 +179,14 @@
                     onkeydown={onKeyDown}>{labelText}:</span
                 >{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}<span
             class={style.punctuation}>{openBracket}</span
-        >{#if expanded}<ul id={contentsId} role="group" class={style.childFieldsContainer}>
+        >{#if expanded}<ul
+                id={contentsId}
+                role="group"
+                class={style.childFieldsContainer}
+                transition:transitionChildren
+                onoutrostart={hideExitingChildren}
+                onintrostart={showEnteringChildren}
+            >
                 {#each entries as [childField, childValue], index (childField ?? index)}<DataRender
                         field={childField}
                         value={childValue}
@@ -168,6 +196,7 @@
                         {shouldExpandNode}
                         {clickToExpandNode}
                         {beforeExpandChange}
+                        {childrenTransition}
                         {outerRef}
                         {snippets}
                     />{/each}

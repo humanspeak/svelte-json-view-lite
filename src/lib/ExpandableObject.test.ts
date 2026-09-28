@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/svelte'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushSync } from 'svelte'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { allExpanded, collapseAllNested, JsonView } from './index.js'
 
 beforeEach(() => vi.useRealTimers())
@@ -174,5 +175,109 @@ describe('tree expansion controller lifecycle', () => {
         await second.rerender({ shouldExpandNode: strategy })
         expect(strategy).toHaveBeenCalledExactlyOnceWith(0, { second: 2 }, undefined)
         expect(secondButton).toHaveAttribute('aria-expanded', 'false')
+    })
+})
+
+describe('ExpandableObject child transitions', () => {
+    // A controllable browser animation lets us inspect the tree while an outro
+    // is still visible, rather than replacing the transition with a no-op.
+    const originalAnimate = Object.getOwnPropertyDescriptor(Element.prototype, 'animate')
+    const animations: Array<{
+        currentTime: number
+        onfinish: (() => void) | null
+        cancel: ReturnType<typeof vi.fn>
+    }> = []
+
+    beforeEach(() => {
+        vi.useRealTimers()
+        animations.length = 0
+        Object.defineProperty(Element.prototype, 'animate', {
+            configurable: true,
+            value: vi.fn(() => {
+                const animation = { currentTime: 0, onfinish: null, cancel: vi.fn() }
+                animations.push(animation)
+                return animation
+            })
+        })
+    })
+
+    afterEach(() => {
+        if (originalAnimate) Object.defineProperty(Element.prototype, 'animate', originalAnimate)
+        else Reflect.deleteProperty(Element.prototype, 'animate')
+    })
+
+    function finishLatestAnimation() {
+        flushSync(() => animations.at(-1)?.onfinish?.())
+    }
+
+    const childrenTransition = () => ({
+        duration: 240,
+        css: (t: number) => `height: ${t * 100}px; overflow: hidden`
+    })
+
+    it('retains closing rows visually, skips them during navigation, then removes them', async () => {
+        const { container } = render(JsonView, {
+            data: { first: { nested: { leaf: 1 } }, second: { leaf: 2 } },
+            compactTopLevel: true,
+            childrenTransition
+        })
+        const buttons = screen.getAllByRole('button')
+        const first = buttons[0]
+        const second = buttons[2]
+        const group = container.querySelector('[role="group"]') as HTMLElement
+
+        await fireEvent.click(first)
+        finishLatestAnimation() // complete delay, start the actual outro
+        expect(group).toBeInTheDocument()
+        expect(group).toHaveAttribute('aria-hidden', 'true')
+        expect(first).toHaveAttribute('aria-expanded', 'false')
+        await fireEvent.keyDown(first, { key: 'ArrowDown' })
+        expect(second).toHaveFocus()
+        finishLatestAnimation()
+        expect(group).not.toBeInTheDocument()
+    })
+
+    it('reverses an in-flight collapse without duplicating or losing child rows', async () => {
+        const { container } = render(JsonView, {
+            data: { branch: { leaf: 1 } },
+            compactTopLevel: true,
+            childrenTransition
+        })
+        const toggle = screen.getByRole('button')
+        const group = container.querySelector('[role="group"]')
+        await fireEvent.click(toggle)
+        finishLatestAnimation()
+        animations.at(-1)!.currentTime = 120
+        await fireEvent.click(toggle)
+        finishLatestAnimation()
+        expect(toggle).toHaveAttribute('aria-expanded', 'true')
+        expect(group).not.toHaveAttribute('aria-hidden')
+        expect(container.querySelectorAll('[role="group"]')).toHaveLength(1)
+        finishLatestAnimation()
+        expect(screen.getByText('leaf:')).toBeInTheDocument()
+    })
+
+    it('moves a collapsing descendant’s focus and tab stop back to its parent', async () => {
+        const { rerender } = render(JsonView, {
+            data: { branch: { nested: { leaf: 1 } } },
+            compactTopLevel: true,
+            childrenTransition
+        })
+        const [parent, child] = screen.getAllByRole('button')
+        await fireEvent.keyDown(parent, { key: 'ArrowDown' })
+        expect(child).toHaveFocus()
+        await rerender({ shouldExpandNode: () => false })
+        // Bulk collapse can start more than one local outro. Starting all
+        // pending delays must still leave focus outside every closing group.
+        for (const animation of [...animations]) flushSync(() => animation.onfinish?.())
+        expect(parent).toHaveFocus()
+        expect(parent).toHaveAttribute('tabindex', '0')
+    })
+
+    it('preserves immediate removal when no transition is supplied', async () => {
+        render(JsonView, { data: { leaf: 1 } })
+        await fireEvent.click(screen.getByRole('button'))
+        expect(screen.queryByText('leaf:')).not.toBeInTheDocument()
+        expect(animations).toHaveLength(0)
     })
 })

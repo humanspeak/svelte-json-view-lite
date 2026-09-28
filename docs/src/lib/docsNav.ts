@@ -13,6 +13,7 @@ import {
     SquarePen,
     Swords
 } from '@lucide/svelte'
+import { examples } from './examplesIndex.js'
 
 export const headerNav: { label: string; href: string }[] = [
     { label: 'docs', href: '/docs' },
@@ -39,6 +40,11 @@ export function buildBreadcrumbs(pathname: string): Breadcrumb[] {
     if (pathname.startsWith('/blog/')) {
         const slug = pathname.replace('/blog/', '').replace(/\/$/, '')
         return [{ title: 'Blog', href: '/blog' }, { title: blogPostTitles[slug] ?? slug }]
+    }
+
+    const example = examples.find((entry) => pathname === `/examples/${entry.slug}`)
+    if (example) {
+        return [{ title: 'Examples', href: '/examples' }, { title: example.title }]
     }
 
     for (const section of docsSections) {
@@ -109,12 +115,15 @@ export const docsSections: NavSection[] = [
             { title: 'Live playground', href: '/examples/playground', icon: SquarePen },
             { title: 'Snippet overrides', href: '/examples/snippet-overrides', icon: Puzzle },
             { title: 'CSS variable themer', href: '/examples/css-variables', icon: Paintbrush },
+            { title: 'Tailwind tree', href: '/examples/tailwind', icon: Paintbrush },
+            { title: 'Tailwind + motion', href: '/examples/tailwind-motion', icon: Paintbrush },
             {
                 title: 'Click to expand',
                 href: '/examples/click-to-expand',
                 icon: MousePointerClick
             },
-            { title: 'Edge cases', href: '/examples/edge-cases', icon: FlaskConical }
+            { title: 'Edge cases', href: '/examples/edge-cases', icon: FlaskConical },
+            { title: 'ARIA treeview', href: '/examples/accessibility', icon: Accessibility }
         ]
     },
     {

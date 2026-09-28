@@ -10,10 +10,13 @@ export default defineConfig({
           }
         : undefined,
     test: {
-        include: ['src/lib/**/*.test.ts'],
+        include: ['src/lib/**/*.test.ts', 'docs/src/lib/**/*.test.ts'],
         globals: true,
         environment: 'jsdom',
         setupFiles: ['vitest.setup.ts'],
+        server: {
+            deps: { inline: ['@humanspeak/svelte-motion'] }
+        },
         coverage: {
             reporter: 'lcov',
             exclude: ['.trunk/**', '.svelte-kit/**', 'tests/**', 'src/routes/**', 'src/lib/test/**']

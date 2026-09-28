@@ -1,5 +1,6 @@
 import type { Snippet } from 'svelte'
 import type { HTMLAttributes } from 'svelte/elements'
+import type { TransitionConfig } from 'svelte/transition'
 
 /**
  * Event payload passed to `beforeExpandChange`. Return `false` to veto the
@@ -96,6 +97,9 @@ export interface SnippetOverrides {
     label?: Snippet<[LabelSnippetProps]>
 }
 
+/** Optional local transition for each expandable node's child group. */
+export type ChildrenTransition = (_node: HTMLElement) => TransitionConfig
+
 /** Public props accepted by `<JsonView>`. */
 export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'style'> {
     data: object | unknown[]
@@ -104,6 +108,8 @@ export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'st
     clickToExpandNode?: boolean
     beforeExpandChange?: (_event: NodeExpandingEvent) => boolean
     compactTopLevel?: boolean
+    /** Animate child groups on expansion/collapse. Omitted means instant updates. */
+    childrenTransition?: ChildrenTransition
     string?: Snippet<[StringSnippetProps]>
     number?: Snippet<[NumberSnippetProps]>
     boolean?: Snippet<[BooleanSnippetProps]>
@@ -184,6 +190,7 @@ export interface OuterRef {
 
 /** Internal shared props threaded through every renderer. Not exported. */
 export interface CommonRenderProps {
+    childrenTransition?: ChildrenTransition
     lastElement: boolean
     level: number
     style: StyleProps
