@@ -66,7 +66,7 @@
         "docs_domain": "jsonview.svelte.page",
         "gsc_dir": ".competitive-intel/gsc",
         "gsc_staleness_days": 14,
-        "_comment": "Greenfield — 0 keywords in Ahrefs rank tracker (project 9886300). Target terms: 'svelte json viewer', 'svelte json tree', 'json view svelte', 'react-json-view-lite svelte'. The port-parity angle ('X for Svelte') is on-brand and low-competition.",
+        "_comment": "GSC supplies ongoing search performance. Ahrefs project 9886300 is historical; the subscription was cancelled in September 2026. Target terms: 'svelte json viewer', 'svelte json tree', 'json view svelte', 'react-json-view-lite svelte'. Treat tracked_keywords metrics as the dated snapshot described below.",
         "tracked_keywords": [
             {
                 "keyword": "react-json-view",

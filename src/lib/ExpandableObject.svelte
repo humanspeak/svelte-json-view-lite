@@ -17,6 +17,7 @@
         clickToExpandNode,
         outerRef,
         beforeExpandChange,
+        childrenTransition,
         snippets
     }: ExpandableRenderProps = $props()
 
@@ -49,22 +50,37 @@
     const contentsId = $props.id()
 
     let expanderButton = $state<HTMLSpanElement | null>(null)
+    let expanderHovered = $state(false)
+    let expanderFocused = $state(false)
 
-    // The container survives empty/nonempty transitions, so it keeps receiving
-    // strategy updates even when there is no expander button. Its action owns
-    // both cleanup paths; no node subscribes to shouldExpandNode reactively.
-    function registerContainer(_node: HTMLDivElement) {
-        outerRef.expansionListeners.add(updateExpansion)
-        $effect(() => {
-            const button = expanderButton
-            if (button) return untrack(() => outerRef.navigation.register(button))
-        })
-        return {
-            destroy() {
-                outerRef.expansionListeners.delete(updateExpansion)
-            }
-        }
+    function containerSnippetProps() {
+        return { field, value, level, expanded, count, isArray }
     }
+
+    // A custom group may retain exiting children (for example AnimatePresence).
+    // Move focus before its inert attribute is patched, and restore navigation
+    // immediately on a reversal. The renderer only owns the visual lifecycle.
+    $effect.pre(() => {
+        if (!snippets.childGroup) return
+        const opening = expanded
+        untrack(() => {
+            const group = outerRef.current?.querySelector<HTMLElement>(`[id="${contentsId}"]`)
+            if (!group) return
+            if (opening) group.removeAttribute('aria-hidden')
+            else hideChildren(group)
+        })
+    })
+
+    // Registration belongs to the component rather than its default DOM wrapper,
+    // so replacing a row snippet cannot change expansion or keyboard behavior.
+    $effect(() => {
+        outerRef.expansionListeners.add(updateExpansion)
+        return () => outerRef.expansionListeners.delete(updateExpansion)
+    })
+    $effect(() => {
+        const button = expanderButton
+        if (button) return untrack(() => outerRef.navigation.register(button))
+    })
 
     const activeAriaLabels = $derived<AriaLabels>(
         style.ariaLabels ??
@@ -98,6 +114,29 @@
         return (objectKeys as string[]).map((k) => [k, obj[k]])
     })
 
+    function transitionChildren(node: HTMLElement) {
+        return childrenTransition?.(node) ?? { duration: 0 }
+    }
+
+    function hideExitingChildren(event: Event) {
+        hideChildren(event.currentTarget as HTMLElement)
+    }
+
+    function hideChildren(group: HTMLElement) {
+        group.setAttribute('aria-hidden', 'true')
+        // Exiting children stay mounted visually, but leave keyboard navigation
+        // immediately. Move a descendant's roving tab stop back to its parent.
+        if (expanderButton && group.querySelector('[role="button"][tabindex="0"]')) {
+            outerRef.navigation.activate(expanderButton)
+            if (group.contains(document.activeElement)) expanderButton.focus()
+        }
+    }
+
+    function showEnteringChildren(event: Event) {
+        const group = event.currentTarget as HTMLElement
+        group.removeAttribute('aria-hidden')
+    }
+
     function setExpandWithCallback(newExpandValue: boolean) {
         if (expanded === newExpandValue) return
         if (beforeExpandChange && !beforeExpandChange({ level, value, field, newExpandValue })) {
@@ -126,16 +165,26 @@
     }
 </script>
 
-<!-- svelte-ignore a11y_role_has_required_aria_props -->
-<div
-    class={style.basicChildStyle}
-    role="treeitem"
-    aria-expanded={count === 0 ? undefined : expanded}
-    use:registerContainer
->
+{#snippet childRows()}
+    {#each entries as [childField, childValue], index (childField ?? index)}<DataRender
+            field={childField}
+            value={childValue}
+            {style}
+            lastElement={index === count - 1}
+            level={level + 1}
+            {shouldExpandNode}
+            {clickToExpandNode}
+            {beforeExpandChange}
+            {childrenTransition}
+            {outerRef}
+            {snippets}
+        />{/each}
+{/snippet}
+
+{#snippet rowContent()}
     {#if count === 0}
         <!-- prettier-ignore -->
-        {#if field !== undefined}<span class={style.label}>{labelText}:</span>{/if}<span
+        {#if field !== undefined}{#if snippets.label}{@render snippets.label({ field, level })}{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}<span
             class={style.punctuation}>{openBracket}{closeBracket}{lastElement ? '' : ','}</span
         >
     {:else}
@@ -150,7 +199,7 @@
             it tight anyway for a consistent rule.
         -->
         <!-- prettier-ignore -->
-        <span bind:this={expanderButton} class={expanderIconStyle} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown}></span>{#if field !== undefined}{#if snippets.label}{@render snippets.label(
+        <span bind:this={expanderButton} class={expanderIconStyle} data-custom-expander={snippets.expander ? '' : undefined} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown} onpointerenter={snippets.expander ? () => (expanderHovered = true) : undefined} onpointerleave={snippets.expander ? () => (expanderHovered = false) : undefined} onfocus={snippets.expander ? () => (expanderFocused = true) : undefined} onblur={snippets.expander ? () => (expanderFocused = false) : undefined}>{#if snippets.expander}{@render snippets.expander({ ...containerSnippetProps(), hovered: expanderHovered, focused: expanderFocused })}{/if}</span>{#if field !== undefined}{#if snippets.label}{@render snippets.label(
                     { field: field ?? '', level }
                 )}{:else if clickToExpandNode}<!-- svelte-ignore a11y_no_static_element_interactions --><span
                     class={style.clickableLabel}
@@ -158,25 +207,62 @@
                     onkeydown={onKeyDown}>{labelText}:</span
                 >{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}<span
             class={style.punctuation}>{openBracket}</span
-        >{#if expanded}<ul id={contentsId} role="group" class={style.childFieldsContainer}>
-                {#each entries as [childField, childValue], index (childField ?? index)}<DataRender
-                        field={childField}
-                        value={childValue}
-                        {style}
-                        lastElement={index === count - 1}
-                        level={level + 1}
-                        {shouldExpandNode}
-                        {clickToExpandNode}
-                        {beforeExpandChange}
-                        {outerRef}
-                        {snippets}
-                    />{/each}
-            </ul>{:else}<!-- svelte-ignore a11y_no_static_element_interactions --><span
+        >{#if snippets.childGroup}{@render snippets.childGroup({
+                ...containerSnippetProps(),
+                attrs: {
+                    id: contentsId,
+                    role: 'group',
+                    class: style.childFieldsContainer,
+                    'aria-hidden': expanded ? undefined : true,
+                    inert: expanded ? undefined : true
+                },
+                children: childRows
+            })}{:else if expanded}<ul
+                id={contentsId}
+                role="group"
+                class={style.childFieldsContainer}
+                transition:transitionChildren
+                onoutrostart={hideExitingChildren}
+                onintrostart={showEnteringChildren}
+            >
+                {@render childRows()}
+            </ul>{/if}{#if !expanded && !snippets.collapsed}<!-- svelte-ignore a11y_no_static_element_interactions --><span
                 class={style.collapsedContent}
                 onclick={onClick}
                 onkeydown={onKeyDown}
-            ></span>{/if}<span class={style.punctuation}
-            >{closeBracket}{lastElement ? '' : ','}</span
+            ></span>{/if}<!-- svelte-ignore a11y_no_static_element_interactions --><span
+            class={style.punctuation}
+            onclick={snippets.collapsed && !expanded ? onClick : undefined}
+            onkeydown={snippets.collapsed && !expanded ? onKeyDown : undefined}
+            >{#if snippets.collapsed}{@render snippets.collapsed(
+                    containerSnippetProps()
+                )}{/if}{closeBracket}{lastElement ? '' : ','}</span
         >
     {/if}
-</div>
+{/snippet}
+
+{#if snippets.row}
+    {@render snippets.row({
+        id: `${contentsId}-row`,
+        field,
+        value,
+        level,
+        isContainer: true,
+        expanded: count === 0 ? undefined : expanded,
+        attrs: {
+            class: style.basicChildStyle,
+            role: 'treeitem',
+            'aria-expanded': count === 0 ? undefined : expanded
+        },
+        children: rowContent
+    })}
+{:else}
+    <!-- svelte-ignore a11y_role_has_required_aria_props -->
+    <div
+        class={style.basicChildStyle}
+        role="treeitem"
+        aria-expanded={count === 0 ? undefined : expanded}
+    >
+        {@render rowContent()}
+    </div>
+{/if}

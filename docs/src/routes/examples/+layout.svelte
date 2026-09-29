@@ -1,5 +1,6 @@
 <script lang="ts">
-    import { ExampleLayoutV2, enhanceCodeBlocks } from '@humanspeak/docs-kit'
+    import { ExampleLayoutV2, PagerV2, enhanceCodeBlocks } from '@humanspeak/docs-kit'
+    import { examples } from '$lib/examplesIndex'
     import { docsConfig } from '$lib/docs-config'
     import favicon from '$lib/assets/logo.svg'
     import { buildBreadcrumbs, headerNav } from '$lib/docsNav'
@@ -9,6 +10,10 @@
 
     const { children } = $props()
     const PKG_VERSION = rootPkg.version
+    const examplePages = examples.map((example) => ({
+        href: `/examples/${example.slug}`,
+        label: `${example.title.toLowerCase()}.`
+    }))
 </script>
 
 <ExampleLayoutV2
@@ -20,5 +25,6 @@
 >
     <div class="flex flex-1 flex-col" use:enhanceCodeBlocks>
         {@render children?.()}
+        <PagerV2 items={examplePages} ariaLabel="Example pagination" />
     </div>
 </ExampleLayoutV2>

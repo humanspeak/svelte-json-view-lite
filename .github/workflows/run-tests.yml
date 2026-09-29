@@ -12,7 +12,10 @@ on:
         paths:
             - src/**
             - tests/**
-            - '!docs/**'
+            - docs/src/**
+            - docs/package.json
+            - docs/svelte.config.*
+            - docs/tsconfig*.json
             - package.json
             - pnpm-lock.yaml
             - svelte.config.*
@@ -75,11 +78,12 @@ jobs:
                       ${{ runner.os }}-vitest-
 
             - name: Install dependencies
-              run: pnpm install --filter . --frozen-lockfile --config.engine-strict=false
+              run: pnpm install --frozen-lockfile --config.engine-strict=false
 
             - name: Run unit tests
               run: |
                   pnpm build
+                  pnpm --filter docs exec svelte-kit sync
                   pnpm test
 
             - name: Upload unit test results

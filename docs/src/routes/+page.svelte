@@ -173,6 +173,16 @@
             body: 'Tune --sjv-* variables live without replacing the style map.'
         },
         {
+            slug: 'tailwind',
+            title: 'Tailwind Tree',
+            body: 'Rounded rows, vivid values, and three palettes. Your data, dressed up.'
+        },
+        {
+            slug: 'tailwind-motion',
+            title: 'Tailwind + Svelte Motion',
+            body: 'The styled tree with gentle entrances, animated palettes, and smoother layout changes.'
+        },
+        {
             slug: 'click-to-expand',
             title: 'Click to Expand',
             body: 'Make labels toggle nodes in addition to the disclosure control.'
