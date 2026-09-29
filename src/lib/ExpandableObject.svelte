@@ -18,6 +18,7 @@
         outerRef,
         beforeExpandChange,
         childrenTransition,
+        childrenAnimation,
         snippets
     }: ExpandableRenderProps = $props()
 
@@ -25,6 +26,39 @@
     // changes it. Data/theme updates preserve the user's manual override.
     // svelte-ignore state_referenced_locally
     let expanded = $state(shouldExpandNode(level, value, field))
+    // svelte-ignore state_referenced_locally
+    let childrenVisible = $state(expanded)
+    let childrenElement = $state<HTMLUListElement | null>(null)
+
+    $effect(() => {
+        const opening = expanded
+        const animate = childrenAnimation
+        if (!animate) {
+            childrenVisible = opening
+            return
+        }
+        if (opening && !childrenVisible) {
+            childrenVisible = true
+            return
+        }
+        const group = childrenElement
+        if (!group) return
+        if (opening) showChildren(group)
+        else hideChildren(group)
+        const controls = untrack(() => animate(group, opening))
+        if (!controls) {
+            if (!opening) childrenVisible = false
+            return
+        }
+        let cancelled = false
+        void Promise.resolve(controls.finished).then(() => {
+            if (!cancelled && !opening) childrenVisible = false
+        })
+        return () => {
+            cancelled = true
+            controls.stop()
+        }
+    })
 
     // Once a node has been opened we keep its children materialized, even after
     // it collapses again: re-deriving the tuple array (and re-reading N child
@@ -100,11 +134,15 @@
     })
 
     function transitionChildren(node: HTMLElement) {
+        if (childrenAnimation) return { duration: 0 }
         return childrenTransition?.(node) ?? { duration: 0 }
     }
 
     function hideExitingChildren(event: Event) {
-        const group = event.currentTarget as HTMLElement
+        hideChildren(event.currentTarget as HTMLElement)
+    }
+
+    function hideChildren(group: HTMLElement) {
         group.setAttribute('aria-hidden', 'true')
         // Exiting children stay mounted visually, but leave keyboard navigation
         // immediately. Move a descendant's roving tab stop back to its parent.
@@ -112,11 +150,16 @@
             outerRef.navigation.activate(expanderButton)
             if (group.contains(document.activeElement)) expanderButton.focus()
         }
+        group.inert = true
     }
 
     function showEnteringChildren(event: Event) {
-        const group = event.currentTarget as HTMLElement
+        showChildren(event.currentTarget as HTMLElement)
+    }
+
+    function showChildren(group: HTMLElement) {
         group.removeAttribute('aria-hidden')
+        group.inert = false
     }
 
     function setExpandWithCallback(newExpandValue: boolean) {
@@ -179,7 +222,8 @@
                     onkeydown={onKeyDown}>{labelText}:</span
                 >{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}<span
             class={style.punctuation}>{openBracket}</span
-        >{#if expanded}<ul
+        >{#if childrenVisible}<ul
+                bind:this={childrenElement}
                 id={contentsId}
                 role="group"
                 class={style.childFieldsContainer}
@@ -197,6 +241,7 @@
                         {clickToExpandNode}
                         {beforeExpandChange}
                         {childrenTransition}
+                        {childrenAnimation}
                         {outerRef}
                         {snippets}
                     />{/each}

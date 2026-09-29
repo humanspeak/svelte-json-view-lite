@@ -100,6 +100,18 @@ export interface SnippetOverrides {
 /** Optional local transition for each expandable node's child group. */
 export type ChildrenTransition = (_node: HTMLElement) => TransitionConfig
 
+/** Playback owned by an external animation library. */
+export interface ChildrenAnimationControls {
+    finished: PromiseLike<unknown>
+    stop: () => void
+}
+
+/** Animate a live child group; closing waits for finished before unmounting. */
+export type ChildrenAnimation = (
+    _node: HTMLElement,
+    _expanded: boolean
+) => ChildrenAnimationControls | void
+
 /** Public props accepted by `<JsonView>`. */
 export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'style'> {
     data: object | unknown[]
@@ -110,6 +122,8 @@ export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'st
     compactTopLevel?: boolean
     /** Animate child groups on expansion/collapse. Omitted means instant updates. */
     childrenTransition?: ChildrenTransition
+    /** External animation lifecycle; takes precedence over childrenTransition. */
+    childrenAnimation?: ChildrenAnimation
     string?: Snippet<[StringSnippetProps]>
     number?: Snippet<[NumberSnippetProps]>
     boolean?: Snippet<[BooleanSnippetProps]>
@@ -191,6 +205,7 @@ export interface OuterRef {
 /** Internal shared props threaded through every renderer. Not exported. */
 export interface CommonRenderProps {
     childrenTransition?: ChildrenTransition
+    childrenAnimation?: ChildrenAnimation
     lastElement: boolean
     level: number
     style: StyleProps

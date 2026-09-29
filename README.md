@@ -58,16 +58,17 @@ pnpm add @humanspeak/svelte-json-view-lite
 
 ## Props
 
-| Prop                    | Type                                     | Default         | Description                                                                        |
-| ----------------------- | ---------------------------------------- | --------------- | ---------------------------------------------------------------------------------- |
-| `data`                  | `object \| unknown[]`                    | —               | The JSON-shaped value to render.                                                   |
-| `style`                 | `Partial<StyleProps>`                    | `defaultStyles` | Classname-map that themes every slot.                                              |
-| `shouldExpandNode`      | `(level, value, field?) => boolean`      | `allExpanded`   | Initial-expand strategy per node.                                                  |
-| `clickToExpandNode`     | `boolean`                                | `false`         | When true, clicking the field label also toggles the node.                         |
-| `beforeExpandChange`    | `(event: NodeExpandingEvent) => boolean` | —               | Return `false` to veto an expand/collapse transition.                              |
-| `childrenTransition`    | `ChildrenTransition`                     | —               | Optional Svelte transition for child groups; updates are instant when omitted.     |
-| `compactTopLevel`       | `boolean`                                | `false`         | Spread root-object entries instead of nesting them under a single root expander.   |
-| `string`, `number`, ... | `Snippet<[{ value, field?, level }]>`    | —               | Optional per-type renderer overrides. See [Snippet overrides](#snippet-overrides). |
+| Prop                    | Type                                     | Default         | Description                                                                                            |
+| ----------------------- | ---------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------ |
+| `data`                  | `object \| unknown[]`                    | —               | The JSON-shaped value to render.                                                                       |
+| `style`                 | `Partial<StyleProps>`                    | `defaultStyles` | Classname-map that themes every slot.                                                                  |
+| `shouldExpandNode`      | `(level, value, field?) => boolean`      | `allExpanded`   | Initial-expand strategy per node.                                                                      |
+| `clickToExpandNode`     | `boolean`                                | `false`         | When true, clicking the field label also toggles the node.                                             |
+| `beforeExpandChange`    | `(event: NodeExpandingEvent) => boolean` | —               | Return `false` to veto an expand/collapse transition.                                                  |
+| `childrenAnimation`     | `ChildrenAnimation`                      | —               | External animation callback; closing waits for completion. Takes precedence over `childrenTransition`. |
+| `childrenTransition`    | `ChildrenTransition`                     | —               | Optional Svelte transition for child groups; updates are instant when omitted.                         |
+| `compactTopLevel`       | `boolean`                                | `false`         | Spread root-object entries instead of nesting them under a single root expander.                       |
+| `string`, `number`, ... | `Snippet<[{ value, field?, level }]>`    | —               | Optional per-type renderer overrides. See [Snippet overrides](#snippet-overrides).                     |
 
 Any additional HTML attributes (`aria-*`, `data-*`, `id`, `class`, etc.) are
 forwarded onto the root `<div role="tree">`.
@@ -121,6 +122,36 @@ No animation dependency is added to the viewer.
 Exiting children remain visible until the transition ends, but are hidden from
 assistive technology and skipped by keyboard navigation. Without this prop,
 expansion and collapse remain instant.
+
+For playback controlled by an external library, use `childrenAnimation`. The callback
+receives `(node, expanded)` and returns `{ finished, stop }`. Closing children stay mounted
+until `finished` resolves; a reversal or unmount calls `stop`. Return nothing for an
+immediate update. Closing groups leave keyboard navigation immediately and return any
+descendant focus to their parent. This hook takes precedence over `childrenTransition`.
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+    import { animate, useReducedMotion } from '@humanspeak/svelte-motion'
+
+    const reducedMotion = useReducedMotion()
+    const animateChildren = (node: HTMLElement, expanded: boolean) => {
+        node.style.overflow = 'hidden'
+        const playback = animate(
+            node,
+            { height: expanded ? 'auto' : 0 },
+            { duration: reducedMotion.current ? 0 : 0.24 }
+        )
+        return { finished: playback, stop: () => playback.stop() }
+    }
+</script>
+
+<JsonView {data} childrenAnimation={animateChildren} />
+```
+
+See the [Tailwind + Svelte Motion example](https://jsonview.svelte.page/examples/tailwind-motion)
+for reversible height and spacing animation, animated carets, and hover feedback.
+Svelte Motion remains an optional application dependency.
 
 ## Retheme via CSS variables
 

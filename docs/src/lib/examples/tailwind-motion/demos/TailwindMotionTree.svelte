@@ -1,14 +1,12 @@
 <script lang="ts">
     import { JsonView, type Props, type StyleProps } from '@humanspeak/svelte-json-view-lite'
     import {
+        animate,
         MotionButton,
         MotionDiv,
         MotionSpan,
         useReducedMotion
     } from '@humanspeak/svelte-motion'
-
-    import { slide } from 'svelte/transition'
-    import { cubicOut } from 'svelte/easing'
 
     const motionId = $props.id()
     const reducedMotion = useReducedMotion()
@@ -65,10 +63,193 @@
         childFieldsContainer: 'tw-children order-last basis-full list-none'
     }
 
-    // A real child-group transition preserves the live rows until closing
-    // finishes. Only height and spacing change; text never scales or flips.
-    function slideChildren(node: HTMLElement) {
-        return slide(node, { duration: motionEnabled ? 240 : 0, easing: cubicOut })
+    // Playback registries are imperative cleanup bookkeeping, not rendered state.
+    // trunk-ignore(eslint/svelte/prefer-svelte-reactivity)
+    const groupAnimations = new Map<HTMLElement, ReturnType<typeof animate>>()
+
+    // Motion owns playback and completion. The viewer keeps a closing group
+    // mounted until finished resolves, and calls stop before a rapid reversal.
+    function animateChildren(node: HTMLElement, expanded: boolean) {
+        const style = getComputedStyle(node)
+        const margin = compact ? 5 : 9
+        const startHeight = node.style.height ? node.getBoundingClientRect().height : 0
+        const startMargin = node.style.height ? parseFloat(style.marginTop) : 0
+        node.style.overflow = 'hidden'
+        const playback = animate(
+            node,
+            {
+                height: [startHeight, expanded ? 'auto' : 0],
+                marginTop: [startMargin, expanded ? margin : 0]
+            },
+            { duration: motionEnabled ? 0.24 : 0, ease: [0.22, 1, 0.36, 1] }
+        )
+        groupAnimations.set(node, playback)
+        let stopped = false
+        const finished = playback.then(() => {
+            if (stopped) return
+            groupAnimations.delete(node)
+            if (expanded) {
+                node.style.height = 'auto'
+                node.style.marginTop = ''
+                node.style.overflow = ''
+            }
+        })
+        return {
+            finished,
+            stop() {
+                stopped = true
+                // Capture the displayed geometry before stopping so reversal
+                // begins at the current frame, including a fully open group.
+                const height = node.getBoundingClientRect().height
+                const marginTop = getComputedStyle(node).marginTop
+                playback.stop()
+                node.style.height = `${height}px`
+                node.style.marginTop = marginTop
+                groupAnimations.delete(node)
+            }
+        }
+    }
+
+    // JsonView owns its rows. This action supplies decorative elements and
+    // animates them with Motion without replacing its buttons or focus model.
+    function animateTree(root: HTMLElement, enabled: boolean) {
+        // trunk-ignore(eslint/svelte/prefer-svelte-reactivity)
+        const decorations = new Map<HTMLElement, { caret: HTMLElement; dots: HTMLElement }>()
+        // trunk-ignore(eslint/svelte/prefer-svelte-reactivity)
+        const animations = new Map<HTMLElement, ReturnType<typeof animate>>()
+        // trunk-ignore(eslint/svelte/prefer-svelte-reactivity)
+        const targets = new Map<HTMLElement, string>()
+        let hoveredRow: HTMLElement | null = null
+        let hoveredCaret: HTMLElement | null = null
+
+        function move(
+            node: HTMLElement,
+            values: {
+                rotate?: number
+                width?: string
+                marginRight?: string
+                opacity?: number
+                x?: number
+            },
+            instant = false
+        ) {
+            const key = JSON.stringify(values)
+            if (!instant && targets.get(node) === key) return
+            targets.set(node, key)
+            animations.get(node)?.stop()
+            animations.set(
+                node,
+                animate(node, values, {
+                    duration: enabled && !instant ? 0.18 : 0,
+                    ease: [0.22, 1, 0.36, 1]
+                })
+            )
+        }
+
+        function refresh(instant = false) {
+            for (const [node, playback] of animations) {
+                if (!root.contains(node)) {
+                    playback.stop()
+                    animations.delete(node)
+                    targets.delete(node)
+                }
+            }
+            for (const row of decorations.keys()) {
+                if (!root.contains(row)) decorations.delete(row)
+            }
+            for (const row of root.querySelectorAll<HTMLElement>('.tw-row[aria-expanded]')) {
+                const button = row.querySelector<HTMLElement>(':scope > .tw-toggle')!
+                const closing = row.querySelector<HTMLElement>(
+                    ':scope > .tw-punctuation:last-child'
+                )!
+                let parts = decorations.get(row)
+                const fresh = !parts
+                if (!parts) {
+                    const caret = document.createElement('span')
+                    caret.className = 'tw-caret'
+                    caret.setAttribute('aria-hidden', 'true')
+                    button.appendChild(caret)
+                    const dots = document.createElement('span')
+                    dots.className = 'tw-dots'
+                    dots.textContent = '…'
+                    dots.setAttribute('aria-hidden', 'true')
+                    closing.insertBefore(dots, closing.firstChild)
+                    parts = { caret, dots }
+                    decorations.set(row, parts)
+                }
+                const expanded = row.getAttribute('aria-expanded') === 'true'
+                const leaning =
+                    enabled && (hoveredCaret === button || document.activeElement === button)
+                move(
+                    parts.caret,
+                    { rotate: expanded ? (leaning ? 20 : 45) : leaning ? -20 : -45 },
+                    instant || fresh
+                )
+                move(
+                    parts.dots,
+                    {
+                        width: expanded ? '0em' : '1em',
+                        marginRight: expanded ? '0em' : '0.4em',
+                        opacity: expanded ? 0 : 1,
+                        x: expanded ? -2 : 0
+                    },
+                    instant || fresh
+                )
+            }
+        }
+
+        function pointAt(target: EventTarget | null) {
+            const element = target instanceof Element ? target : null
+            const row = element?.closest<HTMLElement>('.tw-row') ?? null
+            const nextRow = row && root.contains(row) ? row : null
+            if (hoveredRow !== nextRow) {
+                if (hoveredRow) move(hoveredRow, { x: 0 })
+                hoveredRow = nextRow
+                if (hoveredRow) move(hoveredRow, { x: enabled ? 2 : 0 })
+            }
+            hoveredCaret = element?.closest<HTMLElement>('.tw-toggle') ?? null
+            refresh()
+        }
+        const over = (event: PointerEvent) => {
+            if (event.pointerType !== 'touch') pointAt(event.target)
+        }
+        const out = (event: PointerEvent) => pointAt(event.relatedTarget)
+        const focus = () => refresh()
+        const observer = new MutationObserver(() => refresh())
+        observer.observe(root, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            attributeFilter: ['aria-expanded']
+        })
+        root.addEventListener('pointerover', over)
+        root.addEventListener('pointerout', out)
+        root.addEventListener('focusin', focus)
+        root.addEventListener('focusout', focus)
+        refresh(true)
+        return {
+            update(next: boolean) {
+                enabled = next
+                if (!enabled) {
+                    for (const playback of groupAnimations.values()) playback.complete()
+                    for (const playback of animations.values()) playback.complete()
+                    if (hoveredRow) move(hoveredRow, { x: 0 }, true)
+                }
+                refresh(true)
+            },
+            destroy() {
+                observer.disconnect()
+                root.removeEventListener('pointerover', over)
+                root.removeEventListener('pointerout', out)
+                root.removeEventListener('focusin', focus)
+                root.removeEventListener('focusout', focus)
+                for (const playback of animations.values()) playback.stop()
+                for (const { caret, dots } of decorations.values()) {
+                    caret.remove()
+                    dots.remove()
+                }
+            }
+        }
     }
 
     // The persistent closing bracket hosts the fading ellipsis. Forward its
@@ -76,8 +257,10 @@
     function expandFromSummary(event: MouseEvent) {
         const target = event.target
         if (!(target instanceof HTMLElement)) return
-        if (!target.matches('.tw-row[aria-expanded="false"] > .tw-punctuation:last-child')) return
-        target.parentElement?.querySelector<HTMLElement>(':scope > .tw-toggle')?.click()
+        const closing = target.closest(
+            '.tw-row[aria-expanded="false"] > .tw-punctuation:last-child'
+        )
+        closing?.parentElement?.querySelector<HTMLElement>(':scope > .tw-toggle')?.click()
     }
 
     // A fresh strategy also reapplies an action after manual node toggles.
@@ -209,12 +392,12 @@
             </div>
         </div>
 
-        <div class="px-3 pb-4 sm:px-4">
+        <div class="px-3 pb-4 sm:px-4" use:animateTree={motionEnabled}>
             <JsonView
                 data={payload}
                 style={treeStyle}
                 {shouldExpandNode}
-                childrenTransition={slideChildren}
+                childrenAnimation={animateChildren}
                 compactTopLevel
                 clickToExpandNode
                 onclick={expandFromSummary}
@@ -410,38 +593,12 @@
         cursor: pointer;
     }
 
-    .tailwind-demo :global(.tw-toggle::after) {
+    .tailwind-demo :global(.tw-caret) {
         width: 7px;
         height: 7px;
-        transform: rotate(-45deg);
         border-right: 2px solid currentColor;
         border-bottom: 2px solid currentColor;
-        content: '';
-    }
-
-    .tailwind-demo :global(.tw-open::after) {
-        transform: rotate(45deg) translate(-1px, -1px);
-    }
-
-    .tailwind-demo[data-motion='true'] :global(.tw-toggle::after) {
-        transition: transform 180ms ease;
-    }
-
-    /* Tip toward the next state, then complete that turn on activation. */
-    .tailwind-demo[data-motion='true'] :global(.tw-closed:hover::after),
-    .tailwind-demo[data-motion='true'] :global(.tw-closed:focus-visible::after) {
-        transform: rotate(-20deg) translateY(1px);
-    }
-
-    .tailwind-demo[data-motion='true'] :global(.tw-open:hover::after),
-    .tailwind-demo[data-motion='true'] :global(.tw-open:focus-visible::after) {
-        transform: rotate(20deg) translate(-1px, -1px);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .tailwind-demo[data-motion='true'] :global(.tw-toggle::after) {
-            transition: none;
-        }
+        pointer-events: none;
     }
 
     .tailwind-demo :global(.tw-toggle:focus-visible) {
@@ -449,53 +606,18 @@
         outline-offset: 2px;
     }
 
-    /* Keep the ellipsis on a persistent element so both directions can fade.
-       The viewer's conditional summary is replaced only in this demo theme. */
     .tailwind-demo :global(.tw-summary) {
         display: none;
     }
 
-    .tailwind-demo :global(.tw-row[aria-expanded] > .tw-punctuation:last-child::before) {
+    .tailwind-demo :global(.tw-dots) {
         display: inline-block;
-        width: 0;
-        margin-inline-end: 0;
         overflow: hidden;
-        opacity: 0;
-        transform: translateX(-2px);
         vertical-align: bottom;
-        content: '…';
     }
 
     .tailwind-demo :global(.tw-row[aria-expanded='false'] > .tw-punctuation:last-child) {
         cursor: pointer;
-    }
-
-    .tailwind-demo :global(.tw-row[aria-expanded='false'] > .tw-punctuation:last-child::before) {
-        width: 1em;
-        margin-inline-end: 0.4em;
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    .tailwind-demo[data-motion='true']
-        :global(.tw-row[aria-expanded] > .tw-punctuation:last-child::before) {
-        transition:
-            width 200ms ease,
-            margin-inline-end 200ms ease,
-            opacity 160ms ease,
-            transform 200ms ease;
-    }
-
-    .tailwind-demo[data-motion='true'] :global(.tw-row) {
-        transition: translate 150ms ease;
-    }
-
-    @media (hover: hover) {
-        /* Only the innermost hovered row moves. Its subtree comes along, but
-           nested ancestors don't each add another two pixels. */
-        .tailwind-demo[data-motion='true'] :global(.tw-row:hover:not(:has(.tw-row:hover))) {
-            translate: 2px 0;
-        }
     }
 
     @media (max-width: 480px) {

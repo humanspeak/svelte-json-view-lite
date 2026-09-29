@@ -14,6 +14,7 @@
         clickToExpandNode = false,
         beforeExpandChange,
         childrenTransition,
+        childrenAnimation,
         compactTopLevel = false,
         string,
         number,
@@ -106,6 +107,7 @@
                 {clickToExpandNode}
                 {beforeExpandChange}
                 {childrenTransition}
+                {childrenAnimation}
                 {outerRef}
                 {snippets}
             />
@@ -120,6 +122,7 @@
             {clickToExpandNode}
             {beforeExpandChange}
             {childrenTransition}
+            {childrenAnimation}
             {outerRef}
             {snippets}
         />

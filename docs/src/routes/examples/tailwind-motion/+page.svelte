@@ -61,10 +61,11 @@
     </p>
     <p>
         <a href="https://motion.svelte.page/">Svelte Motion</a> adds a spring-driven palette
-        indicator, a gentle entrance and button feedback. Svelte’s local <code>slide</code>
-        transition reveals and retracts each live child group through
-        <code>childrenTransition</code>. Turn off Motion for a still preview. Your system’s
-        reduced-motion preference disables the demo’s animations automatically.
+        indicator, a gentle entrance and button feedback. Its <code>animate</code> API also animates
+        child-group height, caret rotation, ellipsis width and opacity, and row hover movement. The
+        <code>childrenAnimation</code> hook keeps closing rows mounted until Motion finishes and stops
+        interrupted playback before reversing. Turn off Motion for a still preview. Your system’s reduced-motion
+        preference disables the demo’s animations automatically.
     </p>
     <p>
         Child rows slide vertically without scaling. Hover or focus a caret to see it lean toward
