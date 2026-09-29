@@ -38,7 +38,7 @@ description: Complete prop reference for the JsonView component in @humanspeak/s
 | `shouldExpandNode` | `(level: number, value: unknown, field?: string) => boolean` | `allExpanded` | Predicate called for every expandable node. Return `true` to expand. Use the exported `allExpanded` / `collapseAllNested` helpers for the common cases. |
 | `clickToExpandNode` | `boolean` | `false` | When `true`, clicking the field label (key) also toggles expand/collapse, not just the arrow. |
 | `beforeExpandChange` | `(event: NodeExpandingEvent) => boolean` | — | Veto handler. Receives `{ level, value, field, newExpandValue }`. Return `false` to cancel the transition. |
-| `childrenAnimation` | `ChildrenAnimation` | — | External `(node, expanded)` animation callback returning `{ finished, stop }`. Takes precedence over `childrenTransition`. |
+| `row`, `expander`, `collapsed`, `childGroup` | Typed `Snippet` | — | Structural renderers. See [Snippet overrides](/docs/snippet-overrides#structural-snippets). |
 | `childrenTransition` | `ChildrenTransition` | — | Optional `(node: HTMLElement) => TransitionConfig` for local, reversible child-group animation. Omit for instant updates. |
 | `compactTopLevel` | `boolean` | `false` | Render top-level primitives inline without the enclosing `{…}` wrapper. Useful when `data` is an array of mixed primitives. |
 | `string` | `Snippet<[StringSnippetProps]>` | Default renderer | Override the renderer for string values. See [Snippet overrides](/docs/snippet-overrides). |
@@ -188,16 +188,6 @@ Everything in `HTMLAttributes<HTMLDivElement>` except `data` and `style` forward
 - [Themes & CSS variables](/docs/themes) — `--sjv-*` tokens
 - [Accessibility](/docs/accessibility) — keyboard + ARIA contract
 
-## `childrenAnimation`
-
-Use this hook when an external library should own animation playback. It receives the live
-child-group `HTMLElement` and the target `expanded` state. Return `{ finished, stop }`, where
-`finished` is the playback completion promise and `stop()` interrupts playback. Return nothing
-for an immediate update. The viewer waits for closing playback before removing children,
-stops interrupted playback on reversal or unmount, and ignores stale completion callbacks.
-Closing groups are inert and excluded from keyboard navigation immediately; focus returns to
-the parent when a focused descendant collapses.
-
-This hook takes precedence over `childrenTransition`. It adds no animation dependency to the
-viewer. The [Tailwind + Svelte Motion example](/examples/tailwind-motion) uses Svelte Motion’s
-`animate` API for child height and spacing, caret rotation, ellipsis fading, and row movement.
+A `childGroup` snippet takes precedence over `childrenTransition`: the snippet owns conditional
+rendering and animation, while its supplied `attrs` retain group semantics and the viewer
+continues to manage expansion, focus, and keyboard navigation.

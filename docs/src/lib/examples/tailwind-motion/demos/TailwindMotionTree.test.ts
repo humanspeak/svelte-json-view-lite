@@ -1,56 +1,30 @@
-import { animate } from '@humanspeak/svelte-motion'
 import '@testing-library/jest-dom/vitest'
-import { fireEvent, render, screen, within } from '@testing-library/svelte'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import TailwindMotionTree from './TailwindMotionTree.svelte'
 
-// jsdom cannot measure layout or play browser animations. Assert that the
-// demo delegates to Motion; core tests control completion/reversal separately.
-vi.mock('@humanspeak/svelte-motion', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('@humanspeak/svelte-motion')>()
-    return {
-        ...actual,
-        animate: vi.fn(() => ({
-            then: (resolve: () => void) => Promise.resolve().then(resolve),
-            stop: vi.fn(),
-            complete: vi.fn()
-        }))
-    }
-})
-
 beforeEach(() => {
     vi.useRealTimers()
-    vi.mocked(animate).mockClear()
+    vi.stubGlobal('scrollTo', vi.fn())
 })
 afterEach(() => vi.unstubAllGlobals())
 
 describe('Tailwind with Svelte Motion example', () => {
-    it('uses Motion for child groups, carets, ellipses, and row hover', async () => {
+    it('retains the real group for a Motion exit and reverses without cloning rows', async () => {
         const { container } = render(TailwindMotionTree)
-        const tree = screen.getByRole('tree')
-        const row = tree.querySelector<HTMLElement>('.tw-row')!
-        const toggle = row.querySelector<HTMLElement>('.tw-toggle')!
-        vi.mocked(animate).mockClear()
-        await fireEvent.click(toggle)
-        expect(animate).toHaveBeenCalledWith(
-            expect.any(HTMLElement),
-            expect.objectContaining({ height: expect.arrayContaining([0]) }),
-            expect.objectContaining({ duration: 0.24 })
-        )
-        expect(animate).toHaveBeenCalledWith(
-            row.querySelector('.tw-caret'),
-            { rotate: -20 },
-            expect.objectContaining({ duration: 0.18 })
-        )
-        expect(animate).toHaveBeenCalledWith(
-            row.querySelector('.tw-dots'),
-            expect.objectContaining({ opacity: 1, width: '1em' }),
-            expect.objectContaining({ duration: 0.18 })
-        )
-        await fireEvent.pointerOver(toggle, { pointerType: 'mouse' })
-        expect(animate).toHaveBeenCalledWith(row, { x: 2 }, expect.any(Object))
-        await fireEvent.pointerOut(toggle, { relatedTarget: container })
-        expect(animate).toHaveBeenCalledWith(row, { x: 0 }, expect.any(Object))
+        const group = container.querySelector('.tw-children')!
+        const user = screen.getByText('user:')
+        await fireEvent.click(user)
+        expect(group).toBeInTheDocument()
+        expect(group).toHaveAttribute('aria-hidden', 'true')
+        await fireEvent.click(user)
+        expect(group).not.toHaveAttribute('aria-hidden')
+        expect(container.querySelector('.tw-children')).toBe(group)
+        expect(screen.getAllByText('"Ada Lovelace"')).toHaveLength(1)
+        await fireEvent.click(user)
+        await waitFor(() => expect(group).not.toBeInTheDocument())
+        await fireEvent.click(user)
+        expect(screen.getAllByText('"Ada Lovelace"')).toHaveLength(1)
     })
 
     it('opens from the animated ellipsis and exposes the Motion documentation link', async () => {
@@ -71,7 +45,7 @@ describe('Tailwind with Svelte Motion example', () => {
         await fireEvent.click(screen.getByRole('button', { name: 'Collapse all' }))
         await fireEvent.click(screen.getByRole('checkbox', { name: 'Motion' }))
         expect(container.querySelector('.tailwind-demo')).toHaveAttribute('data-motion', 'false')
-        expect(screen.queryByText('"Ada Lovelace"')).not.toBeInTheDocument()
+        await waitFor(() => expect(screen.queryByText('"Ada Lovelace"')).not.toBeInTheDocument())
         await fireEvent.click(screen.getByRole('button', { name: 'Expand all' }))
         expect(screen.getByText('"Ada Lovelace"')).toBeInTheDocument()
     })
@@ -87,16 +61,12 @@ describe('Tailwind with Svelte Motion example', () => {
         expect(toggle).toBeDisabled()
         expect(toggle).not.toBeChecked()
         expect(container.querySelector('.tailwind-demo')).toHaveAttribute('data-motion', 'false')
-        expect(vi.mocked(animate).mock.calls.length).toBeGreaterThan(0)
-        for (const [, , options] of vi.mocked(animate).mock.calls) {
-            expect(options).toEqual(expect.objectContaining({ duration: 0 }))
-        }
     })
 
     it('preserves manual expansion when the palette or density changes', async () => {
         render(TailwindMotionTree)
         await fireEvent.click(screen.getByText('user:'))
-        expect(screen.queryByText('"Ada Lovelace"')).not.toBeInTheDocument()
+        await waitFor(() => expect(screen.queryByText('"Ada Lovelace"')).not.toBeInTheDocument())
 
         await fireEvent.click(screen.getByRole('button', { name: 'daylight' }))
         await fireEvent.click(screen.getByRole('checkbox', { name: 'Compact' }))
@@ -104,7 +74,7 @@ describe('Tailwind with Svelte Motion example', () => {
             'aria-pressed',
             'true'
         )
-        expect(screen.queryByText('"Ada Lovelace"')).not.toBeInTheDocument()
+        await waitFor(() => expect(screen.queryByText('"Ada Lovelace"')).not.toBeInTheDocument())
 
         await fireEvent.click(screen.getByText('user:'))
         expect(screen.getByText('"Ada Lovelace"')).toBeInTheDocument()
@@ -119,7 +89,7 @@ describe('Tailwind with Svelte Motion example', () => {
         await fireEvent.click(screen.getByRole('button', { name: 'Expand all' }))
         expect(screen.getByText('"en"')).toBeInTheDocument()
         await fireEvent.click(screen.getByText('preferences:'))
-        expect(screen.queryByText('"en"')).not.toBeInTheDocument()
+        await waitFor(() => expect(screen.queryByText('"en"')).not.toBeInTheDocument())
         await fireEvent.click(screen.getByRole('button', { name: 'Expand all' }))
         expect(screen.getByText('"en"')).toBeInTheDocument()
     })

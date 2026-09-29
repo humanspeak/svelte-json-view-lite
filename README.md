@@ -23,8 +23,8 @@ runtime dependencies.
 - Svelte 5 runes throughout (`$props`, `$state`, `$derived`, `$effect`).
 - Drop-in API parity with `react-json-view-lite`: same prop names, themes,
   and strategy helpers.
-- Per-type `Snippet` overrides for custom value rendering (strings, numbers,
-  dates, etc.) — new in the Svelte port.
+- Typed `Snippet` overrides for values, labels, row wrappers, expanders, collapsed
+  indicators, and child groups — including declarative animation.
 - SSR-safe: uses `$props.id()` for stable `aria-controls` linkage across
   server/client.
 - Keyboard accessible: roving tabindex + `ArrowUp`/`ArrowDown`/`ArrowLeft`/
@@ -58,17 +58,17 @@ pnpm add @humanspeak/svelte-json-view-lite
 
 ## Props
 
-| Prop                    | Type                                     | Default         | Description                                                                                            |
-| ----------------------- | ---------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------ |
-| `data`                  | `object \| unknown[]`                    | —               | The JSON-shaped value to render.                                                                       |
-| `style`                 | `Partial<StyleProps>`                    | `defaultStyles` | Classname-map that themes every slot.                                                                  |
-| `shouldExpandNode`      | `(level, value, field?) => boolean`      | `allExpanded`   | Initial-expand strategy per node.                                                                      |
-| `clickToExpandNode`     | `boolean`                                | `false`         | When true, clicking the field label also toggles the node.                                             |
-| `beforeExpandChange`    | `(event: NodeExpandingEvent) => boolean` | —               | Return `false` to veto an expand/collapse transition.                                                  |
-| `childrenAnimation`     | `ChildrenAnimation`                      | —               | External animation callback; closing waits for completion. Takes precedence over `childrenTransition`. |
-| `childrenTransition`    | `ChildrenTransition`                     | —               | Optional Svelte transition for child groups; updates are instant when omitted.                         |
-| `compactTopLevel`       | `boolean`                                | `false`         | Spread root-object entries instead of nesting them under a single root expander.                       |
-| `string`, `number`, ... | `Snippet<[{ value, field?, level }]>`    | —               | Optional per-type renderer overrides. See [Snippet overrides](#snippet-overrides).                     |
+| Prop                                         | Type                                     | Default         | Description                                                                        |
+| -------------------------------------------- | ---------------------------------------- | --------------- | ---------------------------------------------------------------------------------- |
+| `data`                                       | `object \| unknown[]`                    | —               | The JSON-shaped value to render.                                                   |
+| `style`                                      | `Partial<StyleProps>`                    | `defaultStyles` | Classname-map that themes every slot.                                              |
+| `shouldExpandNode`                           | `(level, value, field?) => boolean`      | `allExpanded`   | Initial-expand strategy per node.                                                  |
+| `clickToExpandNode`                          | `boolean`                                | `false`         | When true, clicking the field label also toggles the node.                         |
+| `beforeExpandChange`                         | `(event: NodeExpandingEvent) => boolean` | —               | Return `false` to veto an expand/collapse transition.                              |
+| `childrenTransition`                         | `ChildrenTransition`                     | —               | Optional Svelte transition for child groups; updates are instant when omitted.     |
+| `compactTopLevel`                            | `boolean`                                | `false`         | Spread root-object entries instead of nesting them under a single root expander.   |
+| `row`, `expander`, `collapsed`, `childGroup` | Typed `Snippet`                          | —               | Replace structural rendering while retaining expansion and keyboard behavior.      |
+| `string`, `number`, ...                      | `Snippet<[{ value, field?, level }]>`    | —               | Optional per-type renderer overrides. See [Snippet overrides](#snippet-overrides). |
 
 Any additional HTML attributes (`aria-*`, `data-*`, `id`, `class`, etc.) are
 forwarded onto the root `<div role="tree">`.
@@ -123,35 +123,54 @@ Exiting children remain visible until the transition ends, but are hidden from
 assistive technology and skipped by keyboard navigation. Without this prop,
 expansion and collapse remain instant.
 
-For playback controlled by an external library, use `childrenAnimation`. The callback
-receives `(node, expanded)` and returns `{ finished, stop }`. Closing children stay mounted
-until `finished` resolves; a reversal or unmount calls `stop`. Return nothing for an
-immediate update. Closing groups leave keyboard navigation immediately and return any
-descendant focus to their parent. This hook takes precedence over `childrenTransition`.
+## Structural snippets
+
+Use `row`, `expander`, `collapsed`, and `childGroup` to customize the tree’s structure.
+The viewer owns expansion, veto callbacks, keyboard navigation, and focus. Your snippets own
+presentation, including declarative Svelte Motion components.
+
+| Snippet      | Receives                                                                        | Responsibility                                                                                                                              |
+| ------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `row`        | `id`, `field`, `value`, `level`, `isContainer`, `expanded`, `attrs`, `children` | Spread `attrs` on the row root; render `children()` once.                                                                                   |
+| `expander`   | `field`, `value`, `level`, `expanded`, `count`, `isArray`, `hovered`, `focused` | Render noninteractive content inside the viewer’s accessible button. Replaces the default glyph.                                            |
+| `collapsed`  | `field`, `value`, `level`, `expanded`, `count`, `isArray`                       | Render a persistent indicator before the closing bracket; animate it to zero width when expanded. The viewer handles clicks when collapsed. |
+| `childGroup` | Container state plus `attrs`, `children`                                        | Spread `attrs` on the group and render `children()` inside it. Own conditional rendering and any exit animation.                            |
 
 ```svelte
 <script lang="ts">
     import { JsonView } from '@humanspeak/svelte-json-view-lite'
-    import { animate, useReducedMotion } from '@humanspeak/svelte-motion'
+    import { AnimatePresence, MotionUl, useReducedMotion } from '@humanspeak/svelte-motion'
 
     const reducedMotion = useReducedMotion()
-    const animateChildren = (node: HTMLElement, expanded: boolean) => {
-        node.style.overflow = 'hidden'
-        const playback = animate(
-            node,
-            { height: expanded ? 'auto' : 0 },
-            { duration: reducedMotion.current ? 0 : 0.24 }
-        )
-        return { finished: playback, stop: () => playback.stop() }
-    }
 </script>
 
-<JsonView {data} childrenAnimation={animateChildren} />
+<JsonView {data}>
+    {#snippet childGroup({ expanded, attrs, children })}
+        <AnimatePresence present={expanded} initial={false}>
+            {#snippet child()}
+                <MotionUl
+                    {...attrs}
+                    initial={{ height: 0 }}
+                    animate={{ height: 'auto' }}
+                    exit={{ height: 0 }}
+                    transition={{ duration: reducedMotion.current ? 0 : 0.24 }}
+                    style={{ overflow: 'hidden' }}
+                >
+                    {@render children()}
+                </MotionUl>
+            {/snippet}
+        </AnimatePresence>
+    {/snippet}
+</JsonView>
 ```
 
+`childGroup` stays mounted as expansion changes, so it can retain real child nodes during exits.
+Its `attrs` preserve the group ID, ARIA role, hidden state, and `inert` state. Child values stay
+lazy until first expansion. A supplied `childGroup` owns animation instead of
+`childrenTransition`. Existing value and label snippets compose with all four structural snippets.
+
 See the [Tailwind + Svelte Motion example](https://jsonview.svelte.page/examples/tailwind-motion)
-for reversible height and spacing animation, animated carets, and hover feedback.
-Svelte Motion remains an optional application dependency.
+for all four together. Svelte Motion is an optional application dependency.
 
 ## Retheme via CSS variables
 

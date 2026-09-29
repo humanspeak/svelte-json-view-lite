@@ -1,6 +1,6 @@
 ---
 title: Snippet Overrides
-description: Replace the default renderer for any primitive, Date, bigint, function, or field label using Svelte 5 snippets.
+description: Customize values, labels, row wrappers, expanders, collapsed indicators, and child groups with typed Svelte 5 snippets.
 ---
 
 <script>
@@ -9,7 +9,7 @@ description: Replace the default renderer for any primitive, Date, bigint, funct
     const seo = getSeoContext()
     if (seo) {
         seo.title = 'Snippet Overrides | Svelte JSON View Lite'
-        seo.description = 'Replace the default renderer for any primitive, Date, bigint, function, or field label using Svelte 5 snippets.'
+        seo.description = 'Customize values, labels, row wrappers, expanders, collapsed indicators, and child groups with typed Svelte 5 snippets.'
         seo.ogTitle = 'Snippet Overrides'
         seo.ogTagline = 'Typed per-type renderers — the one Svelte-only extension.'
         seo.ogFeatures = ['Per-Type Snippets', 'Fully Typed', 'Label Renderer', 'Composable']
@@ -19,7 +19,7 @@ description: Replace the default renderer for any primitive, Date, bigint, funct
 
 # Snippet Overrides
 
-Snippet overrides are the one deliberate extension the Svelte port adds on top of [react-json-view-lite's API](/compare/vs-react-json-view-lite). Pass a `Snippet` as any of the nine type-keyed props and the viewer calls it instead of the built-in renderer for every matching value.
+Snippet overrides are the one deliberate extension the Svelte port adds on top of [react-json-view-lite's API](/compare/vs-react-json-view-lite). Pass a value or label snippet to replace its default renderer, or use structural snippets to compose your own row and child-group components.
 
 ```svelte
 <script lang="ts">
@@ -192,3 +192,52 @@ Snippets only replace the value cell. The surrounding container, punctuation, an
 - [JsonView props](/docs/api/json-view) — every snippet listed alongside the other props
 - [Types & snippets](/docs/api/types) — exported prop types for each snippet
 - [Themes & CSS variables](/docs/themes) — theming the parts snippets don't touch
+
+## Structural snippets
+
+Use `row`, `expander`, `collapsed`, and `childGroup` to customize the tree’s structure.
+The viewer owns expansion, veto callbacks, keyboard navigation, and focus. Your snippets own
+presentation, including declarative Svelte Motion components.
+
+| Snippet | Receives | Responsibility |
+| --- | --- | --- |
+| `row` | `id`, `field`, `value`, `level`, `isContainer`, `expanded`, `attrs`, `children` | Spread `attrs` on the row root; render `children()` once. |
+| `expander` | `field`, `value`, `level`, `expanded`, `count`, `isArray`, `hovered`, `focused` | Render noninteractive content inside the viewer’s accessible button. Replaces the default glyph. |
+| `collapsed` | `field`, `value`, `level`, `expanded`, `count`, `isArray` | Render a persistent indicator before the closing bracket; animate it to zero width when expanded. The viewer handles clicks when collapsed. |
+| `childGroup` | Container state plus `attrs`, `children` | Spread `attrs` on the group and render `children()` inside it. Own conditional rendering and any exit animation. |
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+    import { AnimatePresence, MotionUl, useReducedMotion } from '@humanspeak/svelte-motion'
+
+    const reducedMotion = useReducedMotion()
+</script>
+
+<JsonView {data}>
+    {#snippet childGroup({ expanded, attrs, children })}
+        <AnimatePresence present={expanded} initial={false}>
+            {#snippet child()}
+                <MotionUl
+                    {...attrs}
+                    initial={{ height: 0 }}
+                    animate={{ height: 'auto' }}
+                    exit={{ height: 0 }}
+                    transition={{ duration: reducedMotion.current ? 0 : 0.24 }}
+                    style={{ overflow: 'hidden' }}
+                >
+                    {@render children()}
+                </MotionUl>
+            {/snippet}
+        </AnimatePresence>
+    {/snippet}
+</JsonView>
+```
+
+`childGroup` stays mounted as expansion changes, so it can retain real child nodes during exits.
+Its `attrs` preserve the group ID, ARIA role, hidden state, and `inert` state. Child values stay
+lazy until first expansion. A supplied `childGroup` owns animation instead of
+`childrenTransition`. Existing value and label snippets compose with all four structural snippets.
+
+See the [Tailwind + Svelte Motion example](/examples/tailwind-motion)
+for all four together. Svelte Motion is an optional application dependency.

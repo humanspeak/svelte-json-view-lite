@@ -31,11 +31,11 @@
     user-select: none;
 }
 
-.expand-icon::after {
+.expand-icon:not([data-custom-expander])::after {
     content: '▸';
 }
 
-.collapse-icon::after {
+.collapse-icon:not([data-custom-expander])::after {
     content: '▾';
 }
 

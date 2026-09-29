@@ -15,6 +15,8 @@
     const { field, value, style, lastElement, level, snippets }: JsonRenderProps<Primitive> =
         $props()
 
+    const rowId = $props.id()
+
     const labelText = $derived(quoteString(field ?? '', style.quotesForFieldNames))
 
     // `text`/`valueStyle` are common to every kind; only the discriminant and
@@ -120,8 +122,7 @@
     off the merged primitive render model rather than re-running predicates.
 -->
 <!-- Upstream parity: unselected treeitems omit aria-selected entirely. -->
-<!-- svelte-ignore a11y_role_has_required_aria_props -->
-<div class={style.basicChildStyle} role="treeitem">
+{#snippet rowContent()}
     <!-- prettier-ignore -->
     {#if field !== undefined}{#if snippets.label}{@render snippets.label({ field: field ?? '', level })}{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}{#if primitive.snippet && primitive.kind === 'null'}{@render primitive.snippet(
             { value: null, field, level }
@@ -156,4 +157,21 @@
             level
         })}{:else}<span class={primitive.valueStyle}>{primitive.text}</span
         >{/if}{#if !lastElement}<span class={style.punctuation}>,</span>{/if}
-</div>
+{/snippet}
+
+{#if snippets.row}
+    {@render snippets.row({
+        id: rowId,
+        field,
+        value,
+        level,
+        isContainer: false,
+        attrs: { class: style.basicChildStyle, role: 'treeitem' },
+        children: rowContent
+    })}
+{:else}
+    <!-- svelte-ignore a11y_role_has_required_aria_props -->
+    <div class={style.basicChildStyle} role="treeitem">
+        {@render rowContent()}
+    </div>
+{/if}

@@ -80,12 +80,53 @@ export interface LabelSnippetProps {
     level: number
 }
 
+/** A row wrapper. Spread attrs on its root and render children exactly once. */
+export interface RowSnippetProps {
+    /** Stable node identity, suitable for animation keys or local selection. */
+    id: string
+    field?: string
+    value: unknown
+    level: number
+    isContainer: boolean
+    /** Present only for non-empty containers. */
+    expanded?: boolean
+    attrs: { class: string; role: 'treeitem'; 'aria-expanded'?: boolean }
+    children: Snippet
+}
+
+/** State shared by container decoration and child-group snippets. */
+export interface ContainerSnippetProps {
+    field?: string
+    value: object | unknown[]
+    level: number
+    expanded: boolean
+    count: number
+    isArray: boolean
+}
+
+/** Content inside the viewer-owned keyboard/ARIA expander button. */
+export interface ExpanderSnippetProps extends ContainerSnippetProps {
+    hovered: boolean
+    focused: boolean
+}
+
+/** A persistent child-group rendering boundary that can own exit animations. */
+export interface ChildGroupSnippetProps extends ContainerSnippetProps {
+    /** Spread on the group element to retain its id, role, class and inert state. */
+    attrs: { id: string; class: string; role: 'group'; 'aria-hidden'?: boolean; inert?: boolean }
+    /** Render inside the group. Child values remain lazy until first expansion. */
+    children: Snippet
+}
+
 /**
- * Bag of optional per-type snippets that replace default value rendering.
- * Each snippet receives the typed value, its field name (if any), and the
- * depth of the node.
+ * Optional structural and value renderers. Value snippets receive typed node
+ * data; structural snippets additionally expose rendering/state contracts.
  */
 export interface SnippetOverrides {
+    row?: Snippet<[RowSnippetProps]>
+    expander?: Snippet<[ExpanderSnippetProps]>
+    collapsed?: Snippet<[ContainerSnippetProps]>
+    childGroup?: Snippet<[ChildGroupSnippetProps]>
     string?: Snippet<[StringSnippetProps]>
     number?: Snippet<[NumberSnippetProps]>
     boolean?: Snippet<[BooleanSnippetProps]>
@@ -100,20 +141,12 @@ export interface SnippetOverrides {
 /** Optional local transition for each expandable node's child group. */
 export type ChildrenTransition = (_node: HTMLElement) => TransitionConfig
 
-/** Playback owned by an external animation library. */
-export interface ChildrenAnimationControls {
-    finished: PromiseLike<unknown>
-    stop: () => void
-}
-
-/** Animate a live child group; closing waits for finished before unmounting. */
-export type ChildrenAnimation = (
-    _node: HTMLElement,
-    _expanded: boolean
-) => ChildrenAnimationControls | void
-
 /** Public props accepted by `<JsonView>`. */
 export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'style'> {
+    row?: Snippet<[RowSnippetProps]>
+    expander?: Snippet<[ExpanderSnippetProps]>
+    collapsed?: Snippet<[ContainerSnippetProps]>
+    childGroup?: Snippet<[ChildGroupSnippetProps]>
     data: object | unknown[]
     style?: Partial<StyleProps>
     shouldExpandNode?: (_level: number, _value: unknown, _field?: string) => boolean
@@ -122,8 +155,6 @@ export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'st
     compactTopLevel?: boolean
     /** Animate child groups on expansion/collapse. Omitted means instant updates. */
     childrenTransition?: ChildrenTransition
-    /** External animation lifecycle; takes precedence over childrenTransition. */
-    childrenAnimation?: ChildrenAnimation
     string?: Snippet<[StringSnippetProps]>
     number?: Snippet<[NumberSnippetProps]>
     boolean?: Snippet<[BooleanSnippetProps]>
@@ -205,7 +236,6 @@ export interface OuterRef {
 /** Internal shared props threaded through every renderer. Not exported. */
 export interface CommonRenderProps {
     childrenTransition?: ChildrenTransition
-    childrenAnimation?: ChildrenAnimation
     lastElement: boolean
     level: number
     style: StyleProps

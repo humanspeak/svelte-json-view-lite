@@ -36,7 +36,12 @@ import type {
     BigIntSnippetProps,
     DateSnippetProps,
     FunctionSnippetProps,
-    LabelSnippetProps
+    LabelSnippetProps,
+    RowSnippetProps,
+    ContainerSnippetProps,
+    ExpanderSnippetProps,
+    ChildGroupSnippetProps,
+    ChildrenTransition
 } from '@humanspeak/svelte-json-view-lite'
 ```
 
@@ -52,6 +57,11 @@ export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'st
     clickToExpandNode?: boolean
     beforeExpandChange?: (event: NodeExpandingEvent) => boolean
     compactTopLevel?: boolean
+    childrenTransition?: ChildrenTransition
+    row?: Snippet<[RowSnippetProps]>
+    expander?: Snippet<[ExpanderSnippetProps]>
+    collapsed?: Snippet<[ContainerSnippetProps]>
+    childGroup?: Snippet<[ChildGroupSnippetProps]>
     string?: Snippet<[StringSnippetProps]>
     number?: Snippet<[NumberSnippetProps]>
     boolean?: Snippet<[BooleanSnippetProps]>
@@ -141,6 +151,10 @@ Bag of optional per-type snippets. Every key matches a same-named prop on `<Json
 
 ```ts
 export interface SnippetOverrides {
+    row?: Snippet<[RowSnippetProps]>
+    expander?: Snippet<[ExpanderSnippetProps]>
+    collapsed?: Snippet<[ContainerSnippetProps]>
+    childGroup?: Snippet<[ChildGroupSnippetProps]>
     string?: Snippet<[StringSnippetProps]>
     number?: Snippet<[NumberSnippetProps]>
     boolean?: Snippet<[BooleanSnippetProps]>
@@ -205,3 +219,18 @@ export interface NodeExpandingEvent {
 - [JsonView props](/docs/api/json-view) — narrative prop docs
 - [Snippet overrides](/docs/snippet-overrides) — worked examples for each snippet
 - [Themes & CSS variables](/docs/themes) — how `StyleProps` maps to real CSS
+
+## Structural snippet types
+
+`RowSnippetProps` describes every container, empty container, and primitive row. It includes a
+stable `id`, `field`, `value`, `level`, `isContainer`, optional `expanded`, row `attrs`, and the
+`children` snippet. `attrs` contains the row’s class, `role="treeitem"`, and expansion state.
+
+`ContainerSnippetProps` contains `field`, `value`, `level`, `expanded`, `count`, and `isArray`.
+The `collapsed` snippet receives this shape. `ExpanderSnippetProps` adds `hovered` and `focused`
+for rendering content inside the viewer-owned expander button.
+
+`ChildGroupSnippetProps` adds `attrs` and `children` to the container state. Group `attrs`
+contains `id`, `class`, `role="group"`, `aria-hidden`, and `inert`. Spread these on the actual
+group element; render `children()` within it. See [structural snippets](/docs/snippet-overrides#structural-snippets)
+for the ownership contract and a declarative Svelte Motion example.

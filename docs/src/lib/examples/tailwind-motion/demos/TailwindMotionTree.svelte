@@ -1,10 +1,11 @@
 <script lang="ts">
     import { JsonView, type Props, type StyleProps } from '@humanspeak/svelte-json-view-lite'
     import {
-        animate,
+        AnimatePresence,
         MotionButton,
         MotionDiv,
         MotionSpan,
+        MotionUl,
         useReducedMotion
     } from '@humanspeak/svelte-motion'
 
@@ -14,6 +15,7 @@
     const motionEnabled = $derived(animateDemo && !reducedMotion.current)
     let palette = $state('dusk')
     let compact = $state(false)
+    let hoveredRow = $state<string | null>(null)
     let shouldExpandNode = $state<NonNullable<Props['shouldExpandNode']>>((level) => level < 3)
 
     const payload = {
@@ -61,206 +63,6 @@
         collapseIcon: 'tw-toggle tw-open',
         collapsedContent: 'tw-summary cursor-pointer text-[var(--tree-muted)]',
         childFieldsContainer: 'tw-children order-last basis-full list-none'
-    }
-
-    // Playback registries are imperative cleanup bookkeeping, not rendered state.
-    // trunk-ignore(eslint/svelte/prefer-svelte-reactivity)
-    const groupAnimations = new Map<HTMLElement, ReturnType<typeof animate>>()
-
-    // Motion owns playback and completion. The viewer keeps a closing group
-    // mounted until finished resolves, and calls stop before a rapid reversal.
-    function animateChildren(node: HTMLElement, expanded: boolean) {
-        const style = getComputedStyle(node)
-        const margin = compact ? 5 : 9
-        const startHeight = node.style.height ? node.getBoundingClientRect().height : 0
-        const startMargin = node.style.height ? parseFloat(style.marginTop) : 0
-        node.style.overflow = 'hidden'
-        const playback = animate(
-            node,
-            {
-                height: [startHeight, expanded ? 'auto' : 0],
-                marginTop: [startMargin, expanded ? margin : 0]
-            },
-            { duration: motionEnabled ? 0.24 : 0, ease: [0.22, 1, 0.36, 1] }
-        )
-        groupAnimations.set(node, playback)
-        let stopped = false
-        const finished = playback.then(() => {
-            if (stopped) return
-            groupAnimations.delete(node)
-            if (expanded) {
-                node.style.height = 'auto'
-                node.style.marginTop = ''
-                node.style.overflow = ''
-            }
-        })
-        return {
-            finished,
-            stop() {
-                stopped = true
-                // Capture the displayed geometry before stopping so reversal
-                // begins at the current frame, including a fully open group.
-                const height = node.getBoundingClientRect().height
-                const marginTop = getComputedStyle(node).marginTop
-                playback.stop()
-                node.style.height = `${height}px`
-                node.style.marginTop = marginTop
-                groupAnimations.delete(node)
-            }
-        }
-    }
-
-    // JsonView owns its rows. This action supplies decorative elements and
-    // animates them with Motion without replacing its buttons or focus model.
-    function animateTree(root: HTMLElement, enabled: boolean) {
-        // trunk-ignore(eslint/svelte/prefer-svelte-reactivity)
-        const decorations = new Map<HTMLElement, { caret: HTMLElement; dots: HTMLElement }>()
-        // trunk-ignore(eslint/svelte/prefer-svelte-reactivity)
-        const animations = new Map<HTMLElement, ReturnType<typeof animate>>()
-        // trunk-ignore(eslint/svelte/prefer-svelte-reactivity)
-        const targets = new Map<HTMLElement, string>()
-        let hoveredRow: HTMLElement | null = null
-        let hoveredCaret: HTMLElement | null = null
-
-        function move(
-            node: HTMLElement,
-            values: {
-                rotate?: number
-                width?: string
-                marginRight?: string
-                opacity?: number
-                x?: number
-            },
-            instant = false
-        ) {
-            const key = JSON.stringify(values)
-            if (!instant && targets.get(node) === key) return
-            targets.set(node, key)
-            animations.get(node)?.stop()
-            animations.set(
-                node,
-                animate(node, values, {
-                    duration: enabled && !instant ? 0.18 : 0,
-                    ease: [0.22, 1, 0.36, 1]
-                })
-            )
-        }
-
-        function refresh(instant = false) {
-            for (const [node, playback] of animations) {
-                if (!root.contains(node)) {
-                    playback.stop()
-                    animations.delete(node)
-                    targets.delete(node)
-                }
-            }
-            for (const row of decorations.keys()) {
-                if (!root.contains(row)) decorations.delete(row)
-            }
-            for (const row of root.querySelectorAll<HTMLElement>('.tw-row[aria-expanded]')) {
-                const button = row.querySelector<HTMLElement>(':scope > .tw-toggle')!
-                const closing = row.querySelector<HTMLElement>(
-                    ':scope > .tw-punctuation:last-child'
-                )!
-                let parts = decorations.get(row)
-                const fresh = !parts
-                if (!parts) {
-                    const caret = document.createElement('span')
-                    caret.className = 'tw-caret'
-                    caret.setAttribute('aria-hidden', 'true')
-                    button.appendChild(caret)
-                    const dots = document.createElement('span')
-                    dots.className = 'tw-dots'
-                    dots.textContent = '…'
-                    dots.setAttribute('aria-hidden', 'true')
-                    closing.insertBefore(dots, closing.firstChild)
-                    parts = { caret, dots }
-                    decorations.set(row, parts)
-                }
-                const expanded = row.getAttribute('aria-expanded') === 'true'
-                const leaning =
-                    enabled && (hoveredCaret === button || document.activeElement === button)
-                move(
-                    parts.caret,
-                    { rotate: expanded ? (leaning ? 20 : 45) : leaning ? -20 : -45 },
-                    instant || fresh
-                )
-                move(
-                    parts.dots,
-                    {
-                        width: expanded ? '0em' : '1em',
-                        marginRight: expanded ? '0em' : '0.4em',
-                        opacity: expanded ? 0 : 1,
-                        x: expanded ? -2 : 0
-                    },
-                    instant || fresh
-                )
-            }
-        }
-
-        function pointAt(target: EventTarget | null) {
-            const element = target instanceof Element ? target : null
-            const row = element?.closest<HTMLElement>('.tw-row') ?? null
-            const nextRow = row && root.contains(row) ? row : null
-            if (hoveredRow !== nextRow) {
-                if (hoveredRow) move(hoveredRow, { x: 0 })
-                hoveredRow = nextRow
-                if (hoveredRow) move(hoveredRow, { x: enabled ? 2 : 0 })
-            }
-            hoveredCaret = element?.closest<HTMLElement>('.tw-toggle') ?? null
-            refresh()
-        }
-        const over = (event: PointerEvent) => {
-            if (event.pointerType !== 'touch') pointAt(event.target)
-        }
-        const out = (event: PointerEvent) => pointAt(event.relatedTarget)
-        const focus = () => refresh()
-        const observer = new MutationObserver(() => refresh())
-        observer.observe(root, {
-            subtree: true,
-            childList: true,
-            attributes: true,
-            attributeFilter: ['aria-expanded']
-        })
-        root.addEventListener('pointerover', over)
-        root.addEventListener('pointerout', out)
-        root.addEventListener('focusin', focus)
-        root.addEventListener('focusout', focus)
-        refresh(true)
-        return {
-            update(next: boolean) {
-                enabled = next
-                if (!enabled) {
-                    for (const playback of groupAnimations.values()) playback.complete()
-                    for (const playback of animations.values()) playback.complete()
-                    if (hoveredRow) move(hoveredRow, { x: 0 }, true)
-                }
-                refresh(true)
-            },
-            destroy() {
-                observer.disconnect()
-                root.removeEventListener('pointerover', over)
-                root.removeEventListener('pointerout', out)
-                root.removeEventListener('focusin', focus)
-                root.removeEventListener('focusout', focus)
-                for (const playback of animations.values()) playback.stop()
-                for (const { caret, dots } of decorations.values()) {
-                    caret.remove()
-                    dots.remove()
-                }
-            }
-        }
-    }
-
-    // The persistent closing bracket hosts the fading ellipsis. Forward its
-    // click to the viewer's expander so focus and veto behavior stay intact.
-    function expandFromSummary(event: MouseEvent) {
-        const target = event.target
-        if (!(target instanceof HTMLElement)) return
-        const closing = target.closest(
-            '.tw-row[aria-expanded="false"] > .tw-punctuation:last-child'
-        )
-        closing?.parentElement?.querySelector<HTMLElement>(':scope > .tw-toggle')?.click()
     }
 
     // A fresh strategy also reapplies an action after manual node toggles.
@@ -392,17 +194,84 @@
             </div>
         </div>
 
-        <div class="px-3 pb-4 sm:px-4" use:animateTree={motionEnabled}>
+        <div class="px-3 pb-4 sm:px-4">
             <JsonView
                 data={payload}
                 style={treeStyle}
                 {shouldExpandNode}
-                childrenAnimation={animateChildren}
                 compactTopLevel
                 clickToExpandNode
-                onclick={expandFromSummary}
                 aria-label="Styled workspace JSON"
-            />
+            >
+                {#snippet row({ id, attrs, children })}
+                    <MotionDiv
+                        {...attrs}
+                        initial={false}
+                        animate={{ x: motionEnabled && hoveredRow === id ? 2 : 0 }}
+                        transition={{ duration: motionEnabled ? 0.15 : 0 }}
+                        onpointerover={(event: PointerEvent) => {
+                            event.stopPropagation()
+                            if (event.pointerType !== 'touch') hoveredRow = id
+                        }}
+                        onpointerout={(event: PointerEvent) => {
+                            event.stopPropagation()
+                            if (hoveredRow === id) hoveredRow = null
+                        }}
+                    >
+                        {@render children()}
+                    </MotionDiv>
+                {/snippet}
+                {#snippet expander({ expanded, hovered, focused })}
+                    <MotionSpan
+                        class="tw-caret"
+                        initial={false}
+                        animate={{
+                            rotate: expanded
+                                ? motionEnabled && (hovered || focused)
+                                    ? 20
+                                    : 45
+                                : motionEnabled && (hovered || focused)
+                                  ? -20
+                                  : -45
+                        }}
+                        transition={{ duration: motionEnabled ? 0.18 : 0 }}
+                        aria-hidden="true"
+                    />
+                {/snippet}
+                {#snippet collapsed({ expanded })}
+                    <MotionSpan
+                        class="tw-dots"
+                        initial={false}
+                        animate={{
+                            width: expanded ? '0em' : '1em',
+                            marginRight: expanded ? '0em' : '0.4em',
+                            opacity: expanded ? 0 : 1,
+                            x: expanded ? -2 : 0
+                        }}
+                        transition={{ duration: motionEnabled ? 0.18 : 0 }}
+                        aria-hidden="true">…</MotionSpan
+                    >
+                {/snippet}
+                {#snippet childGroup({ expanded, attrs, children })}
+                    <AnimatePresence present={expanded} initial={false}>
+                        {#snippet child()}
+                            <MotionUl
+                                {...attrs}
+                                initial={{ height: 0, marginTop: 0 }}
+                                animate={{ height: 'auto', marginTop: compact ? 5 : 9 }}
+                                exit={{ height: 0, marginTop: 0 }}
+                                transition={{
+                                    duration: motionEnabled ? 0.24 : 0,
+                                    ease: [0.22, 1, 0.36, 1]
+                                }}
+                                style={{ overflow: 'hidden' }}
+                            >
+                                {@render children()}
+                            </MotionUl>
+                        {/snippet}
+                    </AnimatePresence>
+                {/snippet}
+            </JsonView>
         </div>
 
         <div
@@ -549,7 +418,9 @@
     }
 
     .tailwind-demo :global(.tw-row[aria-expanded]::before),
-    .tailwind-demo :global(.tw-row[aria-expanded] > :not(.tw-children)),
+    .tailwind-demo :global(.tw-row[aria-expanded] > .tw-toggle),
+    .tailwind-demo :global(.tw-row[aria-expanded] > .tw-label),
+    .tailwind-demo :global(.tw-row[aria-expanded] > .tw-punctuation),
     .tailwind-demo :global(.tw-row:not([aria-expanded])) {
         pointer-events: auto;
     }
@@ -604,10 +475,6 @@
     .tailwind-demo :global(.tw-toggle:focus-visible) {
         outline: 2px solid var(--tree-number);
         outline-offset: 2px;
-    }
-
-    .tailwind-demo :global(.tw-summary) {
-        display: none;
     }
 
     .tailwind-demo :global(.tw-dots) {

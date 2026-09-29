@@ -14,7 +14,6 @@
         clickToExpandNode = false,
         beforeExpandChange,
         childrenTransition,
-        childrenAnimation,
         compactTopLevel = false,
         string,
         number,
@@ -25,6 +24,10 @@
         date,
         function: functionSnippet,
         label,
+        row,
+        expander,
+        collapsed,
+        childGroup,
         'aria-label': ariaLabel = 'JSON view',
         ...rest
     }: Props = $props()
@@ -84,7 +87,11 @@
         bigint,
         date,
         function: functionSnippet,
-        label
+        label,
+        row,
+        expander,
+        collapsed,
+        childGroup
     })
 </script>
 
@@ -107,7 +114,6 @@
                 {clickToExpandNode}
                 {beforeExpandChange}
                 {childrenTransition}
-                {childrenAnimation}
                 {outerRef}
                 {snippets}
             />
@@ -122,7 +128,6 @@
             {clickToExpandNode}
             {beforeExpandChange}
             {childrenTransition}
-            {childrenAnimation}
             {outerRef}
             {snippets}
         />
