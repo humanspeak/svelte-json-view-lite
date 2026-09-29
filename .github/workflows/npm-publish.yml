@@ -285,11 +285,12 @@ jobs:
 
             - name: Install
               run: |
-                  pnpm install --filter . --prefer-offline --frozen-lockfile --ignore-scripts --config.engine-strict=false
+                  pnpm install --prefer-offline --frozen-lockfile --config.engine-strict=false
 
             - name: Test
               run: |
                   pnpm build
+                  pnpm --filter docs exec svelte-kit sync
                   pnpm test
 
             - name: Upload Vitest Results
