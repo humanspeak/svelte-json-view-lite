@@ -156,7 +156,7 @@
             field,
             level
         })}{:else}<span class={primitive.valueStyle}>{primitive.text}</span
-        >{/if}{#if !lastElement}<span class={style.punctuation}>,</span>{/if}
+        >{/if}{#if !lastElement && !style.hideCommas}<span class={style.punctuation}>,</span>{/if}
 {/snippet}
 
 {#if snippets.row}

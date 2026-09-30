@@ -5,6 +5,82 @@ import StructuralSnippets from './test/StructuralSnippets.svelte'
 beforeEach(() => vi.useRealTimers())
 
 describe('structural rendering snippets', () => {
+    it.each([false, true])(
+        'keeps custom summaries passive and chevrons active (compact=%s)',
+        async (compact) => {
+            const veto = vi.fn(() => true)
+            const { container, rerender } = render(StructuralSnippets, {
+                data: { branch: { leaf: 1 }, list: [1] },
+                compactTopLevel: compact,
+                shouldExpandNode: () => false,
+                clickToExpandSummary: false,
+                beforeExpandChange: veto,
+                style: { punctuation: 'punctuation' }
+            })
+            const summary = container.querySelector('[data-summary]')!
+            const punctuation = summary.closest('.punctuation')!
+            const button = screen.getAllByRole('button')[0]
+            await fireEvent.click(summary)
+            await fireEvent.click(punctuation)
+            await fireEvent.keyDown(punctuation, { key: 'ArrowRight' })
+            expect(button).toHaveAttribute('aria-expanded', 'false')
+            expect(veto).not.toHaveBeenCalled()
+            await fireEvent.click(button)
+            expect(button).toHaveAttribute('aria-expanded', 'true')
+            await fireEvent.keyDown(button, { key: 'ArrowLeft' })
+            expect(button).toHaveAttribute('aria-expanded', 'false')
+            await rerender({ clickToExpandSummary: true })
+            await fireEvent.click(summary)
+            expect(button).toHaveAttribute('aria-expanded', 'true')
+        }
+    )
+
+    it.each([[{ leaf: 1 }], [[1]]])(
+        'contains snippet whitespace without adding any beside the closing bracket (%j)',
+        (data) => {
+            const { container } = render(StructuralSnippets, {
+                data,
+                compactTopLevel: false,
+                shouldExpandNode: () => false,
+                style: { punctuation: 'punctuation' },
+                summaryWhitespace: true
+            })
+            const [opening, closing] = container.querySelectorAll('.punctuation')
+            expect(opening.nextElementSibling).toBe(closing)
+            const wrapper = container.querySelector('[data-summary]')!.parentElement!
+            expect(closing.firstElementChild).toBe(wrapper)
+            expect(wrapper).toHaveStyle({ display: 'inline-flex', alignItems: 'center' })
+            expect(wrapper.textContent).toBe(' … ')
+            const nativeText = [...closing.childNodes]
+                .filter((node) => node.nodeType === Node.TEXT_NODE)
+                .map((node) => node.textContent)
+                .join('')
+            expect(nativeText).toBe(Array.isArray(data) ? ']' : '}')
+        }
+    )
+
+    it('hides separators with structural/value snippets and a retained collapsed group', async () => {
+        const { container } = render(StructuralSnippets, {
+            data: { branch: { name: 'Alpha, Beta', empty: {}, list: [1, 2] }, last: false },
+            style: { punctuation: 'test-punctuation', hideCommas: true },
+            compactTopLevel: false,
+            holdClosed: true
+        })
+        const punctuation = () =>
+            [...container.querySelectorAll('.test-punctuation')].map(
+                (element) => element.textContent
+            )
+        expect(punctuation().some((text) => text?.includes(','))).toBe(false)
+        expect(punctuation()).toContain('{}')
+        expect(screen.getByText('Alpha, Beta').tagName).toBe('STRONG')
+        await fireEvent.click(screen.getAllByRole('button')[0])
+        expect(container.querySelector('[data-custom-group]')).toHaveAttribute(
+            'aria-hidden',
+            'true'
+        )
+        expect(punctuation().some((text) => text?.includes(','))).toBe(false)
+    })
+
     it('customizes container, empty, and primitive rows while composing label/value snippets', () => {
         const { container } = render(StructuralSnippets, {
             data: { branch: { name: 'Ada' }, empty: {}, list: [] }
@@ -61,6 +137,29 @@ describe('structural rendering snippets', () => {
         expect(button).toHaveAttribute('aria-expanded', 'true')
         expect(button).toHaveFocus()
         expect(summary).toHaveTextContent('')
+    })
+
+    it('exposes keyboard-visible focus independently from mouse focus', async () => {
+        const { container } = render(StructuralSnippets, { data: { branch: { leaf: 1 } } })
+        const button = screen.getByRole('button')
+        const icon = container.querySelector('[data-expander]')!
+        const matches = vi.spyOn(button, 'matches').mockReturnValue(false)
+        await fireEvent.pointerDown(button)
+        await fireEvent.focus(button)
+        expect(icon).toHaveAttribute('data-focused', 'true')
+        expect(icon).toHaveAttribute('data-focus-visible', 'false')
+        await fireEvent.keyDown(button, { key: 'ArrowLeft' })
+        expect(icon).toHaveAttribute('data-focus-visible', 'true')
+        await fireEvent.pointerDown(button)
+        expect(icon).toHaveAttribute('data-focused', 'true')
+        expect(icon).toHaveAttribute('data-focus-visible', 'false')
+        await fireEvent.blur(button)
+        expect(icon).toHaveAttribute('data-focused', 'false')
+        expect(icon).toHaveAttribute('data-focus-visible', 'false')
+        matches.mockReturnValue(true)
+        await fireEvent.focus(button)
+        expect(icon).toHaveAttribute('data-focus-visible', 'true')
+        matches.mockRestore()
     })
 
     it('keeps retained exits inert, restores focus, and reverses without duplicate groups', async () => {

@@ -12,6 +12,7 @@
         style = {},
         shouldExpandNode = allExpanded,
         clickToExpandNode = false,
+        clickToExpandSummary = true,
         beforeExpandChange,
         childrenTransition,
         compactTopLevel = false,
@@ -112,6 +113,7 @@
                 level={1}
                 {shouldExpandNode}
                 {clickToExpandNode}
+                {clickToExpandSummary}
                 {beforeExpandChange}
                 {childrenTransition}
                 {outerRef}
@@ -126,6 +128,7 @@
             level={0}
             {shouldExpandNode}
             {clickToExpandNode}
+            {clickToExpandSummary}
             {beforeExpandChange}
             {childrenTransition}
             {outerRef}

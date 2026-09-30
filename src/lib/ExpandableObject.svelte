@@ -15,6 +15,7 @@
         style,
         shouldExpandNode,
         clickToExpandNode,
+        clickToExpandSummary,
         outerRef,
         beforeExpandChange,
         childrenTransition,
@@ -52,6 +53,7 @@
     let expanderButton = $state<HTMLSpanElement | null>(null)
     let expanderHovered = $state(false)
     let expanderFocused = $state(false)
+    let expanderFocusVisible = $state(false)
 
     function containerSnippetProps() {
         return { field, value, level, expanded, count, isArray }
@@ -145,7 +147,20 @@
         applyExpanded(newExpandValue)
     }
 
+    function onExpanderFocus() {
+        expanderFocused = true
+        expanderFocusVisible = expanderButton?.matches(':focus-visible') ?? false
+    }
+
+    function onExpanderBlur() {
+        expanderFocused = false
+        expanderFocusVisible = false
+    }
+
     function onKeyDown(e: KeyboardEvent) {
+        if (snippets.expander && e.currentTarget === expanderButton) {
+            expanderFocusVisible = true
+        }
         if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
             e.preventDefault()
             setExpandWithCallback(e.key === 'ArrowRight')
@@ -174,6 +189,7 @@
             level={level + 1}
             {shouldExpandNode}
             {clickToExpandNode}
+            {clickToExpandSummary}
             {beforeExpandChange}
             {childrenTransition}
             {outerRef}
@@ -185,7 +201,8 @@
     {#if count === 0}
         <!-- prettier-ignore -->
         {#if field !== undefined}{#if snippets.label}{@render snippets.label({ field, level })}{:else}<span class={style.label}>{labelText}:</span>{/if}{/if}<span
-            class={style.punctuation}>{openBracket}{closeBracket}{lastElement ? '' : ','}</span
+            class={style.punctuation}
+            >{openBracket}{closeBracket}{lastElement || style.hideCommas ? '' : ','}</span
         >
     {:else}
         <!--
@@ -199,7 +216,7 @@
             it tight anyway for a consistent rule.
         -->
         <!-- prettier-ignore -->
-        <span bind:this={expanderButton} class={expanderIconStyle} data-custom-expander={snippets.expander ? '' : undefined} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown} onpointerenter={snippets.expander ? () => (expanderHovered = true) : undefined} onpointerleave={snippets.expander ? () => (expanderHovered = false) : undefined} onfocus={snippets.expander ? () => (expanderFocused = true) : undefined} onblur={snippets.expander ? () => (expanderFocused = false) : undefined}>{#if snippets.expander}{@render snippets.expander({ ...containerSnippetProps(), hovered: expanderHovered, focused: expanderFocused })}{/if}</span>{#if field !== undefined}{#if snippets.label}{@render snippets.label(
+        <span bind:this={expanderButton} class={expanderIconStyle} data-custom-expander={snippets.expander ? '' : undefined} role="button" aria-label={ariaLabel} aria-expanded={expanded} aria-controls={expanded ? contentsId : undefined} tabindex={level === 0 ? 0 : -1} onclick={onClick} onkeydown={onKeyDown} onpointerenter={snippets.expander ? () => (expanderHovered = true) : undefined} onpointerleave={snippets.expander ? () => (expanderHovered = false) : undefined} onpointerdown={snippets.expander ? () => (expanderFocusVisible = false) : undefined} onfocus={snippets.expander ? onExpanderFocus : undefined} onblur={snippets.expander ? onExpanderBlur : undefined}>{#if snippets.expander}{@render snippets.expander({ ...containerSnippetProps(), hovered: expanderHovered, focused: expanderFocused, focusVisible: expanderFocusVisible })}{/if}</span>{#if field !== undefined}{#if snippets.label}{@render snippets.label(
                     { field: field ?? '', level }
                 )}{:else if clickToExpandNode}<!-- svelte-ignore a11y_no_static_element_interactions --><span
                     class={style.clickableLabel}
@@ -228,15 +245,17 @@
                 {@render childRows()}
             </ul>{/if}{#if !expanded && !snippets.collapsed}<!-- svelte-ignore a11y_no_static_element_interactions --><span
                 class={style.collapsedContent}
-                onclick={onClick}
-                onkeydown={onKeyDown}
+                onclick={clickToExpandSummary ? onClick : undefined}
+                onkeydown={clickToExpandSummary ? onKeyDown : undefined}
             ></span>{/if}<!-- svelte-ignore a11y_no_static_element_interactions --><span
             class={style.punctuation}
-            onclick={snippets.collapsed && !expanded ? onClick : undefined}
-            onkeydown={snippets.collapsed && !expanded ? onKeyDown : undefined}
-            >{#if snippets.collapsed}{@render snippets.collapsed(
-                    containerSnippetProps()
-                )}{/if}{closeBracket}{lastElement ? '' : ','}</span
+            onclick={clickToExpandSummary && snippets.collapsed && !expanded ? onClick : undefined}
+            onkeydown={clickToExpandSummary && snippets.collapsed && !expanded
+                ? onKeyDown
+                : undefined}
+            >{#if snippets.collapsed}<span style="display: inline-flex; align-items: center"
+                    >{@render snippets.collapsed(containerSnippetProps())}</span
+                >{/if}{closeBracket}{lastElement || style.hideCommas ? '' : ','}</span
         >
     {/if}
 {/snippet}

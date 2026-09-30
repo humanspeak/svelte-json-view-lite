@@ -14,7 +14,7 @@
         seo.title = 'Tailwind + Svelte Motion | Examples | Svelte JSON View Lite'
         seo.h1 = { title: 'Tailwind + Svelte Motion' }
         seo.description =
-            'Style a Svelte JSON viewer with Tailwind utilities and Svelte Motion: rounded rows, colorful values, animated palettes, and keyboard navigation.'
+            'Style a Svelte JSON viewer with Tailwind utilities and Svelte Motion: rounded rows, hover borders, click-to-copy feedback, animated palettes, and keyboard navigation.'
         seo.ogTitle = 'Tailwind + Svelte Motion'
         seo.ogTagline = 'Your data. Dressed up.'
         seo.ogFeatures = ['Rounded Rows', 'Three Palettes', 'Tailwind CSS', 'Keyboard Navigation']
@@ -27,7 +27,7 @@
             tag: 'MOTION',
             title: { accent: 'tailwind + motion', end: '.' },
             description:
-                'A little polish goes a long way. Rounded rows, vivid values, and a palette that makes structured data feel at home in your app.',
+                'A little polish goes a long way. Rounded rows, vivid values, hover borders, and click-to-copy feedback that makes structured data feel at home in your app.',
             snippet: demo,
             codeSnippet: code,
             notes: exampleNotes,
@@ -51,13 +51,14 @@
         <a href="https://teemukoivisto.github.io/svelte-tree-view/tailwind"
             >svelte-tree-view’s Tailwind example</a
         >. This version uses <code>JsonView</code> with its public <code>style</code> map, Tailwind utilities,
-        and scoped CSS for the nested rows.
+        and scoped CSS for the nested rows. Expanded objects and arrays have a filled boundary around
+        their children to keep each group together visually.
     </p>
     <p>
         Copy the demo into a Svelte 5 project with Tailwind CSS configured and
-        <code>@humanspeak/svelte-motion</code> installed. Keep the utility class names as complete strings
-        so Tailwind can detect them. The palette is local to this viewer and does not change your site
-        theme.
+        <code>@humanspeak/svelte-motion</code> and <code>@lucide/svelte</code> installed. Keep the utility
+        class names as complete strings so Tailwind can detect them. The palette is local to this viewer
+        and does not change your site theme.
     </p>
     <p>
         <a href="https://motion.svelte.page/">Svelte Motion</a> adds a spring-driven palette
@@ -69,13 +70,23 @@
         preview. Your system’s reduced-motion preference disables animations automatically.
     </p>
     <p>
-        Child rows slide vertically without scaling. Hover or focus a caret to see it lean toward
-        its next state. The ellipsis fades with expansion, and hovering a row nudges it and its
-        subtree two pixels to the right. Rapid toggles reverse the slide smoothly. For styling
-        alone, see the <a href="/examples/tailwind">Tailwind-only example</a>. Click a field name or
-        chevron to toggle a container. Tab to a chevron and use the arrow keys to navigate. Palette
-        and spacing changes preserve your expanded nodes. Long values wrap; arrays and objects
-        retain their brackets. The source below is the running example.
+        Child rows slide vertically without scaling. Hover a caret or focus it with the keyboard to
+        see it lean toward its next state. The ellipsis fades with expansion, and hovering a row
+        nudges it and its subtree two pixels to the right. Rapid toggles reverse the slide smoothly.
+        For styling alone, see the <a href="/examples/tailwind">Tailwind-only example</a>. Hover a
+        row to highlight its border, then click its label or value to copy. Strings copy as plain
+        text; containers copy complete, formatted JSON, even when collapsed. A successful copy
+        flashes a green border and a spring-animated checkmark for two seconds. If copying fails, a
+        red border and cross invite a retry. Selecting text leaves your clipboard alone. Tab to a
+        row and press Enter or Space to copy, or use its chevron to expand and the arrow keys to
+        navigate. Palette and spacing changes preserve your expanded nodes. Long values wrap; arrays
+        and objects retain their brackets. <code>clickToExpandSummary=&#123;false&#125;</code> lets
+        row clicks copy using a normal bubbling handler while chevrons expand.
+        <code>style.hideCommas</code>
+        removes separators from the bordered rows. The viewer contains collapsed-snippet whitespace, and
+        inline-flex punctuation keeps the animated ellipsis and brackets together. The caret uses
+        <code>focusVisible</code> for keyboard-only tilt, so mouse focus does not leave it tilted. The
+        source below is the running example.
     </p>
 {/snippet}
 

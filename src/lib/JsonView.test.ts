@@ -413,3 +413,217 @@ describe('JsonView — ariaLables typo fallback', () => {
         warn.mockRestore()
     })
 })
+
+describe('JsonView — hideCommas', () => {
+    const punctuation = (container: HTMLElement) =>
+        [...container.querySelectorAll('.test-punctuation')].map((element) => element.textContent)
+
+    it('defaults to false in both built-in themes', () => {
+        expect(defaultStyles.hideCommas).toBe(false)
+        expect(darkStyles.hideCommas).toBe(false)
+    })
+
+    it.each([
+        [undefined, false],
+        [undefined, true],
+        [false, false],
+        [false, true]
+    ])('preserves separators when hideCommas is %s (expanded: %s)', (hideCommas, expanded) => {
+        const { container } = render(JsonView, {
+            data: {
+                number: 1,
+                object: { child: 2 },
+                array: [3, 4],
+                emptyObject: {},
+                emptyArray: [],
+                last: false
+            },
+            style: {
+                punctuation: 'test-punctuation',
+                ...(hideCommas === undefined ? {} : { hideCommas })
+            },
+            shouldExpandNode: (level) => level === 0 || expanded
+        })
+        const tokens = punctuation(container)
+        expect(tokens).toContain(',')
+        expect(tokens).toContain('},')
+        expect(tokens).toContain('],')
+        expect(tokens).toContain('{},')
+        expect(tokens).toContain('[],')
+        const last = screen.getByText('last:').closest('[role="treeitem"]')!
+        expect(last.querySelector('.test-punctuation')).toBeNull()
+    })
+
+    it('omits separators for every primitive type while preserving commas in values and labels', () => {
+        const data = Object.freeze({
+            'a,b': 'Alpha, Beta',
+            number: 1,
+            boolean: false,
+            nothing: null,
+            missing: undefined,
+            bigint: 12n,
+            date: new Date('2025-06-15T00:00:00Z'),
+            function: () => 'hello, world',
+            last: 2
+        })
+        const { container } = render(JsonView, {
+            data,
+            style: { punctuation: 'test-punctuation', hideCommas: true }
+        })
+        expect(punctuation(container)).toEqual(['{', '}'])
+        for (const text of [
+            'a,b:',
+            '"Alpha, Beta"',
+            '1',
+            'false',
+            'null',
+            'undefined',
+            '12n',
+            '2025-06-15T00:00:00.000Z',
+            'function() { }',
+            '2'
+        ]) {
+            expect(screen.getByText(text)).toBeInTheDocument()
+        }
+        expect(data['a,b']).toBe('Alpha, Beta')
+        expect(data.function()).toBe('hello, world')
+    })
+
+    it.each([false, true])('preserves container brackets and data (expanded: %s)', (expanded) => {
+        const data = Object.freeze({
+            object: Object.freeze({ text: 'One, two', child: 3 }),
+            array: Object.freeze(['Three, four', 5]),
+            emptyObject: Object.freeze({}),
+            emptyArray: Object.freeze([]),
+            last: 6
+        })
+        const original = JSON.stringify(data)
+        const { container } = render(JsonView, {
+            data,
+            style: { punctuation: 'test-punctuation', hideCommas: true },
+            shouldExpandNode: (level) => level === 0 || expanded
+        })
+        expect(punctuation(container).some((text) => text?.includes(','))).toBe(false)
+        const rowTokens = (field: string) =>
+            [
+                ...screen
+                    .getByText(`${field}:`)
+                    .closest('[role="treeitem"]')!
+                    .querySelectorAll(':scope > .test-punctuation')
+            ].map((element) => element.textContent)
+        expect(rowTokens('object')).toEqual(['{', '}'])
+        expect(rowTokens('array')).toEqual(['[', ']'])
+        expect(rowTokens('emptyObject')).toEqual(['{}'])
+        expect(rowTokens('emptyArray')).toEqual(['[]'])
+        expect(screen.queryByText('"One, two"') !== null).toBe(expanded)
+        expect(screen.queryByText('"Three, four"') !== null).toBe(expanded)
+        expect(JSON.stringify(data)).toBe(original)
+    })
+
+    it('omits separators throughout a root array and nested arrays and objects', () => {
+        const data = ['Alpha, Beta', { nested: [1, 2] }, [], {}, 3]
+        const { container } = render(JsonView, {
+            data,
+            style: { punctuation: 'test-punctuation', hideCommas: true }
+        })
+        const tokens = punctuation(container)
+        expect(tokens.some((text) => text?.includes(','))).toBe(false)
+        expect(tokens.filter((text) => text === '[')).toHaveLength(2)
+        expect(tokens.filter((text) => text === ']')).toHaveLength(2)
+        expect(tokens).toContain('{}')
+        expect(tokens).toContain('[]')
+        expect(screen.getByText('"Alpha, Beta"')).toBeInTheDocument()
+    })
+
+    it('updates separators reactively without changing manual expansion', async () => {
+        const { container, rerender } = render(JsonView, {
+            data: { branch: { leaf: 1 }, last: 2 },
+            style: { punctuation: 'test-punctuation' }
+        })
+        const branch = screen.getByText('branch:').closest('[role="treeitem"]')!
+        const button = branch.querySelector(':scope > [role="button"]')!
+        await fireEvent.click(button)
+        expect(button).toHaveAttribute('aria-expanded', 'false')
+        expect(punctuation(container)).toContain('},')
+        await rerender({ style: { punctuation: 'test-punctuation', hideCommas: true } })
+        expect(punctuation(container).some((text) => text?.includes(','))).toBe(false)
+        expect(button).toHaveAttribute('aria-expanded', 'false')
+        await fireEvent.click(button)
+        expect(screen.getByText('leaf:')).toBeInTheDocument()
+        expect(punctuation(container).some((text) => text?.includes(','))).toBe(false)
+        await rerender({ style: { punctuation: 'test-punctuation', hideCommas: false } })
+        expect(punctuation(container)).toContain('},')
+        expect(button).toHaveAttribute('aria-expanded', 'true')
+    })
+})
+
+describe('JsonView — clickToExpandSummary', () => {
+    it.each([undefined, true])('preserves default summary expansion (%s)', async (option) => {
+        const { container } = render(JsonView, {
+            data: { child: 1 },
+            shouldExpandNode: () => false,
+            clickToExpandSummary: option,
+            style: { collapsedContent: 'summary' }
+        })
+        await fireEvent.click(container.querySelector('.summary')!)
+        expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'true')
+    })
+
+    it.each([false, true])(
+        'disables summaries throughout the tree (compact=%s)',
+        async (compact) => {
+            const veto = vi.fn(() => true)
+            const { container, rerender } = render(JsonView, {
+                data: { object: { nested: { leaf: 1 } }, array: [1, 2], empty: [] },
+                compactTopLevel: compact,
+                shouldExpandNode: (level) => level === 0,
+                clickToExpandSummary: false,
+                beforeExpandChange: veto,
+                style: { collapsedContent: 'summary', punctuation: 'punctuation' }
+            })
+            const summary = container.querySelector('.summary')!
+            const row = summary.closest('[role="treeitem"]')!
+            const button = row.querySelector('[role="button"]')!
+            await fireEvent.click(summary)
+            await fireEvent.keyDown(summary, { key: 'ArrowRight' })
+            for (const punctuation of row.querySelectorAll(':scope > .punctuation')) {
+                await fireEvent.click(punctuation)
+            }
+            expect(button).toHaveAttribute('aria-expanded', 'false')
+            expect(veto).not.toHaveBeenCalled()
+            // Changing this option neither resets expansion nor changes chevron keyboard behavior.
+            await rerender({ clickToExpandSummary: true })
+            expect(button).toHaveAttribute('aria-expanded', 'false')
+            await fireEvent.click(summary)
+            expect(button).toHaveAttribute('aria-expanded', 'true')
+            await rerender({ clickToExpandSummary: false })
+            await fireEvent.keyDown(button, { key: 'ArrowLeft' })
+            expect(button).toHaveAttribute('aria-expanded', 'false')
+            await fireEvent.keyDown(button, { key: 'ArrowRight' })
+            expect(button).toHaveAttribute('aria-expanded', 'true')
+            const nested = row.querySelector('.summary')!
+            await fireEvent.click(nested)
+            expect(nested.closest('[role="treeitem"]')).toHaveAttribute('aria-expanded', 'false')
+            const array = screen.getByText('array:').closest('[role="treeitem"]')!
+            await fireEvent.click(array.querySelector('.summary')!)
+            expect(array).toHaveAttribute('aria-expanded', 'false')
+            await fireEvent.click(array.querySelector('[role="button"]')!)
+            expect(array).toHaveAttribute('aria-expanded', 'true')
+            expect(screen.getByText('empty:').closest('[role="treeitem"]')).not.toHaveAttribute(
+                'aria-expanded'
+            )
+        }
+    )
+
+    it('keeps label expansion independent of summary expansion', async () => {
+        render(JsonView, {
+            data: { branch: { leaf: 1 } },
+            compactTopLevel: true,
+            shouldExpandNode: () => false,
+            clickToExpandNode: true,
+            clickToExpandSummary: false
+        })
+        await fireEvent.click(screen.getByText('branch:'))
+        expect(screen.getByRole('button')).toHaveAttribute('aria-expanded', 'true')
+    })
+})

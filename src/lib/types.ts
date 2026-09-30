@@ -36,6 +36,8 @@ export interface StyleProps {
     booleanValue: string
     otherValue: string
     punctuation: string
+    /** Omit separator commas between rows. Brackets and string content are preserved. @default false */
+    hideCommas?: boolean
     expandIcon: string
     collapseIcon: string
     collapsedContent: string
@@ -108,6 +110,8 @@ export interface ContainerSnippetProps {
 export interface ExpanderSnippetProps extends ContainerSnippetProps {
     hovered: boolean
     focused: boolean
+    /** Keyboard-visible focus, independent of native focus retained after a mouse click. */
+    focusVisible: boolean
 }
 
 /** A persistent child-group rendering boundary that can own exit animations. */
@@ -151,6 +155,8 @@ export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'st
     style?: Partial<StyleProps>
     shouldExpandNode?: (_level: number, _value: unknown, _field?: string) => boolean
     clickToExpandNode?: boolean
+    /** Allow collapsed summary/punctuation to expand a node. Chevron behavior is unchanged. @default true */
+    clickToExpandSummary?: boolean
     beforeExpandChange?: (_event: NodeExpandingEvent) => boolean
     compactTopLevel?: boolean
     /** Animate child groups on expansion/collapse. Omitted means instant updates. */
@@ -241,6 +247,7 @@ export interface CommonRenderProps {
     style: StyleProps
     shouldExpandNode: (_level: number, _value: unknown, _field?: string) => boolean
     clickToExpandNode: boolean
+    clickToExpandSummary: boolean
     outerRef: OuterRef
     beforeExpandChange?: (_event: NodeExpandingEvent) => boolean
     snippets: SnippetOverrides

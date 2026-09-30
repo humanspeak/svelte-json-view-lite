@@ -15,7 +15,7 @@ export default defineConfig({
         environment: 'jsdom',
         setupFiles: ['vitest.setup.ts'],
         server: {
-            deps: { inline: ['@humanspeak/svelte-motion'] }
+            deps: { inline: ['@humanspeak/svelte-motion', '@lucide/svelte'] }
         },
         coverage: {
             reporter: 'lcov',
