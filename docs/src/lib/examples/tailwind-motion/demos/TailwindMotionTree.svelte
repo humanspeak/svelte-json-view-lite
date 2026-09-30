@@ -1,4 +1,6 @@
 <script lang="ts">
+    import CheckIcon from '@lucide/svelte/icons/check'
+    import XIcon from '@lucide/svelte/icons/x'
     import { JsonView, type Props, type StyleProps } from '@humanspeak/svelte-json-view-lite'
     import {
         AnimatePresence,
@@ -10,12 +12,52 @@
     } from '@humanspeak/svelte-motion'
 
     const motionId = $props.id()
+    const copyHintId = `${motionId}-copy-hint`
     const reducedMotion = useReducedMotion()
     let animateDemo = $state(true)
     const motionEnabled = $derived(animateDemo && !reducedMotion.current)
     let palette = $state('dusk')
     let compact = $state(false)
     let hoveredRow = $state<string | null>(null)
+    let feedback = $state<{ id: string; status: 'copied' | 'failed' } | null>(null)
+    let feedbackTimer: ReturnType<typeof setTimeout> | undefined
+    let copyRequest = 0
+
+    async function copyValue(id: string, value: unknown) {
+        const request = ++copyRequest
+        clearTimeout(feedbackTimer)
+        feedback = null
+        try {
+            // Copy the full value, even when its descendants are collapsed.
+            const text =
+                typeof value === 'object' && value !== null
+                    ? JSON.stringify(value, null, 2)
+                    : String(value)
+            await navigator.clipboard.writeText(text)
+            if (request !== copyRequest) return
+            feedback = { id, status: 'copied' }
+        } catch {
+            if (request !== copyRequest) return
+            feedback = { id, status: 'failed' }
+        }
+        feedbackTimer = setTimeout(() => (feedback = null), 2000)
+    }
+
+    function copyClickedRow(event: MouseEvent, id: string, value: unknown) {
+        const target = event.target
+        if (!(target instanceof Element)) return
+        // Summary expansion is disabled on JsonView, so ordinary bubbling clicks
+        // can copy. Descendants copy their own value; chevrons keep expansion.
+        if (target.closest('.tw-row') !== event.currentTarget || target.closest('[role="button"]'))
+            return
+        if (window.getSelection()?.isCollapsed === false) return
+        void copyValue(id, value)
+    }
+
+    $effect(() => () => {
+        copyRequest++
+        clearTimeout(feedbackTimer)
+    })
     let shouldExpandNode = $state<NonNullable<Props['shouldExpandNode']>>((level) => level < 3)
 
     const payload = {
@@ -49,7 +91,7 @@
     // handles the recursive row geometry.
     const treeStyle: Partial<StyleProps> = {
         container: 'font-sans text-sm leading-6',
-        basicChildStyle: 'tw-row relative flex flex-wrap items-start gap-x-2',
+        basicChildStyle: 'tw-row relative flex flex-wrap items-start',
         label: 'tw-label shrink-0 font-medium text-[var(--tree-label)]',
         clickableLabel: 'tw-label shrink-0 cursor-pointer font-medium text-[var(--tree-label)]',
         stringValue: 'tw-value min-w-0 flex-1 text-[var(--tree-string)]',
@@ -59,6 +101,7 @@
         undefinedValue: 'tw-value min-w-0 flex-1 italic text-[var(--tree-muted)]',
         otherValue: 'tw-value min-w-0 flex-1 text-[var(--tree-container)]',
         punctuation: 'tw-punctuation text-[var(--tree-container)]',
+        hideCommas: true,
         expandIcon: 'tw-toggle tw-closed',
         collapseIcon: 'tw-toggle tw-open',
         collapsedContent: 'tw-summary cursor-pointer text-[var(--tree-muted)]',
@@ -77,6 +120,13 @@
     data-compact={compact}
     data-motion={motionEnabled}
 >
+    <span id={copyHintId} class="sr-only">
+        Click a row or press Enter or Space to copy its value. Use the chevron to expand or
+        collapse.
+    </span>
+    <span class="sr-only" role="status">
+        {feedback ? (feedback.status === 'copied' ? 'Copied!' : 'Could not copy. Try again.') : ''}
+    </span>
     <div class="flex flex-wrap items-center justify-between gap-4 px-5 pt-6 sm:px-8">
         <div class="flex items-center gap-3">
             <MotionSpan
@@ -199,13 +249,28 @@
                 data={payload}
                 style={treeStyle}
                 {shouldExpandNode}
+                clickToExpandSummary={false}
                 compactTopLevel
-                clickToExpandNode
                 aria-label="Styled workspace JSON"
             >
-                {#snippet row({ id, attrs, children })}
+                {#snippet row({ id, value, attrs, children })}
                     <MotionDiv
                         {...attrs}
+                        tabindex={0}
+                        aria-describedby={copyHintId}
+                        data-hovered={hoveredRow === id}
+                        data-copy-state={feedback?.id === id ? feedback.status : undefined}
+                        onclick={(event: MouseEvent) => copyClickedRow(event, id, value)}
+                        onkeydown={(event: KeyboardEvent) => {
+                            if (
+                                event.target !== event.currentTarget ||
+                                !['Enter', ' '].includes(event.key)
+                            )
+                                return
+                            event.preventDefault()
+                            event.stopPropagation()
+                            void copyValue(id, value)
+                        }}
                         initial={false}
                         animate={{ x: motionEnabled && hoveredRow === id ? 2 : 0 }}
                         transition={{ duration: motionEnabled ? 0.15 : 0 }}
@@ -215,22 +280,67 @@
                         }}
                         onpointerout={(event: PointerEvent) => {
                             event.stopPropagation()
+                            // Moving between a row's label and icons is still inside it.
+                            if (
+                                event.relatedTarget instanceof Element &&
+                                event.relatedTarget.closest('.tw-row') === event.currentTarget
+                            )
+                                return
                             if (hoveredRow === id) hoveredRow = null
                         }}
                     >
                         {@render children()}
+                        {#each ['copied', 'failed'] as status (status)}
+                            <AnimatePresence
+                                present={feedback?.id === id && feedback.status === status}
+                            >
+                                {#snippet child()}
+                                    <MotionSpan
+                                        class="tw-copy-feedback"
+                                        data-status={status}
+                                        initial={{ opacity: 0, scale: motionEnabled ? 0.4 : 1 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{
+                                            opacity: 0,
+                                            scale: motionEnabled ? 0.8 : 1,
+                                            transition: {
+                                                type: 'tween',
+                                                duration: motionEnabled ? 0.18 : 0
+                                            }
+                                        }}
+                                        transition={motionEnabled
+                                            ? {
+                                                  scale: {
+                                                      type: 'spring',
+                                                      stiffness: 500,
+                                                      damping: 22
+                                                  },
+                                                  opacity: { duration: 0.12 }
+                                              }
+                                            : { duration: 0 }}
+                                        aria-hidden="true"
+                                    >
+                                        {#if status === 'copied'}
+                                            <CheckIcon class="size-4" />
+                                        {:else}
+                                            <XIcon class="size-4" />
+                                        {/if}
+                                    </MotionSpan>
+                                {/snippet}
+                            </AnimatePresence>
+                        {/each}
                     </MotionDiv>
                 {/snippet}
-                {#snippet expander({ expanded, hovered, focused })}
+                {#snippet expander({ expanded, hovered, focusVisible })}
                     <MotionSpan
                         class="tw-caret"
                         initial={false}
                         animate={{
                             rotate: expanded
-                                ? motionEnabled && (hovered || focused)
+                                ? motionEnabled && (hovered || focusVisible)
                                     ? 20
                                     : 45
-                                : motionEnabled && (hovered || focused)
+                                : motionEnabled && (hovered || focusVisible)
                                   ? -20
                                   : -45
                         }}
@@ -244,9 +354,9 @@
                         initial={false}
                         animate={{
                             width: expanded ? '0em' : '1em',
-                            marginRight: expanded ? '0em' : '0.4em',
-                            opacity: expanded ? 0 : 1,
-                            x: expanded ? -2 : 0
+                            marginLeft: expanded ? '0em' : '0.25em',
+                            marginRight: expanded ? '0em' : '0.25em',
+                            opacity: expanded ? 0 : 1
                         }}
                         transition={{ duration: motionEnabled ? 0.18 : 0 }}
                         aria-hidden="true">…</MotionSpan
@@ -284,7 +394,7 @@
                 <span class="text-[var(--tree-container)]">{'{ }'} container</span>
             </div>
             <span class="text-[10px] text-[var(--tree-muted)]"
-                >Tab to a chevron · ↑ ↓ ← → to explore</span
+                >Click a row to copy · Chevrons to expand · ↑ ↓ ← → to explore</span
             >
         </div>
     </MotionDiv>
@@ -297,6 +407,8 @@
         --tree-row: #303043;
         --tree-hover: #3b3a52;
         --tree-border: #49465f;
+        --tree-success: #6ee7b7;
+        --tree-error: #fda4af;
         --tree-label: #e5e3f1;
         --tree-muted: #b0acc7;
         --tree-string: #6ee7b7;
@@ -332,6 +444,8 @@
         --tree-row: #ffffff;
         --tree-hover: #eeeafa;
         --tree-border: #d5d0e2;
+        --tree-success: #08734b;
+        --tree-error: #be123c;
         --tree-label: #352e49;
         --tree-muted: #6c617e;
         --tree-string: #08734b;
@@ -390,44 +504,53 @@
         isolation: isolate;
         min-height: var(--tree-height);
         margin-top: 6px;
-        padding: calc((var(--tree-height) - 24px) / 2) 12px;
+        padding: calc((var(--tree-height) - 24px) / 2) 32px calc((var(--tree-height) - 24px) / 2)
+            12px;
         border-radius: 10px;
         background: var(--tree-row);
         box-shadow: inset 0 0 0 1px var(--tree-border);
+        cursor: pointer;
     }
 
-    /* A container's painted row stays above its children, not around them. */
-    .tailwind-demo :global(.tw-row[aria-expanded]) {
-        /* The container also spans every child and gap. Hit-test its painted
-           header and descendants instead of that entire invisible rectangle. */
-        pointer-events: none;
-        padding-bottom: 0;
-        background: none;
-        box-shadow: none;
+    /* Filled boundaries keep an expanded object or array together visually. */
+    .tailwind-demo :global(.tw-row[aria-expanded='true']) {
+        background: color-mix(in oklab, var(--tree-row) 70%, var(--tree-hover));
     }
 
-    .tailwind-demo :global(.tw-row[aria-expanded]::before) {
-        position: absolute;
-        z-index: -1;
-        inset: 0 0 auto;
-        height: var(--tree-height);
-        border: 1px solid var(--tree-border);
-        border-radius: 10px;
-        background: var(--tree-row);
-        content: '';
-    }
-
-    .tailwind-demo :global(.tw-row[aria-expanded]::before),
-    .tailwind-demo :global(.tw-row[aria-expanded] > .tw-toggle),
-    .tailwind-demo :global(.tw-row[aria-expanded] > .tw-label),
-    .tailwind-demo :global(.tw-row[aria-expanded] > .tw-punctuation),
-    .tailwind-demo :global(.tw-row:not([aria-expanded])) {
-        pointer-events: auto;
-    }
-
-    .tailwind-demo :global(.tw-row[aria-expanded]:has(> .tw-label:hover)::before),
-    .tailwind-demo :global(.tw-row[aria-expanded]:has(> .tw-toggle:hover)::before) {
+    /* Descendants own their hover state, so ancestors keep their normal fill. */
+    .tailwind-demo :global(.tw-row[data-hovered='true']) {
         background: var(--tree-hover);
+        box-shadow: inset 0 0 0 1px var(--tree-number);
+    }
+
+    /* Copy feedback wins over hover, including while the pointer stays put. */
+    .tailwind-demo :global(.tw-row[data-copy-state='copied']) {
+        --row-feedback: var(--tree-success);
+    }
+
+    .tailwind-demo :global(.tw-row[data-copy-state='failed']) {
+        --row-feedback: var(--tree-error);
+    }
+
+    .tailwind-demo :global(.tw-row[data-copy-state]) {
+        box-shadow: inset 0 0 0 1px var(--row-feedback);
+    }
+
+    .tailwind-demo :global(.tw-copy-feedback) {
+        position: absolute;
+        inset-inline-end: 10px;
+        top: calc((var(--tree-height) - 16px) / 2);
+        color: var(--tree-success);
+        pointer-events: none;
+    }
+
+    .tailwind-demo :global(.tw-copy-feedback[data-status='failed']) {
+        color: var(--tree-error);
+    }
+
+    .tailwind-demo :global(.tw-row:focus-visible) {
+        outline: 2px solid var(--tree-number);
+        outline-offset: -2px;
     }
 
     .tailwind-demo :global(.tw-row:not([aria-expanded])) {
@@ -439,23 +562,31 @@
         white-space: pre-wrap;
     }
 
-    /* Hide leaf commas; keep object/array delimiters, including empty values. */
-    .tailwind-demo :global(.tw-value + .tw-punctuation) {
-        display: none;
+    .tailwind-demo :global(.tw-label) {
+        margin-inline-end: 8px;
+    }
+
+    /* Inline flex ignores whitespace around the animated snippet, keeping
+       delimiters together. Only labels and chevrons need a flex gap. */
+    .tailwind-demo :global(.tw-punctuation) {
+        display: inline-flex;
+        align-items: center;
     }
 
     .tailwind-demo :global(.tw-children) {
         min-width: 0;
-        flex-basis: calc(100% + 12px);
+        flex-basis: calc(100% + 20px);
         flex-shrink: 0;
-        margin: calc((var(--tree-height) - 24px) / 2) -12px 0 0;
-        padding: 0 0 0 var(--tree-indent);
+        margin: calc((var(--tree-height) - 24px) / 2) -20px 0 0;
+        /* Reserve the hover nudge inside the group's animation clip. */
+        padding: 0 2px 0 var(--tree-indent);
     }
 
     .tailwind-demo :global(.tw-toggle) {
         display: inline-flex;
         width: 20px;
         height: 24px;
+        margin-inline-end: 8px;
         flex-shrink: 0;
         align-items: center;
         justify-content: center;
@@ -480,11 +611,8 @@
     .tailwind-demo :global(.tw-dots) {
         display: inline-block;
         overflow: hidden;
+        text-align: center;
         vertical-align: bottom;
-    }
-
-    .tailwind-demo :global(.tw-row[aria-expanded='false'] > .tw-punctuation:last-child) {
-        cursor: pointer;
     }
 
     @media (max-width: 480px) {

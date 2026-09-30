@@ -56,7 +56,8 @@ const buildStyles = (variant: 'light' | 'dark'): StyleProps => ({
     noQuotesForStringValues: false,
     quotesForFieldNames: false,
     ariaLabels: defaultAriaLabels,
-    stringifyStringValues: false
+    stringifyStringValues: false,
+    hideCommas: false
 })
 
 export const defaultStyles: StyleProps = buildStyles('light')

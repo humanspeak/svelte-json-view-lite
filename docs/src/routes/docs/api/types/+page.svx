@@ -55,6 +55,7 @@ export interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'data' | 'st
     style?: Partial<StyleProps>
     shouldExpandNode?: (level: number, value: unknown, field?: string) => boolean
     clickToExpandNode?: boolean
+    clickToExpandSummary?: boolean
     beforeExpandChange?: (event: NodeExpandingEvent) => boolean
     compactTopLevel?: boolean
     childrenTransition?: ChildrenTransition
@@ -91,6 +92,7 @@ export interface StyleProps {
     booleanValue: string
     otherValue: string
     punctuation: string
+    hideCommas?: boolean
     expandIcon: string
     collapseIcon: string
     collapsedContent: string
@@ -122,6 +124,7 @@ export interface StyleProps {
 
 ### Boolean options
 
+- `hideCommas` — omit separator commas from all rows, including collapsed, expanded, and empty containers. Defaults to `false`; brackets, commas inside string values, and data are preserved.
 - `noQuotesForStringValues` — omit `"` around string leaves.
 - `quotesForFieldNames` — wrap labels in `"`.
 - `stringifyStringValues` — call `JSON.stringify` on strings so newlines and control characters appear as escape sequences.
@@ -227,8 +230,24 @@ stable `id`, `field`, `value`, `level`, `isContainer`, optional `expanded`, row 
 `children` snippet. `attrs` contains the row’s class, `role="treeitem"`, and expansion state.
 
 `ContainerSnippetProps` contains `field`, `value`, `level`, `expanded`, `count`, and `isArray`.
-The `collapsed` snippet receives this shape. `ExpanderSnippetProps` adds `hovered` and `focused`
-for rendering content inside the viewer-owned expander button.
+The `collapsed` snippet receives this shape. `ExpanderSnippetProps` adds state for rendering
+content inside the viewer-owned expander button:
+
+```ts
+export interface ExpanderSnippetProps extends ContainerSnippetProps {
+    hovered: boolean
+    focused: boolean
+    focusVisible: boolean
+}
+```
+
+- `hovered` tracks pointer hover on the chevron.
+- `focused` tracks native focus, including focus retained after a mouse click.
+- `focusVisible` tracks keyboard-visible focus. It is cleared on pointer interaction or blur,
+  and becomes active on keyboard focus or a key press while the chevron is focused.
+
+Use `focusVisible` for keyboard-only caret animation; use `focused` when mouse and keyboard
+focus should receive the same presentation.
 
 `ChildGroupSnippetProps` adds `attrs` and `children` to the container state. Group `attrs`
 contains `id`, `class`, `role="group"`, `aria-hidden`, and `inert`. Spread these on the actual

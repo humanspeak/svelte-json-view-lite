@@ -60,6 +60,15 @@ npm i @humanspeak/svelte-json-view-lite
 />
 ```
 
-## Deliberate Difference
+## Svelte additions
+
+The Svelte port adds typed structural and value snippets. For copyable bordered rows, use
+`style.hideCommas` to omit separators and `clickToExpandSummary={false}` to reserve expansion
+for chevrons when label expansion is also off. These options default to `false` and `true`,
+respectively, so existing rendering and summary clicks are preserved.
+
+Custom expander snippets receive `focusVisible` for keyboard-only animation in addition to
+native `focused` state. See [structural snippets](/docs/snippet-overrides#structural-snippets)
+for these contracts and collapsed-snippet spacing.
 
 The original React package includes a typoed `ariaLables` style key. Svelte JSON View Lite uses `ariaLabels`, while still honoring the typoed key at runtime with a warning for compatibility.

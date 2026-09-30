@@ -126,10 +126,11 @@ Or skip the prop swap entirely and let CSS variables switch based on a root clas
 
 ## Boolean Style Options
 
-`StyleProps` has three booleans that affect rendering regardless of which palette you pick:
+`StyleProps` has four booleans that affect rendering regardless of which palette you pick:
 
 | Option | Effect |
 |--------|--------|
+| `hideCommas` | Omits separator commas from all rows, including empty and collapsed containers; defaults to `false` |
 | `noQuotesForStringValues` | Omits the `"` around string leaves |
 | `quotesForFieldNames` | Wraps field labels in `"` |
 | `stringifyStringValues` | Passes string values through `JSON.stringify` so control characters render as escapes |

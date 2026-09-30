@@ -202,8 +202,8 @@ presentation, including declarative Svelte Motion components.
 | Snippet | Receives | Responsibility |
 | --- | --- | --- |
 | `row` | `id`, `field`, `value`, `level`, `isContainer`, `expanded`, `attrs`, `children` | Spread `attrs` on the row root; render `children()` once. |
-| `expander` | `field`, `value`, `level`, `expanded`, `count`, `isArray`, `hovered`, `focused` | Render noninteractive content inside the viewer’s accessible button. Replaces the default glyph. |
-| `collapsed` | `field`, `value`, `level`, `expanded`, `count`, `isArray` | Render a persistent indicator before the closing bracket; animate it to zero width when expanded. The viewer handles clicks when collapsed. |
+| `expander` | `field`, `value`, `level`, `expanded`, `count`, `isArray`, `hovered`, `focused`, `focusVisible` | Render noninteractive content inside the viewer’s accessible button. Replaces the default glyph. |
+| `collapsed` | `field`, `value`, `level`, `expanded`, `count`, `isArray` | Render a persistent indicator before the closing bracket; animate it to zero width when expanded. The viewer handles clicks when collapsed unless `clickToExpandSummary={false}`. |
 | `childGroup` | Container state plus `attrs`, `children` | Spread `attrs` on the group and render `children()` inside it. Own conditional rendering and any exit animation. |
 
 ```svelte
@@ -241,3 +241,51 @@ lazy until first expansion. A supplied `childGroup` owns animation instead of
 
 See the [Tailwind + Svelte Motion example](/examples/tailwind-motion)
 for all four together. Svelte Motion is an optional application dependency.
+
+### Copyable rows
+
+Set `clickToExpandSummary={false}` to keep the default summary or custom collapsed punctuation
+from expanding on click. The default is `true`, preserving existing behavior. Keep
+`clickToExpandNode` at its default `false` when labels should copy too.
+
+```svelte
+<JsonView {data} clickToExpandSummary={false} style={{ hideCommas: true }}>
+    <!-- Supply your row, expander, collapsed, and childGroup snippets here. -->
+</JsonView>
+```
+
+A `row` snippet can use an ordinary bubbling `onclick` handler. Check that the clicked node
+belongs to the current row, exclude chevron buttons, and preserve selected text. Chevron clicks
+and arrow-key navigation remain available. If rows also support keyboard copying, provide
+focus styling and accessible instructions, as in the [Motion + Tailwind example](/examples/tailwind-motion).
+
+`style.hideCommas` removes separators from all library-rendered rows, including collapsed,
+expanded, and empty containers. It defaults to `false`. Brackets, commas inside strings,
+and data are preserved; punctuation emitted by your own snippets remains under your control.
+
+### Collapsed snippet spacing
+
+The viewer renders custom `collapsed` snippets inside its own inline-flex span. Whitespace
+emitted around snippet elements cannot add a gap before the closing bracket, including when
+you override the punctuation class. Intentional spacing inside snippet elements is preserved.
+A persistent animated indicator should animate its width and margins to zero when expanded.
+
+### Keyboard-visible caret focus
+
+Use `focusVisible` for a keyboard-only caret tilt. `focused` tracks native focus and can stay
+`true` after a mouse click, so animating from it alone can leave a caret tilted.
+
+```svelte
+<JsonView {data}>
+    {#snippet expander({ expanded, focusVisible })}
+        <span
+            class="caret"
+            class:keyboard-focused={focusVisible}
+            aria-hidden="true"
+        >{expanded ? '▾' : '▸'}</span>
+    {/snippet}
+</JsonView>
+```
+
+Keep expander snippet content noninteractive; the viewer owns its button, focus, and keyboard
+handlers. See [expander state types](/docs/api/types#structural-snippet-types) for all three flags.

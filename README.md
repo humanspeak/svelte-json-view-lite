@@ -58,17 +58,18 @@ pnpm add @humanspeak/svelte-json-view-lite
 
 ## Props
 
-| Prop                                         | Type                                     | Default         | Description                                                                        |
-| -------------------------------------------- | ---------------------------------------- | --------------- | ---------------------------------------------------------------------------------- |
-| `data`                                       | `object \| unknown[]`                    | —               | The JSON-shaped value to render.                                                   |
-| `style`                                      | `Partial<StyleProps>`                    | `defaultStyles` | Classname-map that themes every slot.                                              |
-| `shouldExpandNode`                           | `(level, value, field?) => boolean`      | `allExpanded`   | Initial-expand strategy per node.                                                  |
-| `clickToExpandNode`                          | `boolean`                                | `false`         | When true, clicking the field label also toggles the node.                         |
-| `beforeExpandChange`                         | `(event: NodeExpandingEvent) => boolean` | —               | Return `false` to veto an expand/collapse transition.                              |
-| `childrenTransition`                         | `ChildrenTransition`                     | —               | Optional Svelte transition for child groups; updates are instant when omitted.     |
-| `compactTopLevel`                            | `boolean`                                | `false`         | Spread root-object entries instead of nesting them under a single root expander.   |
-| `row`, `expander`, `collapsed`, `childGroup` | Typed `Snippet`                          | —               | Replace structural rendering while retaining expansion and keyboard behavior.      |
-| `string`, `number`, ...                      | `Snippet<[{ value, field?, level }]>`    | —               | Optional per-type renderer overrides. See [Snippet overrides](#snippet-overrides). |
+| Prop                                         | Type                                     | Default         | Description                                                                          |
+| -------------------------------------------- | ---------------------------------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `data`                                       | `object \| unknown[]`                    | —               | The JSON-shaped value to render.                                                     |
+| `style`                                      | `Partial<StyleProps>`                    | `defaultStyles` | Classname-map that themes every slot.                                                |
+| `shouldExpandNode`                           | `(level, value, field?) => boolean`      | `allExpanded`   | Initial-expand strategy per node.                                                    |
+| `clickToExpandNode`                          | `boolean`                                | `false`         | When true, clicking the field label also toggles the node.                           |
+| `clickToExpandSummary`                       | `boolean`                                | `true`          | Allow collapsed summary/punctuation clicks to expand. Chevron behavior is unchanged. |
+| `beforeExpandChange`                         | `(event: NodeExpandingEvent) => boolean` | —               | Return `false` to veto an expand/collapse transition.                                |
+| `childrenTransition`                         | `ChildrenTransition`                     | —               | Optional Svelte transition for child groups; updates are instant when omitted.       |
+| `compactTopLevel`                            | `boolean`                                | `false`         | Spread root-object entries instead of nesting them under a single root expander.     |
+| `row`, `expander`, `collapsed`, `childGroup` | Typed `Snippet`                          | —               | Replace structural rendering while retaining expansion and keyboard behavior.        |
+| `string`, `number`, ...                      | `Snippet<[{ value, field?, level }]>`    | —               | Optional per-type renderer overrides. See [Snippet overrides](#snippet-overrides).   |
 
 Any additional HTML attributes (`aria-*`, `data-*`, `id`, `class`, etc.) are
 forwarded onto the root `<div role="tree">`.
@@ -97,6 +98,19 @@ Override individual slots by spreading:
     }}
 />
 ```
+
+For viewers that display each value in its own row, set the optional
+`style.hideCommas` flag:
+
+```svelte
+<JsonView {data} style={{ hideCommas: true }} />
+```
+
+It defaults to `false` in both themes, preserving separator commas. When `true`,
+separator commas are omitted from primitive, object, and array rows, including
+expanded, collapsed, and empty containers. Brackets, commas inside string values,
+and the underlying data are unchanged. It also applies when using row or value
+snippets; punctuation supplied by your own snippets remains under your control.
 
 ## Animate expansion
 
@@ -129,12 +143,21 @@ Use `row`, `expander`, `collapsed`, and `childGroup` to customize the tree’s s
 The viewer owns expansion, veto callbacks, keyboard navigation, and focus. Your snippets own
 presentation, including declarative Svelte Motion components.
 
-| Snippet      | Receives                                                                        | Responsibility                                                                                                                              |
-| ------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `row`        | `id`, `field`, `value`, `level`, `isContainer`, `expanded`, `attrs`, `children` | Spread `attrs` on the row root; render `children()` once.                                                                                   |
-| `expander`   | `field`, `value`, `level`, `expanded`, `count`, `isArray`, `hovered`, `focused` | Render noninteractive content inside the viewer’s accessible button. Replaces the default glyph.                                            |
-| `collapsed`  | `field`, `value`, `level`, `expanded`, `count`, `isArray`                       | Render a persistent indicator before the closing bracket; animate it to zero width when expanded. The viewer handles clicks when collapsed. |
-| `childGroup` | Container state plus `attrs`, `children`                                        | Spread `attrs` on the group and render `children()` inside it. Own conditional rendering and any exit animation.                            |
+| Snippet      | Receives                                                                                        | Responsibility                                                                                                                                                                    |
+| ------------ | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `row`        | `id`, `field`, `value`, `level`, `isContainer`, `expanded`, `attrs`, `children`                 | Spread `attrs` on the row root; render `children()` once.                                                                                                                         |
+| `expander`   | `field`, `value`, `level`, `expanded`, `count`, `isArray`, `hovered`, `focused`, `focusVisible` | Render noninteractive content inside the viewer’s accessible button. Replaces the default glyph.                                                                                  |
+| `collapsed`  | `field`, `value`, `level`, `expanded`, `count`, `isArray`                                       | Render a persistent indicator before the closing bracket; animate it to zero width when expanded. The viewer handles clicks when collapsed unless `clickToExpandSummary={false}`. |
+| `childGroup` | Container state plus `attrs`, `children`                                                        | Spread `attrs` on the group and render `children()` inside it. Own conditional rendering and any exit animation.                                                                  |
+
+For clickable copy rows, set `clickToExpandSummary={false}` and attach a normal
+`onclick` handler to your `row` snippet. Chevron clicks and arrow-key navigation
+still work; field-label expansion remains controlled by `clickToExpandNode`.
+The viewer wraps custom `collapsed` content in an inline-flex span, so whitespace
+emitted around snippet elements cannot add a gap before the closing bracket, even
+with a custom punctuation class. Snippets still control their own intentional
+spacing. Use `focusVisible` to animate a caret for keyboard focus; `focused` also
+includes mouse focus. The Motion + Tailwind example demonstrates these patterns.
 
 ```svelte
 <script lang="ts">
@@ -295,13 +318,14 @@ the package root.
 
 ## Migrating from `react-json-view-lite`
 
-The Svelte API preserves the React prop names and theme-object shape. Only
-two differences exist:
+The Svelte API preserves the shared React prop names and adds these extensions:
 
 | React                       | Svelte                                                     |
 | --------------------------- | ---------------------------------------------------------- |
 | `style.ariaLables` (typoed) | `style.ariaLabels` (fixed; typo still honored with a warn) |
-| — (not supported)           | Per-type `Snippet` overrides                               |
+| — (not supported)           | Structural and per-type `Snippet` overrides                |
+| —                           | `style.hideCommas` to omit row separators                  |
+| —                           | `clickToExpandSummary` to control summary expansion        |
 
 Everything else — `style`, `clickToExpandNode`, `compactTopLevel`,
 `beforeExpandChange`, `shouldExpandNode`, `defaultStyles`, `darkStyles`,

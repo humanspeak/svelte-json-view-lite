@@ -52,16 +52,13 @@ When focus is on any expander button inside the tree:
 
 | Key | Action |
 |-----|--------|
-| `Enter` / `Space` | Toggle the focused branch |
-| `ArrowRight` | Expand the branch, or move focus to the first child if already expanded |
-| `ArrowLeft` | Collapse the branch, or move focus to the parent if already collapsed |
+| `ArrowRight` | Expand the branch; leave focus on its expander |
+| `ArrowLeft` | Collapse the branch; leave focus on its expander |
 | `ArrowDown` | Move focus to the next visible branch |
 | `ArrowUp` | Move focus to the previous visible branch |
-| `Home` | Move focus to the first branch in the tree |
-| `End` | Move focus to the last visible branch |
 | `Tab` / `Shift+Tab` | Move focus out of the tree (roving tabindex) |
 
-The tree uses a **roving tabindex** — exactly one expander has `tabindex="0"` at a time, while the rest are `tabindex="-1"`. Clicking or focusing any expander updates the roving target, so tabbing into the tree always lands on the last-interacted branch.
+The tree uses a **roving tabindex** — exactly one expander has `tabindex="0"` at a time, while the rest are `tabindex="-1"`. Clicking an expander or navigating with ArrowUp/ArrowDown updates the roving target. Arrow navigation wraps between the first and last visible branches.
 
 ## Screen Reader Labels
 
@@ -92,6 +89,22 @@ Override for localization or terser wording by setting `ariaLabels` on your styl
 
 When `clickToExpandNode` is enabled, labels become click targets but **do not** receive focus or a button role — the expander glyph remains the single keyboard-accessible activator. Keyboard users never see duplicated tab stops; mouse users get a larger hit target.
 
+Set `clickToExpandSummary={false}` to disable expansion from collapsed summaries and custom
+collapsed punctuation while retaining chevron clicks and arrow-key navigation. Label expansion
+is independently controlled by `clickToExpandNode`.
+
+### Focus in custom expanders
+
+The `expander` snippet receives both `focused` and `focusVisible`. `focused` includes native
+focus retained after a mouse click. Use `focusVisible` for keyboard-only caret animation;
+keep a visible focus indicator on the viewer-owned button. The snippet should render
+noninteractive content inside that button.
+
+A custom `row` snippet may add its own keyboard actions and tab stops. The Motion + Tailwind
+example adds Enter/Space to copy a focused row; these are consumer actions, not built-in
+expansion shortcuts. The viewer handles the four arrow keys on chevrons and does not add
+Enter/Space or Home/End handlers.
+
 ## SSR and Hydration
 
 The tree is safe to render during SSR. Every `aria-controls` / `id` pair is produced by `$props.id()`, which is deterministic across server and client. No `Math.random()` or `Date.now()` — the IDs committed in the initial HTML match the ones rehydrated on the client.
@@ -104,10 +117,10 @@ The tree's ARIA contract means queries work without implementation-specific sele
 import { render, screen, fireEvent } from '@testing-library/svelte'
 import { JsonView } from '@humanspeak/svelte-json-view-lite'
 
-test('expands a branch on Enter', async () => {
-    render(JsonView, { data: { nested: { inner: 1 } } })
+test('expands a branch with ArrowRight', async () => {
+    render(JsonView, { data: { nested: { inner: 1 } }, shouldExpandNode: () => false })
     const expander = screen.getByRole('button', { name: /expand/i })
-    await fireEvent.keyDown(expander, { key: 'Enter' })
+    await fireEvent.keyDown(expander, { key: 'ArrowRight' })
     expect(expander).toHaveAttribute('aria-expanded', 'true')
 })
 ```
@@ -120,5 +133,5 @@ test('expands a branch on Enter', async () => {
 
 ## Related
 
-- [JsonView props](/docs/api/json-view) — `clickToExpandNode` and the interactive prop set
+- [JsonView props](/docs/api/json-view) — label and summary expansion controls
 - [Types & snippets](/docs/api/types) — `AriaLabels` and the style shape

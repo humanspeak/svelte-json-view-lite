@@ -37,6 +37,7 @@ description: Complete prop reference for the JsonView component in @humanspeak/s
 | `style` | `Partial<StyleProps>` | `defaultStyles` | Classname map. Import `defaultStyles` or `darkStyles`, or pass a partial to override individual keys. |
 | `shouldExpandNode` | `(level: number, value: unknown, field?: string) => boolean` | `allExpanded` | Predicate called for every expandable node. Return `true` to expand. Use the exported `allExpanded` / `collapseAllNested` helpers for the common cases. |
 | `clickToExpandNode` | `boolean` | `false` | When `true`, clicking the field label (key) also toggles expand/collapse, not just the arrow. |
+| `clickToExpandSummary` | `boolean` | `true` | Allow collapsed summary/punctuation clicks to expand; chevrons and their keyboard behavior are unchanged. |
 | `beforeExpandChange` | `(event: NodeExpandingEvent) => boolean` | — | Veto handler. Receives `{ level, value, field, newExpandValue }`. Return `false` to cancel the transition. |
 | `row`, `expander`, `collapsed`, `childGroup` | Typed `Snippet` | — | Structural renderers. See [Snippet overrides](/docs/snippet-overrides#structural-snippets). |
 | `childrenTransition` | `ChildrenTransition` | — | Optional `(node: HTMLElement) => TransitionConfig` for local, reversible child-group animation. Omit for instant updates. |
@@ -103,6 +104,14 @@ When `true`, the field label (key text) becomes a click target alongside the arr
 
 ```svelte
 <JsonView data={payload} clickToExpandNode />
+```
+
+## `clickToExpandSummary`
+
+Set to `false` when the collapsed summary or punctuation should serve another action, such as copying the row. Both the default summary and custom `collapsed` snippets become passive expansion targets, so a row snippet can use an ordinary bubbling `onclick` handler. Chevron clicks and arrow-key navigation remain available. Field-label expansion is independently controlled by `clickToExpandNode`.
+
+```svelte
+<JsonView data={payload} clickToExpandSummary={false} />
 ```
 
 ## `beforeExpandChange`
