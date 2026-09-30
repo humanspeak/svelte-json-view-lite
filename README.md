@@ -349,9 +349,16 @@ Everything else — `style`, `clickToExpandNode`, `compactTopLevel`,
 pnpm install
 pnpm dev          # launch SvelteKit playground on :8233
 pnpm check        # svelte-check
+pnpm lint         # Prettier + ESLint through Trunk
+pnpm lint:fix     # apply formatting and lint fixes through Trunk
 pnpm test         # vitest + coverage
 pnpm build        # vite build + svelte-package + publint
 ```
+
+The lint commands require the [Trunk CLI](https://docs.trunk.io/code-quality/cli).
+They honor the same `trunk-ignore` comments as CI and the pre-commit hook.
+ESLint checks source, unit tests, browser tests, and tooling; library production code also
+gets type-aware Promise checks and a modified cyclomatic complexity limit of 15.
 
 <!-- docs-kit:ecosystem start -->
 

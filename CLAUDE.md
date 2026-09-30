@@ -62,8 +62,8 @@ pnpm test             # vitest run --coverage
 pnpm test:watch       # vitest watch
 pnpm test:e2e         # playwright (when configured)
 pnpm build            # vite build && svelte-package && publint
-pnpm lint             # prettier --check + eslint
-pnpm lint:fix         # prettier --write + eslint --fix
+pnpm lint             # Trunk: prettier + eslint, including trunk-ignore comments
+pnpm lint:fix         # Trunk: apply prettier + eslint fixes
 ```
 
 ## Code style
