@@ -5,9 +5,9 @@
         ".github/scripts/release-publication.mjs": "c03d90062b6fcb38e11f9bb4cb5fd8c9a14a34a56bb67870f64d81af43f56e8e",
         ".github/scripts/release-publication.test.mjs": "a6176fdcf61b0d118670ce1d43a09f39a12d4171e1ab6fed7960dfe048145ebf",
         ".github/scripts/release-workflow.test.mjs": "7a9e393cad156ac86e19b4b6aa1c72afedd5a6012652c6459e288f501ab43609",
-        ".github/workflows/npm-publish.yml": "a3a69d25d4c1d892ccffb947996bba199a7f6a5a67cf989ed5deb3b4217d2ee9",
+        ".github/workflows/npm-publish.yml": "ab2218b907fae06e0f4bcc2f08ca15512527f0f08390311ef0271806e28e41fc",
         ".github/workflows/run-tests.yml": "2e26ba34bb1a332d9ba1c038fc083a554a515c880c0f592274c45b7f8709d385"
     },
     "repository": "humanspeak/svelte-diff",
-    "revision": "25fd09929575554caa70e7c8d4d65c26bb602087"
+    "revision": "1f23be02075a83577e06d40de496d2e2409335bf"
 }
