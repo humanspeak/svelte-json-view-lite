@@ -23,6 +23,14 @@ on:
             - playwright.config.*
             - tsconfig*.json
             - .github/workflows/run-tests.yml
+            - pnpm-workspace.yaml
+            - vitest.config.*
+            - vitest.setup.*
+            - eslint.config.*
+            - .npmrc
+            - .github/scripts/**
+            - .github/release-policy.json
+            - .github/release-source.json
 
 concurrency:
     group: run-tests-${{ github.ref }}
@@ -79,6 +87,12 @@ jobs:
 
             - name: Install dependencies
               run: pnpm install --frozen-lockfile --config.engine-strict=false
+
+            - name: Check library types
+              run: pnpm run check
+
+            - name: Test release safety offline
+              run: node --test .github/scripts/*.test.mjs
 
             - name: Run unit tests
               run: |
