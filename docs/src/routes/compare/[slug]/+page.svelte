@@ -14,7 +14,14 @@
 {#if 'relationshipLabel' in comparison && 'scopeNote' in comparison}
     <aside class="comparison-scope" aria-label="Comparison scope">
         <strong>{comparison.relationshipLabel}</strong>
-        <span>{comparison.scopeNote}</span>
+        <span>
+            {comparison.scopeNote}
+            {#if isUpstream}
+                <a href="/blog/react-json-view-lite-to-svelte"
+                    >Read the React-to-Svelte walkthrough →</a
+                >
+            {/if}
+        </span>
     </aside>
 {/if}
 
@@ -97,6 +104,12 @@
         font-family: 'JetBrains Mono Variable', monospace;
         font-size: 12px;
         line-height: 1.5;
+    }
+
+    .comparison-scope a {
+        color: var(--brut-accent);
+        text-decoration: underline;
+        text-underline-offset: 0.16em;
     }
 
     .comparison-scope strong {

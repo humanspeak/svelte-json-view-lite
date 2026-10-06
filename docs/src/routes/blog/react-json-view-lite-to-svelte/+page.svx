@@ -1,0 +1,153 @@
+---
+title: Coming to Svelte from React
+date: '2026-10-06T12:00:00Z'
+description: Use react-json-view-lite in React? Walk through moving your JSON viewer to Svelte 5 with familiar props, themes, expansion helpers, and typed snippets.
+tags:
+    - react
+    - migration
+    - svelte-5
+    - json
+author: Jason Kummerl
+readingTime: 5
+---
+
+<script lang="ts">
+    import { BlogPostV2, type BlogPostMeta } from '@humanspeak/docs-kit/blog'
+    import { docsConfig } from '$lib/docs-config'
+
+    const post: BlogPostMeta = {
+        slug: 'react-json-view-lite-to-svelte',
+        title: 'Coming to Svelte from React',
+        date: '2026-10-06T12:00:00Z',
+        description:
+            'Use react-json-view-lite in React? Walk through moving your JSON viewer to Svelte 5 with familiar props, themes, expansion helpers, and typed snippets.',
+        tags: ['react', 'migration', 'svelte-5', 'json'],
+        author: 'Jason Kummerl',
+        readingTime: 5
+    }
+</script>
+
+<BlogPostV2 {post} config={docsConfig}>
+
+Coming to Svelte from React, and already using `react-json-view-lite` to display API responses, logs, or configuration? Let's walk through moving that viewer to Svelte 5.
+
+[`@humanspeak/svelte-json-view-lite`](/docs/getting-started) is a Svelte 5 port of the React library. You keep the familiar `JsonView` component name, core props, theme exports, and expansion helpers. The rendering uses Svelte components and runes, and you can add typed snippets when you want custom values.
+
+If you are staying in React, keep using `react-json-view-lite`. This walkthrough is for a Svelte 5 app; the port requires Svelte 5.
+
+## 1. Start with your React viewer
+
+Here is a small React component that renders an object with the dark theme and keeps nested collections collapsed initially:
+
+```tsx
+import { JsonView, darkStyles, collapseAllNested } from 'react-json-view-lite'
+import 'react-json-view-lite/dist/index.css'
+
+const data = { user: 'Ada', roles: ['admin', 'editor'] }
+
+export default function App() {
+    return (
+        <JsonView
+            data={data}
+            style={darkStyles}
+            shouldExpandNode={collapseAllNested}
+        />
+    )
+}
+```
+
+The parts to carry over are `data`, `style`, and `shouldExpandNode`. The React component function and JSX become a Svelte component.
+
+## 2. Install the Svelte port
+
+In your Svelte 5 project:
+
+```bash
+npm install @humanspeak/svelte-json-view-lite
+```
+
+Use this package in your Svelte component instead of importing the React viewer. The Svelte package includes its styles; you do not need the React package's `dist/index.css` import.
+
+## 3. Render the same data in Svelte
+
+Create a component such as `JsonPreview.svelte`:
+
+```svelte
+<script lang="ts">
+    import { JsonView, darkStyles, collapseAllNested } from '@humanspeak/svelte-json-view-lite'
+
+    const data = { user: 'Ada', roles: ['admin', 'editor'] }
+</script>
+
+<JsonView {data} style={darkStyles} shouldExpandNode={collapseAllNested} />
+```
+
+`{data}` is Svelte's shorthand for `data={data}`. The theme and expansion helper retain their names, so the configuration looks familiar. Use `defaultStyles` instead of `darkStyles` for the built-in light theme.
+
+Other familiar props carry over too:
+
+| React prop | Svelte prop | Purpose |
+| --- | --- | --- |
+| `data` | `data` | The value to display |
+| `style` | `style` | Theme and rendering options |
+| `shouldExpandNode` | `shouldExpandNode` | Expansion policy |
+| `clickToExpandNode` | `clickToExpandNode` | Toggle expansion by clicking a field label |
+| `compactTopLevel` | `compactTopLevel` | Omit the root container row |
+| `beforeExpandChange` | `beforeExpandChange` | Inspect or veto an expansion change |
+
+For custom accessibility labels, prefer `style.ariaLabels`. The React library's typoed `ariaLables` key is still honored for compatibility, with a warning.
+
+## 4. Use Svelte state when the payload changes
+
+For a static example, `const data` is enough. If your component changes the payload, use Svelte 5's `$state`:
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+
+    let data = $state({ status: 'pending', count: 0 })
+</script>
+
+<button onclick={() => { data = { status: 'ready', count: 3 } }}>
+    Load sample response
+</button>
+
+<JsonView {data} />
+```
+
+This replaces the React state setter with a Svelte assignment. If the payload already comes from your parent component or SvelteKit page data, pass that value through rather than creating another copy of it.
+
+## 5. Add a typed snippet when you need custom rendering
+
+The Svelte port adds snippets for values and labels. For example, turn HTTPS strings into links while keeping ordinary strings readable:
+
+```svelte
+<script lang="ts">
+    import { JsonView } from '@humanspeak/svelte-json-view-lite'
+
+    const data = {
+        name: 'Ada',
+        docs: 'https://jsonview.svelte.page/docs/getting-started'
+    }
+</script>
+
+<JsonView {data}>
+    {#snippet string({ value })}
+        {#if value.startsWith('https://')}
+            <a href={value}>{value}</a>
+        {:else}
+            "{value}"
+        {/if}
+    {/snippet}
+</JsonView>
+```
+
+The snippet receives the string value, and you control its markup. You can also customize numbers, dates, booleans, labels, and other supported types. See the [snippet reference](/docs/snippet-overrides) for the available contracts.
+
+## Check the migrated viewer
+
+Before replacing your existing screen, try a representative payload. Check the initial expansion depth, switch between your light and dark styles, and tab into the tree to try its arrow-key navigation. If you use an expansion callback, verify its behavior with the same interactions your users rely on.
+
+For the full prop surface, use the [API reference](/docs/api/json-view). The [migration reference](/docs/migration) covers the port's additions, and the [upstream comparison](/compare/vs-react-json-view-lite) explains what stays familiar and what changes.
+
+</BlogPostV2>
