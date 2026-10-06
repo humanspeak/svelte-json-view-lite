@@ -332,7 +332,7 @@ const comparisonRecords: ComparisonEntry[] = [
         ],
         verdict:
             'Choose vanilla-jsoneditor for framework-agnostic editing tools. Choose @humanspeak/svelte-json-view-lite for Svelte-native read-only rendering.',
-        keywords: ['vanilla-jsoneditor', 'json editor', 'svelte json tree']
+        keywords: ['vanilla-jsoneditor', 'json editor']
     },
     {
         slug: 'vs-react-json-view',

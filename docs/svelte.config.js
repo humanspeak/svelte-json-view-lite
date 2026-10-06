@@ -6,7 +6,7 @@ import { createHighlighter } from 'shiki'
 
 const highlighter = await createHighlighter({
     themes: ['github-light', 'one-dark-pro'],
-    langs: ['javascript', 'typescript', 'html', 'css', 'json', 'bash', 'shell', 'svelte']
+    langs: ['javascript', 'typescript', 'tsx', 'html', 'css', 'json', 'bash', 'shell', 'svelte']
 })
 
 /** @type {import('@sveltejs/kit').Config} */

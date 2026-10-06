@@ -71,6 +71,12 @@ export default defineConfig({
                     ogTagline:
                         'How to inspect structured data with tree semantics, typed snippets, and Svelte 5 runes.',
                     ogFeatures: ['ARIA Treeview', 'Svelte 5', 'Snippet Overrides', 'Zero Deps']
+                },
+                {
+                    ogSlug: 'blog-react-json-view-lite-to-svelte',
+                    ogTitle: 'Coming to Svelte from React?',
+                    ogTagline: 'Move react-json-view-lite to Svelte 5, step by step.',
+                    ogFeatures: ['React Migration', 'API Parity', 'Typed Snippets', 'Svelte 5']
                 }
             ]
         }),

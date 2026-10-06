@@ -20,9 +20,9 @@
 
     const seo = getSeoContext()
     if (seo) {
-        seo.title = 'Svelte JSON Viewer for Svelte 5 | Zero Dependencies'
+        seo.title = 'Svelte JSON Viewer & Tree View | Svelte 5'
         seo.description =
-            'Read-only Svelte JSON viewer for Svelte 5 with zero runtime dependencies, typed snippets, accessible tree navigation, CSS-variable themes, and SSR-safe IDs.'
+            'Display JSON in Svelte 5 with a lightweight, accessible tree viewer. Customize values with typed snippets, light/dark themes, and zero runtime dependencies.'
     }
 
     const PKG_NAME = $derived(packageStats.name)
@@ -251,11 +251,17 @@
                     >
                 </h1>
                 <p class="sub">
-                    A <b>fast, tiny</b> JSON tree viewer for Svelte 5 — built for API explorers,
-                    dashboards, logs, docs, and generated JSON artifacts.
+                    A <b>fast, tiny</b> Svelte JSON tree viewer for Svelte 5 — built for API
+                    explorers, dashboards, logs, docs, and generated JSON artifacts.
                     <a href="/compare/vs-react-json-view-lite">react-json-view-lite API parity</a>,
                     typed snippets, SSR-safe ARIA tree semantics, CSS-variable theming, and zero
                     runtime dependencies.
+                </p>
+                <p class="sub">
+                    <a href="/blog/react-json-view-lite-to-svelte">
+                        Using react-json-view-lite in Svelte?
+                    </a>
+                    Keep familiar props and themes with our Svelte 5 port.
                 </p>
                 <div class="cta-row">
                     <a class="pri" href="/docs/getting-started">get started ↗</a>

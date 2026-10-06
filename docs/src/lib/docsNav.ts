@@ -29,7 +29,8 @@ const itemBreadcrumbOverrides: Record<string, string> = {
 }
 
 const blogPostTitles: Record<string, string> = {
-    'accessible-json-treeviews': 'Accessible JSON Treeviews'
+    'accessible-json-treeviews': 'Accessible JSON Treeviews',
+    'react-json-view-lite-to-svelte': 'React to Svelte'
 }
 
 export function buildBreadcrumbs(pathname: string): Breadcrumb[] {
