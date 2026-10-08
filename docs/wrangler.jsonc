@@ -29,6 +29,6 @@
         "NODE_ENV": "production",
         // checkov:skip=CKV_SECRET_6: PostHog project tokens are public client-side SDK identifiers.
         "PUBLIC_POSTHOG_PROJECT_TOKEN": "phc_ucGDJdYW5q2aXEfnzTuSCX4BnHkgwtqUV8RgEt4nb5Qq",
-        "PUBLIC_POSTHOG_HOST": "https://t.svelte.page"
+        "PUBLIC_POSTHOG_HOST": "https://j.svelte.page"
     }
 }
