@@ -3,6 +3,7 @@ packages:
     - docs
 allowBuilds:
     '@humanspeak/docs-kit@git+https://github.com/humanspeak/docs-kit.git': true
+    core-js: false
     esbuild: true
     sharp: true
     workerd: true

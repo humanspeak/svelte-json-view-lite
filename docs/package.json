@@ -22,10 +22,11 @@
         "@humanspeak/docs-kit": "github:humanspeak/docs-kit#2026.9.10",
         "@humanspeak/svelte-json-view-lite": "workspace:*",
         "@humanspeak/svelte-markdown": "^1.8.7",
+        "posthog-js": "^1.438.1",
         "runed": "^0.37.1"
     },
     "devDependencies": {
-        "@cloudflare/workers-types": "^5.20260821.1",
+        "@cloudflare/workers-types": "^5.20261006.1",
         "@humanspeak/svelte-motion": "^0.9.3",
         "@icons-pack/svelte-simple-icons": "^7.2.0",
         "@lucide/svelte": "^1.33.0",
@@ -45,7 +46,7 @@
         "tsx": "^4.23.12",
         "typescript": "^6.0.3",
         "vite": "^8.2.2",
-        "wrangler": "^4.125.0"
+        "wrangler": "^4.148.0"
     },
     "volta": {
         "node": "24.15.0"
