@@ -13,7 +13,7 @@ readingTime: 5
 
 <script lang="ts">
     import { BlogPostV2, type BlogPostMeta } from '@humanspeak/docs-kit/blog'
-    import { docsConfig } from '$lib/docs-config'
+    import { docsConfig } from '#lib/docs-config.js'
 
     const post: BlogPostMeta = {
         slug: 'react-json-view-lite-to-svelte',

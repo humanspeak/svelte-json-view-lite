@@ -1,9 +1,9 @@
 <script lang="ts">
     import { ExampleLayoutV2, PagerV2, enhanceCodeBlocks } from '@humanspeak/docs-kit'
-    import { examples } from '$lib/examplesIndex'
-    import { docsConfig } from '$lib/docs-config'
-    import favicon from '$lib/assets/logo.svg'
-    import { buildBreadcrumbs, headerNav } from '$lib/docsNav'
+    import { examples } from '#lib/examplesIndex.js'
+    import { docsConfig } from '#lib/docs-config.js'
+    import favicon from '#lib/assets/logo.svg'
+    import { buildBreadcrumbs, headerNav } from '#lib/docsNav.js'
     import rootPkg from '../../../../package.json'
     import '@fontsource-variable/inter/index.css'
     import '@fontsource-variable/jetbrains-mono/index.css'

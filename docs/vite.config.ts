@@ -1,3 +1,4 @@
+import { rehypeKeepCase } from '@humanspeak/docs-kit/mdsvex'
 import {
     demoManifestPlugin,
     docMirrorsPlugin,
@@ -8,8 +9,12 @@ import {
     sitemapManifestPlugin,
     socialCardsPlugin
 } from '@humanspeak/docs-kit/vite'
+import adapter from '@sveltejs/adapter-cloudflare'
 import { sveltekit } from '@sveltejs/kit/vite'
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 import tailwindcss from '@tailwindcss/vite'
+import { mdsvex } from 'mdsvex'
+import { createHighlighter } from 'shiki'
 import { defineConfig } from 'vite'
 
 import { comparisons, ours } from './src/lib/compare-data.js'
@@ -18,6 +23,11 @@ import { docsConfig } from './src/lib/docs-config.js'
 // IndexNow verification key. The matching `static/<key>.txt` file must be
 // deployed and publicly reachable at `${siteUrl}/<key>.txt`.
 const indexNowKey = 'b655e901-d19a-4812-88a3-49781404940d'
+
+const highlighter = await createHighlighter({
+    themes: ['github-light', 'one-dark-pro'],
+    langs: ['javascript', 'typescript', 'tsx', 'html', 'css', 'json', 'bash', 'shell', 'svelte']
+})
 
 export default defineConfig({
     plugins: [
@@ -88,7 +98,62 @@ export default defineConfig({
             productionMode: 'indexnow'
         }),
         tailwindcss(),
-        sveltekit()
+        sveltekit({
+            preprocess: [
+                vitePreprocess(),
+                mdsvex({
+                    rehypePlugins: [rehypeKeepCase],
+                    extensions: ['.md', '.svx'],
+                    highlight: {
+                        highlighter: async (code, lang) => {
+                            lang ??= 'text'
+                            const lightHtml = highlighter.codeToHtml(code, {
+                                lang,
+                                theme: 'github-light'
+                            })
+                            const darkHtml = highlighter.codeToHtml(code, {
+                                lang,
+                                theme: 'one-dark-pro'
+                            })
+                            const encoded = Buffer.from(code).toString('base64')
+
+                            const combinedHtml = `
+                        <div class="shiki-container" data-code="${encoded}" data-lang="${lang}">
+                            <div class="shiki-light">${lightHtml}</div>
+                            <div class="shiki-dark">${darkHtml}</div>
+                        </div>
+                    `
+
+                            return `{@html ${JSON.stringify(combinedHtml)}}`
+                        }
+                    }
+                })
+            ],
+            extensions: ['.svelte', '.svx'],
+            adapter: adapter(),
+            csp: {
+                mode: 'hash',
+                directives: {
+                    'default-src': ['self'],
+                    'script-src': [
+                        'self',
+                        'https://*.ahrefs.com',
+                        'https://j.svelte.page',
+                        'unsafe-inline',
+                        'wasm-unsafe-eval'
+                    ],
+                    'style-src': ['self', 'unsafe-inline'],
+                    'img-src': ['self', 'data:', 'https:'],
+                    'font-src': ['self', 'data:'],
+                    'worker-src': ['self', 'blob:'],
+                    'connect-src': ['self', 'https:'],
+                    'frame-ancestors': ['none'],
+                    'form-action': ['self'],
+                    'base-uri': ['self'],
+                    'upgrade-insecure-requests': true
+                }
+            }
+        })
     ],
     server: {
         port: 8234,
@@ -106,20 +171,5 @@ export default defineConfig({
             'satori',
             'satori-html'
         ]
-    },
-    build: {
-        rollupOptions: {
-            output: {
-                manualChunks(id) {
-                    // Heavy deps isolated so they only load on pages that need them.
-                    if (id.includes('node_modules/shiki')) {
-                        return 'shiki'
-                    }
-                    if (id.includes('node_modules/@humanspeak/svelte-motion')) {
-                        return 'svelte-motion'
-                    }
-                }
-            }
-        }
     }
 })

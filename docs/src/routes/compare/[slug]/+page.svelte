@@ -1,6 +1,6 @@
 <script lang="ts">
     import { ComparisonPageV2, type CompareSlugLoadData } from '@humanspeak/docs-kit'
-    import { comparisons, getCompetitor, ours } from '$lib/compare-data'
+    import { comparisons, getCompetitor, ours } from '#lib/compare-data.js'
 
     const { data }: { data: CompareSlugLoadData } = $props()
     const evidence = $derived(getCompetitor(data.competitor.slug))
