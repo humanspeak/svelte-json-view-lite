@@ -1,6 +1,6 @@
 <script lang="ts">
     import { JsonView, allExpanded } from '@humanspeak/svelte-json-view-lite'
-    import { docsDarkJsonViewStyles, docsDefaultJsonViewStyles } from '$lib/json-view-docs-style'
+    import { docsDarkJsonViewStyles, docsDefaultJsonViewStyles } from '#lib/json-view-docs-style.js'
     import { mode } from 'mode-watcher'
 
     const payload = {

@@ -6,8 +6,8 @@
         getSeoContext,
         type ExampleSection
     } from '@humanspeak/docs-kit'
-    import { demoCodeSample } from '$lib/demo-loaders'
-    import JsonPlayground from '$lib/examples/playground/demos/JsonPlayground.svelte'
+    import { demoCodeSample } from '#lib/demo-loaders.js'
+    import JsonPlayground from '#lib/examples/playground/demos/JsonPlayground.svelte'
     import { Eye, Pencil, SlidersHorizontal } from '@lucide/svelte'
 
     const seo = getSeoContext()

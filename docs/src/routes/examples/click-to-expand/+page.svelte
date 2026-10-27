@@ -6,8 +6,8 @@
         getSeoContext,
         type ExampleSection
     } from '@humanspeak/docs-kit'
-    import { demoCodeSample } from '$lib/demo-loaders'
-    import ClickToExpand from '$lib/examples/click-to-expand/demos/ClickToExpand.svelte'
+    import { demoCodeSample } from '#lib/demo-loaders.js'
+    import ClickToExpand from '#lib/examples/click-to-expand/demos/ClickToExpand.svelte'
     import { Ban, MousePointerClick, ScrollText } from '@lucide/svelte'
 
     const seo = getSeoContext()

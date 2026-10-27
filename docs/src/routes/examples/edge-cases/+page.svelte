@@ -6,8 +6,8 @@
         getSeoContext,
         type ExampleSection
     } from '@humanspeak/docs-kit'
-    import { demoCodeSample } from '$lib/demo-loaders'
-    import EdgeCases from '$lib/examples/edge-cases/demos/EdgeCases.svelte'
+    import { demoCodeSample } from '#lib/demo-loaders.js'
+    import EdgeCases from '#lib/examples/edge-cases/demos/EdgeCases.svelte'
     import { Binary, Boxes, Braces } from '@lucide/svelte'
 
     const seo = getSeoContext()

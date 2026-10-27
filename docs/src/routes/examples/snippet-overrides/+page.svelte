@@ -6,8 +6,8 @@
         getSeoContext,
         type ExampleSection
     } from '@humanspeak/docs-kit'
-    import { demoCodeSample } from '$lib/demo-loaders'
-    import SnippetOverrides from '$lib/examples/snippet-overrides/demos/SnippetOverrides.svelte'
+    import { demoCodeSample } from '#lib/demo-loaders.js'
+    import SnippetOverrides from '#lib/examples/snippet-overrides/demos/SnippetOverrides.svelte'
     import { Braces, Calendar, Link } from '@lucide/svelte'
 
     const seo = getSeoContext()

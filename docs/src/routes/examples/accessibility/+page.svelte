@@ -6,8 +6,8 @@
         getSeoContext,
         type ExampleSection
     } from '@humanspeak/docs-kit'
-    import { demoCodeSample } from '$lib/demo-loaders'
-    import AccessibilityTree from '$lib/examples/accessibility/demos/AccessibilityTree.svelte'
+    import { demoCodeSample } from '#lib/demo-loaders.js'
+    import AccessibilityTree from '#lib/examples/accessibility/demos/AccessibilityTree.svelte'
     import { Accessibility, Keyboard, ListTree } from '@lucide/svelte'
 
     const seo = getSeoContext()

@@ -4,7 +4,7 @@
         allExpanded,
         type NodeExpandingEvent
     } from '@humanspeak/svelte-json-view-lite'
-    import { docsDarkJsonViewStyles, docsDefaultJsonViewStyles } from '$lib/json-view-docs-style'
+    import { docsDarkJsonViewStyles, docsDefaultJsonViewStyles } from '#lib/json-view-docs-style.js'
     import { mode } from 'mode-watcher'
 
     type VetoMode = 'none' | 'keep-root' | 'shallow-only' | 'confirm'

@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { examples } from '$lib/examplesIndex'
+    import { examples } from '#lib/examplesIndex.js'
     import { BrutIndexV2 } from '@humanspeak/docs-kit'
-    import { getBreadcrumbContext } from '$lib/components/contexts/Breadcrumb/Breadcrumb.context'
-    import { getSeoContext } from '$lib/components/contexts/Seo/Seo.context'
+    import { getBreadcrumbContext } from '#lib/components/contexts/Breadcrumb/Breadcrumb.context.js'
+    import { getSeoContext } from '#lib/components/contexts/Seo/Seo.context.js'
     import rootPkg from '../../../../package.json'
 
     const PKG_NAME = rootPkg.name

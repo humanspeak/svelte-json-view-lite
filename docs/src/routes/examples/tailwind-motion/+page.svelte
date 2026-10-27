@@ -6,8 +6,8 @@
         getSeoContext,
         type ExampleSection
     } from '@humanspeak/docs-kit'
-    import { demoCodeSample } from '$lib/demo-loaders'
-    import TailwindMotionTree from '$lib/examples/tailwind-motion/demos/TailwindMotionTree.svelte'
+    import { demoCodeSample } from '#lib/demo-loaders.js'
+    import TailwindMotionTree from '#lib/examples/tailwind-motion/demos/TailwindMotionTree.svelte'
 
     const seo = getSeoContext()
     if (seo) {

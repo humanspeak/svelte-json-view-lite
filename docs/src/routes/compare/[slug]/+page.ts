@@ -1,4 +1,4 @@
-import { comparisons } from '$lib/compare-data'
+import { comparisons } from '#lib/compare-data.js'
 import { createCompareSlugLoad } from '@humanspeak/docs-kit'
 
 export const prerender = true
